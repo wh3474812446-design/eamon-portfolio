@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-palette="onyx" data-typeface="serif">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eamon · AI Portfolio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ScrollFloat.css">
+<link rel="preload" href="assets/intro.mp4" as="video" type="video/mp4" fetchpriority="high">
+
+<style>
+/* ===== Eamon Portfolio — Tokens & Base ===== */
+:root {
+  /* Warm paper system — bg #faf8f5, near-black ink, indigo accent */
+  --bg: #faf8f5;
+  --bg-elev: #ffffff;
+  --bg-card: rgba(10, 10, 10, 0.025);
+  --border: rgba(10, 10, 10, 0.09);
+  --border-strong: rgba(10, 10, 10, 0.22);
+  --fg: #0a0a0a;
+  --fg-dim: #3d3a35;
+  --fg-mute: #8b857c;
+  --fg-faint: #c8c3ba;
+  --accent: #2c4a8c;
+  --accent-soft: rgba(44, 74, 140, 0.10);
+  --accent-glow: rgba(44, 74, 140, 0.28);
+  --font-display: 'Noto Serif SC', 'Songti SC', 'STSong', 'Source Han Serif SC', serif;
+  --font-sans: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+[data-palette="ember"] {
+  --bg: #050505; --bg-elev: #0d0d0d; --bg-card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.10); --border-strong: rgba(255,255,255,0.20);
+  --fg: oklch(0.96 0 0); --fg-dim: oklch(0.72 0 0); --fg-mute: oklch(0.5 0 0); --fg-faint: oklch(0.32 0 0);
+  --accent: oklch(0.96 0 0); --accent-soft: oklch(0.96 0 0 / 0.10); --accent-glow: oklch(0.96 0 0 / 0.30);
+}
+[data-palette="cobalt"] {
+  --bg: #0c0c0c; --bg-elev: #161616; --bg-card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.12); --border-strong: rgba(255,255,255,0.22);
+  --fg: oklch(0.96 0 0); --fg-dim: oklch(0.78 0 0); --fg-mute: oklch(0.55 0 0); --fg-faint: oklch(0.36 0 0);
+  --accent: oklch(0.88 0 0); --accent-soft: oklch(0.88 0 0 / 0.10); --accent-glow: oklch(0.88 0 0 / 0.30);
+}
+[data-palette="terminal"] {
+  --bg: #f4f4f4; --bg-elev: #ececec; --bg-card: rgba(0,0,0,0.025);
+  --border: rgba(0,0,0,0.10); --border-strong: rgba(0,0,0,0.22);
+  --fg: oklch(0.18 0 0); --fg-dim: oklch(0.36 0 0); --fg-mute: oklch(0.55 0 0); --fg-faint: oklch(0.72 0 0);
+  --accent: oklch(0.18 0 0); --accent-soft: oklch(0.18 0 0 / 0.08); --accent-glow: oklch(0.18 0 0 / 0.20);
+}
+
+[data-typeface="serif"]  { --font-display: 'Noto Serif SC', 'Songti SC', serif; }
+[data-typeface="sans"]   { --font-display: 'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif; }
+[data-typeface="mono"]   { --font-display: 'JetBrains Mono', 'SF Mono', Menlo, monospace; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-display); font-size: 15px; line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input, textarea { font: inherit; color: inherit; background: none; border: none; outline: none; }
+a { color: inherit; text-decoration: none; }
+
+#root { min-height: 100vh; position: relative; z-index: 3; }
+
+/* Looped background video (no audio) */
+.bg-video {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  filter: saturate(0.85) contrast(0.95);
+}
+/* Cream tint over the video so content stays legible on warm-paper palette */
+.bg-tint {
+  position: fixed; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(250, 248, 245, 0.55);
+}
+
+/* Antigravity canvas — sits above video + tint */
+.antigravity-stage {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 2; pointer-events: none;
+}
+.antigravity-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+
+/* Nav */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 40px;
+  background: linear-gradient(to bottom, var(--bg) 30%, transparent);
+  pointer-events: none;
+}
+.nav > * { pointer-events: auto; }
+.nav-brand {
+  font-family: var(--font-display); font-size: 20px; font-weight: 600;
+  letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 4px;
+}
+.nav-brand .copy { font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); margin-left: 2px; }
+.nav-links { display: flex; gap: 8px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.nav-link {
+  padding: 9px 18px; border: 1px solid var(--border); border-radius: 999px;
+  color: var(--fg-dim); transition: all 0.2s var(--ease);
+}
+.nav-link:hover { color: var(--fg); border-color: var(--border-strong); background: var(--bg-card); }
+.nav-link.primary { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+.nav-link.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+/* Hero — Fig Mint inspired two-column layout */
+.hero {
+  min-height: 100vh; padding: 120px 60px 80px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 60px; align-items: center; position: relative;
+}
+.hero-content { display: flex; flex-direction: column; gap: 28px; max-width: 600px; }
+.hero-visual { position: relative; width: 100%; height: clamp(420px, 70vh, 720px); }
+
+.hero-eyebrow {
+  font-family: 'Noto Serif SC', serif; font-size: 13px; color: var(--fg-mute);
+  letter-spacing: 0.08em; display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.hero-title {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+  font-weight: 900; font-style: italic;
+  line-height: 0.88; letter-spacing: -0.015em; color: var(--fg);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.hero-title .title-line-1 { font-size: clamp(56px, 7vw, 104px); align-self: flex-start; }
+.hero-title .title-line-2 { font-size: clamp(76px, 10vw, 156px); margin-left: clamp(20px, 3vw, 56px); }
+.hero-title .stop { color: var(--fg); font-style: italic; }
+
+.hero-sub {
+  max-width: 460px; font-size: 16px; line-height: 1.85; color: var(--fg-dim);
+  font-family: 'Noto Serif SC', serif;
+}
+.hero-sub b { color: var(--fg); font-weight: 600; }
+
+.hero-cta { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+.btn-primary {
+  padding: 18px 32px; background: var(--fg); color: var(--bg);
+  border-radius: 4px; font-family: 'Noto Serif SC', serif;
+  font-size: 16px; font-weight: 500; letter-spacing: 0.04em;
+  transition: opacity 0.2s var(--ease);
+}
+.btn-primary:hover { opacity: 0.85; }
+.hero-price {
+  font-family: 'Noto Serif SC', serif; font-size: 17px;
+  color: var(--fg); letter-spacing: 0.02em;
+}
+.hero-price .currency { color: var(--fg-mute); margin-left: 8px; font-size: 14px; }
+
+.hero-specs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 28px 80px;
+  margin-top: 12px; max-width: 480px;
+}
+.hero-spec-label {
+  font-family: 'Noto Serif SC', serif; font-size: 14px; font-weight: 700;
+  color: var(--fg); margin-bottom: 6px; letter-spacing: 0.02em;
+}
+.hero-spec-value {
+  font-family: 'Noto Serif SC', serif; font-size: 14px;
+  color: var(--fg-dim); letter-spacing: 0.02em;
+}
+
+/* Legacy ghost button (kept for the resume secondary CTA elsewhere if needed) */
+.btn-ghost {
+  padding: 12px 22px; border: 1px solid var(--border-strong); border-radius: 999px;
+  font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 0.04em;
+  color: var(--fg); display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s var(--ease);
+}
+.btn-ghost:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.btn-ghost .arrow {
+  width: 22px; height: 22px; border-radius: 50%; border: 1px solid currentColor;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 10px;
+}
+
+/* Modules */
+.modules { padding: 0 80px 140px; position: relative; max-width: 1280px; margin: 0 auto; }
+.modules-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-bottom: 28px; border-bottom: 1px solid var(--border); margin-bottom: 56px;
+}
+.modules-header h2 { font-family: var(--font-display); font-size: 36px; font-weight: 600; letter-spacing: -0.01em; }
+.modules-header h2 .num { font-family: var(--font-mono); font-size: 12px; color: var(--fg-mute); margin-right: 12px; vertical-align: top; letter-spacing: 0; }
+.modules-header .meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); text-transform: uppercase; letter-spacing: 0.1em; text-align: right; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; position: relative; }
+.grid.bento { grid-template-columns: 1.4fr 1fr; grid-template-rows: 1fr 1fr; }
+
+/* Scroll-revealed module sections — left visual, right copy */
+.module-list { display: flex; flex-direction: column; gap: 32px; }
+.module-section {
+  display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+  gap: 100px; align-items: center;
+  padding: 120px 0; border-top: 1px solid var(--border);
+  opacity: 0; transform: translateY(48px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.module-section:first-child { border-top: none; padding-top: 64px; }
+.module-section.is-visible { opacity: 1; transform: translateY(0); }
+
+.module-visual { width: 100%; max-width: 560px; justify-self: start; }
+.module-visual .card { min-height: 420px; height: 100%; }
+
+.module-copy {
+  display: flex; flex-direction: column; gap: 22px;
+  padding-left: 16px; max-width: 480px;
+}
+.module-copy .module-num {
+  font-family: 'Noto Serif SC', serif; font-size: 13px;
+  color: var(--fg-mute); letter-spacing: 0.12em;
+}
+.module-copy .module-title {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+  font-weight: 900; font-style: italic;
+  font-size: clamp(44px, 5.2vw, 84px);
+  line-height: 0.95; letter-spacing: -0.015em;
+  color: var(--fg);
+}
+.module-copy .module-title .stop { color: var(--fg); font-style: italic; }
+.module-copy .module-desc {
+  font-family: 'Noto Serif SC', serif; font-size: 16px;
+  line-height: 1.9; color: var(--fg-dim); max-width: 460px;
+}
+.module-copy .module-desc b { color: var(--fg); font-weight: 600; }
+.module-copy .module-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px 48px;
+  margin-top: 8px; max-width: 460px;
+}
+.module-copy .module-stat-label {
+  font-family: 'Noto Serif SC', serif; font-size: 13px; font-weight: 700;
+  color: var(--fg); margin-bottom: 4px;
+}
+.module-copy .module-stat-value {
+  font-family: 'Noto Serif SC', serif; font-size: 14px;
+  color: var(--fg-dim);
+}
+
+/* Card */
+.card {
+  background: var(--bg-elev); border: 1px solid var(--border); position: relative;
+  overflow: hidden; transition: border-color 0.3s var(--ease);
+  display: flex; flex-direction: column; min-height: 360px;
+}
+.card:hover { border-color: var(--border-strong); }
+.card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--fg-mute);
+}
+.card-head-left { display: flex; align-items: center; gap: 10px; }
+.card-head-right { display: flex; align-items: center; gap: 6px; }
+.card-led { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.card-led.idle { background: var(--fg-faint); box-shadow: none; }
+.card-num { color: var(--fg-faint); }
+.card-name { color: var(--fg-dim); }
+.card-body { flex: 1; position: relative; display: flex; flex-direction: column; }
+.card-foot {
+  padding: 12px 18px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* Video module */
+.video-stage {
+  flex: 1; background: #1a1611; position: relative; display: flex;
+  align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--border); overflow: hidden;
+}
+.video-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(239,230,211,0.10), transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(239,230,211,0.020) 3px, rgba(239,230,211,0.020) 4px);
+  position: relative;
+}
+.video-placeholder .frame-info { position: absolute; top: 12px; left: 12px; font-family: var(--font-mono); font-size: 9px; color: rgba(239,230,211,0.55); letter-spacing: 0.08em; }
+.video-placeholder .frame-info-r { position: absolute; top: 12px; right: 12px; font-family: var(--font-mono); font-size: 9px; color: rgba(239,230,211,0.55); letter-spacing: 0.08em; }
+.play-button {
+  width: 80px; height: 80px; border-radius: 50%; border: 1px solid rgba(239,230,211,0.85);
+  background: rgba(20,16,8,0.45); display: flex; align-items: center; justify-content: center;
+  color: #efe6d3; font-size: 22px; cursor: pointer; transition: all 0.3s var(--ease); z-index: 2;
+}
+.play-button:hover { background: #efe6d3; color: #1a1611; box-shadow: 0 0 40px rgba(239,230,211,0.4); transform: scale(1.05); }
+.play-button.playing { background: #efe6d3; color: #1a1611; }
+.video-title-overlay {
+  position: absolute; bottom: 16px; left: 16px; right: 16px;
+  display: flex; justify-content: space-between; align-items: flex-end; z-index: 2;
+}
+.video-title-overlay .t { font-family: var(--font-display); font-size: 18px; color: #efe6d3; font-weight: 600; }
+.video-title-overlay .meta { font-family: var(--font-mono); font-size: 9px; color: rgba(239,230,211,0.55); letter-spacing: 0.08em; text-align: right; }
+.video-controls { padding: 12px 18px 14px; }
+.video-progress { height: 2px; background: var(--border); position: relative; cursor: pointer; }
+.video-progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s linear; position: relative; }
+.video-progress-fill::after { content:''; position:absolute; right:-3px; top:-3px; width:8px; height:8px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent-glow); }
+.video-meta { display: flex; justify-content: space-between; margin-top: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); }
+.video-thumbs { display: flex; gap: 6px; margin-top: 12px; }
+.video-thumb {
+  flex: 1; height: 44px; border: 1px solid var(--border); font-family: var(--font-mono);
+  font-size: 9px; color: var(--fg-mute); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s var(--ease);
+  background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(20,16,8,0.04) 6px, rgba(20,16,8,0.04) 7px);
+}
+.video-thumb:hover { border-color: var(--border-strong); color: var(--fg-dim); }
+.video-thumb.active { border-color: var(--accent); color: var(--accent); }
+
+/* Terminal module */
+.term-body { flex: 1; font-family: var(--font-mono); font-size: 12px; padding: 16px 18px; display: flex; flex-direction: column; overflow: hidden; }
+.term-output { flex: 1; overflow-y: auto; margin-bottom: 8px; scroll-behavior: smooth; }
+.term-output::-webkit-scrollbar { width: 4px; }
+.term-output::-webkit-scrollbar-thumb { background: var(--border-strong); }
+.term-line { white-space: pre-wrap; word-break: break-all; margin-bottom: 2px; color: var(--fg-dim); }
+.term-line.cmd { color: var(--fg); }
+.term-line.cmd::before { content: '> '; color: var(--accent); }
+.term-line.ok { color: var(--accent); }
+.term-line.dim { color: var(--fg-mute); }
+.term-line.error { color: var(--fg); text-decoration: underline; }
+.term-line.title { color: var(--fg); border-left: 2px solid var(--accent); padding-left: 8px; margin-top: 6px; margin-bottom: 4px; }
+.term-prompt { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; }
+.term-prompt .caret { color: var(--accent); }
+.term-prompt input { flex: 1; font-family: var(--font-mono); font-size: 12px; color: var(--fg); caret-color: var(--accent); }
+.term-prompt .blink { width: 7px; height: 13px; background: var(--accent); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50%{opacity:0} }
+
+/* Business module */
+.biz-body { flex: 1; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+.biz-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+.biz-tab {
+  padding: 6px 12px; font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-mute);
+  border-bottom: 1px solid transparent; margin-bottom: -1px; cursor: pointer; transition: all 0.2s var(--ease);
+}
+.biz-tab:hover { color: var(--fg-dim); }
+.biz-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.biz-text { flex: 1; display: flex; flex-direction: column; gap: 14px; padding-top: 4px; }
+.biz-summary { font-size: 13px; line-height: 1.7; color: var(--fg-dim); border-left: 1px solid var(--border-strong); padding-left: 12px; }
+.biz-bullets { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.biz-bullets li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; align-items: baseline; font-family: var(--font-mono); font-size: 11px; color: var(--fg-dim); letter-spacing: 0.02em; line-height: 1.5; }
+.biz-bullets .bullet-dash { color: var(--fg-mute); }
+
+/* Music module */
+.music-body { flex: 1; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.music-now { border: 1px solid var(--border); padding: 12px 14px; display: flex; gap: 12px; align-items: center; }
+.music-cover {
+  width: 60px; height: 60px; flex-shrink: 0; border: 1px solid var(--border-strong);
+  background: repeating-linear-gradient(135deg, var(--accent-soft), var(--accent-soft) 4px, transparent 4px, transparent 8px), var(--bg);
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.music-cover .ring { width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 1px solid var(--accent); }
+.music-cover.spinning .ring { animation: spin 4s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.music-now-meta { flex: 1; min-width: 0; }
+.music-title { font-family: var(--font-display); font-size: 16px; color: var(--fg); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.music-tag { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 0.06em; margin-top: 2px; }
+.music-play-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; transition: all 0.2s var(--ease); }
+.music-play-btn:hover { background: var(--accent); color: var(--bg); }
+.music-wave { display: flex; align-items: flex-end; gap: 2px; height: 36px; padding: 0 2px; }
+.music-wave .bar { flex: 1; background: var(--accent); opacity: 0.4; transition: opacity 0.2s, transform 0.15s; transform-origin: bottom; }
+.music-wave .bar.played { opacity: 0.85; }
+.music-list { flex: 1; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; }
+.music-list::-webkit-scrollbar { width: 4px; }
+.music-list::-webkit-scrollbar-thumb { background: var(--border-strong); }
+.music-row { display: grid; grid-template-columns: 24px 1fr auto auto; gap: 12px; padding: 8px 4px; align-items: center; border-bottom: 1px solid var(--border); cursor: pointer; font-family: var(--font-mono); font-size: 11px; color: var(--fg-dim); transition: color 0.2s, background 0.2s; }
+.music-row:hover { color: var(--fg); background: var(--bg-card); }
+.music-row.active { color: var(--accent); }
+.music-row .idx { color: var(--fg-mute); font-size: 10px; }
+.music-row .name { color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.music-row .tag { color: var(--fg-mute); font-size: 9px; letter-spacing: 0.08em; }
+.music-row .dur { color: var(--fg-mute); font-size: 10px; }
+
+/* Bottom strip */
+.bottom-strip { padding: 60px 40px 80px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 60px; }
+.bottom-block .label { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+.bottom-block h3 { font-family: var(--font-display); font-size: 32px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 16px; line-height: 1.1; }
+.bottom-block p { color: var(--fg-dim); font-size: 14px; line-height: 1.7; }
+.skill-list { display: flex; flex-direction: column; gap: 10px; }
+.skill-row { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.skill-row .n { font-family: var(--font-display); font-size: 16px; color: var(--fg); }
+.skill-row .y { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 0.08em; }
+.contact-list { display: flex; flex-direction: column; gap: 14px; }
+.contact-row { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 12px; }
+.contact-row .k { color: var(--fg-mute); letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+.contact-row .v { color: var(--fg); }
+.contact-row .v:hover { color: var(--accent); }
+
+/* Footer */
+.foot { padding: 24px 40px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Tweaks panel */
+.twk-panel {
+  position: fixed; right: 16px; bottom: 16px; z-index: 9999; width: 280px;
+  max-height: calc(100vh - 32px); display: flex; flex-direction: column;
+  background: rgba(250,249,247,.78); color: #29261b;
+  -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  border: .5px solid rgba(255,255,255,.6); border-radius: 14px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 12px 40px rgba(0,0,0,.18);
+  font: 11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif; overflow: hidden;
+}
+.twk-hd { display: flex; align-items: center; justify-content: space-between; padding: 10px 8px 10px 14px; cursor: move; user-select: none; }
+.twk-hd b { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+.twk-x { appearance: none; border: 0; background: transparent; color: rgba(41,38,27,.55); width: 22px; height: 22px; border-radius: 6px; cursor: pointer; font-size: 13px; line-height: 1; }
+.twk-x:hover { background: rgba(0,0,0,.06); color: #29261b; }
+.twk-body { padding: 2px 14px 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
+.twk-row { display: flex; flex-direction: column; gap: 5px; }
+.twk-lbl { display: flex; justify-content: space-between; align-items: baseline; color: rgba(41,38,27,.72); }
+.twk-lbl > span:first-child { font-weight: 500; }
+.twk-sect { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: rgba(41,38,27,.45); padding: 10px 0 0; }
+.twk-sect:first-child { padding-top: 0; }
+.twk-field { appearance: none; width: 100%; height: 26px; padding: 0 8px; border: .5px solid rgba(0,0,0,.1); border-radius: 7px; background: rgba(255,255,255,.6); color: inherit; font: inherit; outline: none; }
+.twk-field:focus { border-color: rgba(0,0,0,.25); background: rgba(255,255,255,.85); }
+select.twk-field { padding-right: 22px; }
+.twk-slider { appearance: none; -webkit-appearance: none; width: 100%; height: 4px; margin: 6px 0; border-radius: 999px; background: rgba(0,0,0,.12); outline: none; }
+.twk-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: .5px solid rgba(0,0,0,.12); box-shadow: 0 1px 3px rgba(0,0,0,.2); cursor: pointer; }
+.twk-seg { position: relative; display: flex; padding: 2px; border-radius: 8px; background: rgba(0,0,0,.06); user-select: none; }
+.twk-seg button { appearance: none; position: relative; z-index: 1; flex: 1; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 500; min-height: 22px; border-radius: 6px; cursor: pointer; padding: 4px 6px; line-height: 1.2; }
+.twk-seg button.active { background: rgba(255,255,255,.9); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+/* Utilities */
+.mono { font-family: var(--font-mono); }
+.dim { color: var(--fg-mute); }
+.text-accent { color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .hero { grid-template-columns: 1fr; gap: 40px; padding: 110px 40px 60px; }
+  .hero-visual { height: clamp(360px, 60vw, 560px); order: -1; }
+  .hero-specs { grid-template-columns: 1fr 1fr; gap: 20px 60px; }
+  .module-section { grid-template-columns: 1fr; gap: 36px; padding: 80px 0; }
+  .module-copy { padding-left: 0; max-width: 100%; }
+  .module-visual { max-width: 100%; }
+  .module-visual .card { min-height: 380px; }
+  .bottom-strip { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 768px) {
+  .nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 20px 40px; gap: 32px; }
+  .hero-content { gap: 22px; }
+  .hero-title .title-line-2 { margin-left: 14px; }
+  .modules { padding: 0 24px 80px; }
+  .bottom-strip { padding: 40px 20px 60px; }
+  .foot { padding: 20px; flex-direction: column; gap: 8px; }
+}
+
+/* =====================================================================
+   INTRO LAYER (was index.html) — merged so ENTER does NOT navigate.
+   Everything is scoped under #intro-stack to avoid clashing with the
+   portfolio's existing classes. The two video gates sit on top.
+   ===================================================================== */
+
+/* Lock the page during intro; portfolio scroll is enabled after dismiss. */
+body.intro-active { overflow: hidden; height: 100vh; }
+body.intro-active #root { visibility: hidden; }
+
+/* Intro UI wrapper — single opacity transition fades everything out cleanly */
+#intro-stack {
+  position: fixed; inset: 0;
+  z-index: 50;
+  pointer-events: none; /* let children opt-in */
+  transition: opacity 0.9s cubic-bezier(.2,.7,.2,1), visibility 0.9s cubic-bezier(.2,.7,.2,1);
+}
+#intro-stack .topbar,
+#intro-stack .foot-hud,
+#intro-stack .stage,
+#intro-stack .enter,
+#intro-stack .enter-hint { position: fixed; }
+body.intro-done #intro-stack { opacity: 0; visibility: hidden; pointer-events: none; }
+
+#intro-stack .topbar {
+  top: 0; left: 0; right: 0;
+  padding: 22px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  pointer-events: none;
+  z-index: 20;
+}
+#intro-stack .brand {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 600; letter-spacing: -0.01em;
+  display: flex; align-items: baseline; gap: 4px;
+  color: var(--fg);
+}
+#intro-stack .brand .copy {
+  font-family: var(--font-mono);
+  font-size: 11px; color: var(--fg-mute); margin-left: 2px;
+}
+#intro-stack .hud {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.14em;
+  color: var(--fg-mute); text-transform: uppercase;
+}
+#intro-stack .hud .dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent-glow);
+  margin-right: 10px; vertical-align: 1px;
+  animation: intro-pulse 2.4s ease-in-out infinite;
+}
+@keyframes intro-pulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+#intro-stack .foot-hud {
+  bottom: 32px;
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.18em;
+  color: var(--fg-mute); text-transform: uppercase;
+  pointer-events: none; z-index: 5;
+}
+#intro-stack .foot-hud.left { left: 40px; }
+
+#intro-stack .stage {
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 32px;
+  pointer-events: none;
+  z-index: 3;
+}
+#intro-stack .ticket {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  width: min(1000px, 88vw);
+  aspect-ratio: 16 / 7;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  position: relative;
+  pointer-events: auto;
+  box-shadow: 0 30px 80px -36px rgba(20,16,8,.22), 0 8px 22px -12px rgba(20,16,8,.10);
+  opacity: 0; transform: translateY(60px) scale(0.96); visibility: hidden;
+}
+#intro-stack .ticket-art {
+  position: relative; background: #ffffff; overflow: hidden;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+#intro-stack .ticket-art .art-text {
+  position: relative; padding: 28px 28px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none;
+  font-family: var(--font-display); font-weight: 900; font-style: italic;
+  color: var(--fg); line-height: 1; z-index: 2;
+}
+#intro-stack .ticket-art .art-text .l1 { font-size: clamp(34px, 4.2vw, 56px); letter-spacing: -0.02em; }
+#intro-stack .ticket-art .art-text .l2 {
+  font-family: var(--font-mono); font-style: normal; font-weight: 500;
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--fg-dim); margin-top: 10px; opacity: .9;
+}
+#intro-stack .ticket-art .art-text .l3 {
+  font-family: var(--font-mono); font-style: normal; font-weight: 400;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--fg-mute); margin-top: 2px; opacity: .9;
+}
+#intro-stack .ticket-art .planet-stage { position: relative; flex: 1 1 auto; min-height: 0; }
+#intro-stack .ticket-art .planet-stage canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+}
+#intro-stack .ticket-info {
+  padding: 28px 34px 24px;
+  display: flex; flex-direction: column; gap: 18px;
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  min-width: 0; background: var(--bg);
+}
+#intro-stack .row {
+  display: grid; grid-template-columns: 78px 18px 1fr;
+  align-items: baseline;
+}
+#intro-stack .row .k { color: var(--fg-mute); font-weight: 500; }
+#intro-stack .row .s { color: var(--fg-faint); }
+#intro-stack .row .v { color: var(--fg); font-weight: 500; }
+#intro-stack .row .v .accent {
+  font-family: var(--font-display); font-weight: 700;
+  letter-spacing: 0.04em; text-transform: none;
+}
+#intro-stack .group { display: flex; flex-direction: column; gap: 6px; }
+#intro-stack .sep-l {
+  font-size: 11px; letter-spacing: 0.04em;
+  color: var(--fg-faint); overflow: hidden; white-space: nowrap; user-select: none;
+}
+#intro-stack .footer-row {
+  margin-top: auto;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  font-size: 10px; color: var(--fg-mute); gap: 16px; padding-top: 8px;
+}
+#intro-stack .footer-row .title-line {
+  color: var(--fg); font-weight: 500; letter-spacing: 0.12em; font-size: 11px;
+}
+#intro-stack .footer-row .id-line {
+  margin-top: 4px; color: var(--fg-mute); font-size: 10px; letter-spacing: 0.08em;
+}
+#intro-stack .footer-row .valid { align-self: flex-end; white-space: nowrap; }
+
+#intro-stack .enter {
+  bottom: 36px; right: 40px;
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 14px 24px;
+  border: 1px solid var(--fg); border-radius: 999px;
+  background: var(--fg); color: var(--bg);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1),
+              background .35s cubic-bezier(.2,.7,.2,1),
+              color .35s cubic-bezier(.2,.7,.2,1),
+              border-color .35s cubic-bezier(.2,.7,.2,1),
+              box-shadow .35s cubic-bezier(.2,.7,.2,1);
+  z-index: 30; pointer-events: auto;
+  animation: intro-fadeUp 1.3s .35s cubic-bezier(.2,.7,.2,1) both;
+  box-shadow: 0 14px 30px -16px rgba(20,16,8,.35);
+}
+@keyframes intro-fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+#intro-stack .enter:hover {
+  transform: translateY(-2px);
+  background: var(--accent); border-color: var(--accent);
+  box-shadow: 0 22px 38px -16px var(--accent-glow), 0 6px 14px -6px rgba(10,10,10,.25);
+}
+#intro-stack .enter .e-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--bg);
+  animation: intro-pulse 1.8s ease-in-out infinite;
+}
+#intro-stack .enter .zh {
+  font-family: var(--font-display); font-weight: 700;
+  letter-spacing: 0.16em; font-size: 12px; text-transform: none;
+}
+#intro-stack .enter .arr { display: inline-block; transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+#intro-stack .enter:hover .arr { transform: translate(4px, -4px); }
+
+#intro-stack .enter-hint {
+  bottom: 86px; right: 40px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 30; pointer-events: none;
+  animation: intro-fadeUp 1.3s .55s cubic-bezier(.2,.7,.2,1) both;
+}
+
+/* Intro video gates */
+.intro-gate {
+  position: fixed; inset: 0;
+  z-index: 9999; background: #000;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  transition: opacity 1.0s cubic-bezier(.2,.7,.2,1), visibility 1.0s cubic-bezier(.2,.7,.2,1);
+}
+.intro-gate.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.intro-gate video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.intro-skip {
+  position: absolute; bottom: 32px; right: 36px;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 999px; color: rgba(255,255,255,0.88);
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background .3s, color .3s, border-color .3s, transform .3s;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.intro-skip.is-play {
+  top: 42%; left: 50%; right: auto; bottom: auto;
+  padding: 22px 54px;
+  font-size: 18px;
+  background: rgba(5,5,5,0.9);
+  border-color: rgba(255,255,255,0.58);
+  color: rgba(255,255,255,0.96);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 22px 72px rgba(0,0,0,0.5);
+}
+.intro-skip:hover {
+  background: rgba(255,255,255,0.16); color: #fff;
+  border-color: rgba(255,255,255,0.55); transform: translateY(-1px);
+}
+.intro-skip.is-play:hover { transform: translate(-50%, -50%) scale(1.03); }
+.intro-skip .arr { display: inline-block; transition: transform .3s; }
+.intro-skip:hover .arr { transform: translate(3px, -3px); }
+
+.transition-gate {
+  position: fixed; inset: 0;
+  z-index: 9998; background: #000;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(.2,.7,.2,1), visibility 0.5s cubic-bezier(.2,.7,.2,1);
+}
+.transition-gate.active { opacity: 1; visibility: visible; pointer-events: auto; }
+.transition-gate video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-gate, .transition-gate { display: none; }
+  body.intro-active { overflow: auto; height: auto; }
+  body.intro-active #root { visibility: visible; }
+  #intro-stack { display: none; }
+}
+@media (max-width: 820px) {
+  #intro-stack .ticket { grid-template-columns: 1fr; aspect-ratio: auto; width: 92vw; }
+  #intro-stack .ticket-art { aspect-ratio: 16 / 9; border-right: 0; border-bottom: 1px solid var(--border); }
+  #intro-stack .ticket-info { padding: 22px 24px; gap: 14px; }
+  #intro-stack .row { grid-template-columns: 68px 16px 1fr; font-size: 11px; }
+  #intro-stack .topbar { padding: 16px 20px; }
+  #intro-stack .brand { font-size: 17px; }
+  #intro-stack .hud, #intro-stack .foot-hud { font-size: 9px; }
+  #intro-stack .foot-hud.left { left: 20px; bottom: 18px; }
+  #intro-stack .enter-hint { right: 24px; bottom: 70px; }
+  #intro-stack .enter { right: 24px; bottom: 20px; padding: 11px 18px; font-size: 11px; letter-spacing: 0.16em; }
+}
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js" crossorigin></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js" crossorigin></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js" crossorigin></script>
+<script src="assets/ScrollFloat.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+</head>
+<body class="intro-active">
+
+<!-- Intro gate — full-screen video that plays once before the entry ticket reveals.
+     Also acts as the initial page mask while React mounts in the background. -->
+<div class="intro-gate" id="intro-gate" aria-hidden="true">
+  <video id="intro-video" muted playsinline preload="auto">
+    <source src="assets/intro.mp4" type="video/mp4">
+  </video>
+  <audio id="intro-audio" preload="auto">
+    <source src="assets/transition.mp4" type="video/mp4">
+  </audio>
+  <button class="intro-skip is-play" id="intro-skip" type="button" aria-label="播放开场">
+    <span>ENTER</span><span class="arr">↗</span>
+  </button>
+</div>
+
+<!-- Transition gate — plays after the user hits ENTER, then the intro layer fades
+     out and the (already-mounted) portfolio underneath becomes visible. -->
+<div class="transition-gate" id="transition-gate" aria-hidden="true">
+  <video id="transition-video" playsinline preload="auto">
+    <source src="assets/transition.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- Looped background video (no audio) — sits behind everything -->
+<video class="bg-video" loop muted playsinline preload="metadata" aria-hidden="true">
+  <source src="assets/bg.mp4" type="video/mp4">
+</video>
+
+<!-- Intro UI stack — fades out as a single unit when ENTER + transition completes -->
+<div id="intro-stack">
+  <div class="topbar">
+    <div class="brand">Eamon<span class="copy">©</span></div>
+    <div class="hud"><span class="dot"></span>ENTRY · 2026 EDITION</div>
+  </div>
+
+  <div class="foot-hud left">SYS · STABLE · 99.8%</div>
+
+  <div class="stage">
+    <article class="ticket">
+      <div class="ticket-art">
+        <div class="art-text">
+          <div class="l1">入场。</div>
+          <div class="l2">MEMORY · BREAKING</div>
+          <div class="l3">VOL · DIGITAL</div>
+        </div>
+        <div class="planet-stage">
+          <canvas id="planet-canvas"></canvas>
+        </div>
+      </div>
+      <div class="ticket-info">
+        <div class="group">
+          <div class="row"><span class="k">TYPE</span><span class="s">&gt;</span><span class="v">GENERAL ADMISSION</span></div>
+          <div class="row"><span class="k">ACCESS</span><span class="s">&gt;</span><span class="v">ALL CHAPTERS</span></div>
+        </div>
+        <div class="group">
+          <div class="row"><span class="k">DATE</span><span class="s">&gt;</span><span class="v">05.14.2026</span></div>
+          <div class="row"><span class="k">VENUE</span><span class="s">&gt;</span><span class="v">EAMON / LAYER 01</span></div>
+          <div class="row"><span class="k">CITY</span><span class="s">&gt;</span><span class="v">DIGITAL</span></div>
+        </div>
+        <div class="sep-l">LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL</div>
+        <div class="group">
+          <div class="row"><span class="k">ACT 01</span><span class="s">&gt;</span><span class="v">VIDEO · AGENT · BIZ</span></div>
+          <div class="row"><span class="k">ACT 02</span><span class="s">&gt;</span><span class="v"><span class="accent">王涵</span> / EAMON</span></div>
+        </div>
+        <div class="footer-row">
+          <div>
+            <div class="title-line">FOLIO BREAKING · VOL. 04</div>
+            <div class="id-line">ID · 0029384-A</div>
+          </div>
+          <div class="valid">VALID ON ENTRY ONLY</div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="enter-hint">PRESS ENTER / 点击进入</div>
+  <button class="enter" id="enter-btn" type="button" aria-label="进入作品集">
+    <span class="e-dot"></span>
+    <span class="zh">进入</span>
+    <span>ENTER</span>
+    <span class="arr">↗</span>
+  </button>
+</div>
+
+<script>
+  (function setupPortfolioEntry() {
+    const body = document.body;
+    const gate = document.getElementById('intro-gate');
+    const video = document.getElementById('intro-video');
+    const introAudio = document.getElementById('intro-audio');
+    const skipBtn = document.getElementById('intro-skip');
+    const ticket = document.querySelector('#intro-stack .ticket');
+    const tGate = document.getElementById('transition-gate');
+    const tVid = document.getElementById('transition-video');
+    const enterBtn = document.getElementById('enter-btn');
+    const bgVideo = document.querySelector('.bg-video');
+    const shouldSkipIntro = new URLSearchParams(window.location.search).get('skipIntro') === '1';
+    let introNeedsGesture = false;
+
+    const setIntroButtonMode = (mode) => {
+      if (!skipBtn) return;
+      const label = skipBtn.querySelector('span:first-child');
+      const isPlay = mode === 'play';
+      if (label) label.textContent = isPlay ? 'ENTER' : 'SKIP';
+      skipBtn.classList.toggle('is-play', isPlay);
+      skipBtn.setAttribute('aria-label', isPlay ? '播放开场' : '跳过开场');
+    };
+
+    const playIntroWithSecondAudio = () => {
+      if (!video || gateDismissed) return;
+      introNeedsGesture = false;
+      setIntroButtonMode('skip');
+      try { video.muted = true; } catch (_) {}
+      if (introAudio) {
+        try { introAudio.muted = false; } catch (_) {}
+        try { introAudio.volume = 1; } catch (_) {}
+      }
+      if (video.ended || video.currentTime > 0.15) {
+        try { video.currentTime = 0; } catch (_) {}
+      }
+      if (introAudio && (introAudio.ended || introAudio.currentTime > 0.15)) {
+        try { introAudio.currentTime = 0; } catch (_) {}
+      }
+
+      const videoPromise = video.play();
+      const audioPromise = introAudio ? introAudio.play() : null;
+      if (videoPromise && typeof videoPromise.catch === 'function') {
+        videoPromise.catch(() => {
+          try { video.pause(); } catch (_) {}
+          try { video.currentTime = 0; } catch (_) {}
+          if (introAudio) {
+            try { introAudio.pause(); } catch (_) {}
+            try { introAudio.currentTime = 0; } catch (_) {}
+          }
+          introNeedsGesture = true;
+          setIntroButtonMode('play');
+        });
+      }
+      if (audioPromise && typeof audioPromise.catch === 'function') {
+        audioPromise.catch(() => {
+          try { video.pause(); } catch (_) {}
+          try { video.currentTime = 0; } catch (_) {}
+          if (introAudio) {
+            try { introAudio.pause(); } catch (_) {}
+            try { introAudio.currentTime = 0; } catch (_) {}
+          }
+          introNeedsGesture = true;
+          setIntroButtonMode('play');
+        });
+      }
+    };
+
+    if (bgVideo) {
+      try { bgVideo.pause(); } catch (_) {}
+    }
+
+    const startBackgroundVideo = (delay = 250) => {
+      if (!bgVideo) return;
+      setTimeout(() => {
+        if (document.hidden) return;
+        try {
+          const playPromise = bgVideo.play();
+          if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+        } catch (_) {}
+      }, delay);
+    };
+
+    const showTicket = () => {
+      if (!ticket) return;
+      if (typeof gsap !== 'undefined') {
+        gsap.to(ticket, {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          duration: 1.0,
+          ease: 'power3.out',
+          delay: 0.2
+        });
+      } else {
+        ticket.style.opacity = '1';
+        ticket.style.visibility = 'visible';
+        ticket.style.transform = 'none';
+      }
+    };
+
+    const revealPortfolio = () => {
+      body.classList.remove('intro-active');
+      body.classList.add('intro-done');
+      if (shouldSkipIntro) {
+        body.classList.add('fast-entry');
+      }
+      document.dispatchEvent(new Event('portfolio:intro-complete'));
+      if (window.ScrollTrigger) {
+        setTimeout(() => window.ScrollTrigger.refresh(), 250);
+      }
+      startBackgroundVideo(shouldSkipIntro ? 900 : 250);
+      if (gate && gate.parentNode) gate.remove();
+      if (tGate) {
+        tGate.classList.remove('active');
+        setTimeout(() => { if (tGate.parentNode) tGate.remove(); }, 700);
+      }
+      if (window.history && shouldSkipIntro) {
+        try { window.history.replaceState(null, '', 'portfolio.html'); } catch (_) {}
+      }
+    };
+
+    if (shouldSkipIntro) {
+      revealPortfolio();
+      return;
+    }
+
+    let gateDismissed = false;
+    let introSafetyTimer = null;
+    const armIntroSafetyTimer = () => {
+      if (introSafetyTimer) return;
+      introSafetyTimer = setTimeout(dismissGate, 45000);
+    };
+    const dismissGate = () => {
+      if (gateDismissed) return;
+      gateDismissed = true;
+      if (introAudio) {
+        try { introAudio.pause(); } catch (_) {}
+      }
+      if (gate) {
+        gate.classList.add('done');
+        setTimeout(() => { if (gate.parentNode) gate.remove(); }, 1100);
+      }
+      showTicket();
+    };
+
+    if (video) {
+      introNeedsGesture = true;
+      setIntroButtonMode('play');
+      video.addEventListener('ended', dismissGate, { once: true });
+      video.addEventListener('error', dismissGate, { once: true });
+      video.addEventListener('playing', armIntroSafetyTimer, { once: true });
+    } else {
+      dismissGate();
+    }
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        if (introNeedsGesture || (video && video.paused && !video.ended)) {
+          playIntroWithSecondAudio();
+          return;
+        }
+        dismissGate();
+      });
+    }
+
+    let transitioning = false;
+    const playTransitionAndReveal = () => {
+      if (transitioning) return;
+      transitioning = true;
+
+      if (!tGate || !tVid) {
+        revealPortfolio();
+        return;
+      }
+
+      let revealed = false;
+      const revealOnce = () => {
+        if (revealed) return;
+        revealed = true;
+        revealPortfolio();
+      };
+
+      tGate.classList.add('active');
+      try { tVid.muted = false; } catch (_) {}
+      try { tVid.volume = 1.0; } catch (_) {}
+      try { tVid.currentTime = 0; } catch (_) {}
+
+      const tryPlay = () => tVid.play();
+      const playPromise = tryPlay();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          try { tVid.muted = true; } catch (_) {}
+          const retry = tryPlay();
+          if (retry && typeof retry.catch === 'function') retry.catch(revealOnce);
+        });
+      }
+
+      tVid.addEventListener('ended', revealOnce, { once: true });
+      tVid.addEventListener('error', revealOnce, { once: true });
+      const onTimeupdate = () => {
+        if (!revealed && tVid.duration > 0 && (tVid.duration - tVid.currentTime) < 0.4) {
+          tVid.removeEventListener('timeupdate', onTimeupdate);
+          revealOnce();
+        }
+      };
+      tVid.addEventListener('timeupdate', onTimeupdate);
+      setTimeout(revealOnce, 15000);
+    };
+
+    if (enterBtn) enterBtn.addEventListener('click', playTransitionAndReveal);
+    document.addEventListener('keydown', (e) => {
+      if (transitioning) return;
+      const key = e.key;
+      if (!gateDismissed) {
+        if (key === 'Escape') {
+          e.preventDefault();
+          dismissGate();
+          return;
+        }
+        if (key === 'Enter' || key === ' ' || key === 'ArrowRight') {
+          e.preventDefault();
+          if (introNeedsGesture || (video && video.paused && !video.ended)) {
+            playIntroWithSecondAudio();
+          } else {
+            dismissGate();
+          }
+        }
+        return;
+      }
+      if (key === 'Enter' || key === ' ' || key === 'ArrowRight') {
+        e.preventDefault();
+        playTransitionAndReveal();
+      }
+    });
+  })();
+</script>
+
+<div id="root"></div>
+
+<!-- Antigravity Background (vanilla three.js port of the R3F component) -->
+<script type="text/babel">
+function Antigravity(props) {
+  const containerRef = React.useRef(null);
+  // Keep latest props in a ref so prop changes never tear down the WebGL scene
+  const propsRef = React.useRef(props);
+  propsRef.current = props;
+
+  React.useEffect(() => {
+    const container = containerRef.current;
+    if (!container || typeof THREE === 'undefined') return;
+
+    // Defer the WebGL bootstrap one idle slot so the page's first paint
+    // (the cream bg + nav + hero text) lands before three.js spins up.
+    let bootHandle = null;
+    let bootTimer = null;
+    let cleanupReal = null;
+    const boot = () => {
+      bootHandle = null;
+      cleanupReal = initAntigravity();
+    };
+    const scheduleBoot = () => {
+      bootTimer = null;
+      const fastEntry = document.body.classList.contains('fast-entry');
+      bootHandle = (typeof requestIdleCallback !== 'undefined')
+        ? requestIdleCallback(boot, { timeout: fastEntry ? 700 : 200 })
+        : setTimeout(boot, fastEntry ? 650 : 80);
+    };
+    const startBoot = () => {
+      if (bootTimer != null || bootHandle != null || cleanupReal) return;
+      const fastEntry = document.body.classList.contains('fast-entry');
+      if (fastEntry) bootTimer = setTimeout(scheduleBoot, 650);
+      else scheduleBoot();
+    };
+    let bodyObserver = null;
+    const waitForIntro = document.body.classList.contains('intro-active');
+    if (waitForIntro) {
+      document.addEventListener('portfolio:intro-complete', startBoot, { once: true });
+      bodyObserver = new MutationObserver(() => {
+        if (!document.body.classList.contains('intro-active')) startBoot();
+      });
+      bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    } else {
+      startBoot();
+    }
+
+    function initAntigravity() {
+    // Snapshot the geometry-affecting config at mount time (count, shape)
+    const initial = propsRef.current;
+    const COUNT = initial.count ?? 100;
+    const SHAPE = initial.particleShape ?? 'tetrahedron';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      35,
+      Math.max(1, container.clientWidth) / Math.max(1, container.clientHeight),
+      0.1,
+      1000
+    );
+    camera.position.set(0, 0, 50);
+
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: false,           // off → ~30% less GPU work
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setSize(container.clientWidth, container.clientHeight, false);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+    // Make sure CSS doesn't override the buffer-matching size from setSize(_, _, false)
+    renderer.domElement.style.display = 'block';
+
+    const computeViewport = () => {
+      const fovRad = (camera.fov * Math.PI) / 180;
+      const h = 2 * Math.tan(fovRad / 2) * camera.position.z;
+      return { width: h * camera.aspect, height: h };
+    };
+    let viewport = computeViewport();
+
+    const particles = [];
+    for (let i = 0; i < COUNT; i++) {
+      const x = (Math.random() - 0.5) * viewport.width;
+      const y = (Math.random() - 0.5) * viewport.height;
+      const z = (Math.random() - 0.5) * 20;
+      particles.push({
+        t: Math.random() * 100,
+        speed: 0.01 + Math.random() / 200,
+        mx: x, my: y, mz: z,
+        cx: x, cy: y, cz: z,
+        randomRadiusOffset: (Math.random() - 0.5) * 2,
+      });
+    }
+
+    let geometry;
+    if (SHAPE === 'capsule')      geometry = new THREE.CapsuleGeometry(0.1, 0.4, 4, 8);
+    else if (SHAPE === 'sphere')  geometry = new THREE.SphereGeometry(0.2, 12, 12);
+    else if (SHAPE === 'box')     geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    else                          geometry = new THREE.TetrahedronGeometry(0.3);
+
+    // Material left white so per-instance colors render true.
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const mesh = new THREE.InstancedMesh(geometry, material, COUNT);
+    mesh.frustumCulled = false;
+    // Per-instance color mix: 65% near-black ink, 20% indigo accent, 15% warm gray.
+    const _palette = [
+      new THREE.Color('#0a0a0a'),
+      new THREE.Color('#2c4a8c'),
+      new THREE.Color('#6b635a'),
+    ];
+    const _tmpColor = new THREE.Color();
+    for (let i = 0; i < COUNT; i++) {
+      const r = Math.random();
+      const pick = r < 0.65 ? _palette[0] : (r < 0.85 ? _palette[1] : _palette[2]);
+      _tmpColor.copy(pick);
+      mesh.setColorAt(i, _tmpColor);
+    }
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    scene.add(mesh);
+
+    const dummy = new THREE.Object3D();
+
+    // Pointer normalized to [-1, 1] across the viewport
+    const pointer = { x: 0, y: 0 };
+    const lastMousePos = { x: 0, y: 0 };
+    // Initialize "now" so autoAnimate waits 2s before taking over after page load
+    let lastMouseMoveTime = Date.now();
+    const virtualMouse = { x: 0, y: 0 };
+
+    const updatePointer = (cx, cy) => {
+      pointer.x = (cx / window.innerWidth) * 2 - 1;
+      pointer.y = -(cy / window.innerHeight) * 2 + 1;
+    };
+    const onPointerMove = (e) => updatePointer(e.clientX, e.clientY);
+    const onMouseMove   = (e) => updatePointer(e.clientX, e.clientY);
+    const onTouchMove   = (e) => {
+      if (e.touches && e.touches[0]) updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    // Triple-bind for maximum compatibility; pointermove can fail to fire
+    // in some embedded/browser-extension contexts.
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('mousemove',   onMouseMove,   { passive: true });
+    window.addEventListener('touchmove',   onTouchMove,   { passive: true });
+
+    const clock = new THREE.Clock();
+    let raf;
+    let running = true;
+
+    const animate = () => {
+      if (!running) return;
+      raf = requestAnimationFrame(animate);
+
+      // Read latest tunables every frame (no re-mount needed)
+      const p = propsRef.current;
+      const magnetRadius     = p.magnetRadius     ?? 42;
+      const ringRadius       = p.ringRadius       ?? 9;
+      const waveSpeed        = p.waveSpeed        ?? 1.5;
+      const waveAmplitude    = p.waveAmplitude    ?? 1;
+      const particleSize     = p.particleSize     ?? 1;
+      const lerpSpeed        = p.lerpSpeed        ?? 0.01;
+      const autoAnimate      = p.autoAnimate      ?? true;
+      const particleVariance = p.particleVariance ?? 0;
+      const rotationSpeed    = p.rotationSpeed    ?? 0;
+      const depthFactor      = p.depthFactor      ?? 5;
+      const pulseSpeed       = p.pulseSpeed       ?? 0;
+      const fieldStrength    = p.fieldStrength    ?? 9.2;
+
+      const elapsed = clock.getElapsedTime();
+      const m = pointer;
+      const v = viewport;
+
+      const mdx = m.x - lastMousePos.x, mdy = m.y - lastMousePos.y;
+      if (mdx * mdx + mdy * mdy > 1e-6) {
+        lastMouseMoveTime = Date.now();
+        lastMousePos.x = m.x;
+        lastMousePos.y = m.y;
+      }
+
+      let destX = (m.x * v.width) / 2;
+      let destY = (m.y * v.height) / 2;
+
+      if (autoAnimate && Date.now() - lastMouseMoveTime > 2000) {
+        destX = Math.sin(elapsed * 0.5) * (v.width / 4);
+        destY = Math.cos(elapsed * 1.0) * (v.height / 4);
+      }
+
+      virtualMouse.x += (destX - virtualMouse.x) * 0.05;
+      virtualMouse.y += (destY - virtualMouse.y) * 0.05;
+
+      const targetX = virtualMouse.x;
+      const targetY = virtualMouse.y;
+      const globalRotation = elapsed * rotationSpeed;
+
+      for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
+        particle.t += particle.speed * 0.5;
+        const t = particle.t;
+        const mx = particle.mx, my = particle.my, mz = particle.mz, cz = particle.cz;
+        const randomRadiusOffset = particle.randomRadiusOffset;
+
+        const projectionFactor = 1 - cz / 50;
+        const projectedTargetX = targetX * projectionFactor;
+        const projectedTargetY = targetY * projectionFactor;
+
+        const dx = mx - projectedTargetX;
+        const dy = my - projectedTargetY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        let tx = mx, ty = my, tz = mz * depthFactor;
+
+        if (dist < magnetRadius) {
+          const angle = Math.atan2(dy, dx) + globalRotation;
+          const wave = Math.sin(t * waveSpeed + angle) * (0.5 * waveAmplitude);
+          const deviation = randomRadiusOffset * (5 / (fieldStrength + 0.1));
+          const currentRingRadius = ringRadius + wave + deviation;
+          tx = projectedTargetX + currentRingRadius * Math.cos(angle);
+          ty = projectedTargetY + currentRingRadius * Math.sin(angle);
+          tz = mz * depthFactor + Math.sin(t) * (waveAmplitude * depthFactor);
+        }
+
+        particle.cx += (tx - particle.cx) * lerpSpeed;
+        particle.cy += (ty - particle.cy) * lerpSpeed;
+        particle.cz += (tz - particle.cz) * lerpSpeed;
+
+        dummy.position.set(particle.cx, particle.cy, particle.cz);
+        dummy.lookAt(projectedTargetX, projectedTargetY, particle.cz);
+        dummy.rotateX(Math.PI / 2);
+
+        const ddx = particle.cx - projectedTargetX;
+        const ddy = particle.cy - projectedTargetY;
+        const currentDistToMouse = Math.sqrt(ddx * ddx + ddy * ddy);
+        const distFromRing = Math.abs(currentDistToMouse - ringRadius);
+        let scaleFactor = 1 - distFromRing / 10;
+        if (scaleFactor < 0) scaleFactor = 0; else if (scaleFactor > 1) scaleFactor = 1;
+        const finalScale =
+          scaleFactor *
+          (0.8 + Math.sin(t * pulseSpeed) * 0.2 * particleVariance) *
+          particleSize;
+
+        dummy.scale.set(finalScale, finalScale, finalScale);
+
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+
+      mesh.instanceMatrix.needsUpdate = true;
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    const onResize = () => {
+      const w = Math.max(1, container.clientWidth);
+      const h = Math.max(1, container.clientHeight);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+      viewport = computeViewport();
+    };
+    window.addEventListener('resize', onResize);
+
+    // Pause when tab hidden (RAF already pauses, this is extra insurance)
+    const onVisibility = () => {
+      if (document.hidden) {
+        running = false;
+        cancelAnimationFrame(raf);
+      } else if (!running) {
+        running = true;
+        clock.getDelta(); // discard the long pause
+        animate();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('mousemove',   onMouseMove);
+      window.removeEventListener('touchmove',   onTouchMove);
+      window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibility);
+      geometry.dispose();
+      material.dispose();
+      mesh.dispose && mesh.dispose();
+      renderer.dispose();
+      if (renderer.domElement && renderer.domElement.parentNode === container) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+    } // end initAntigravity
+
+    return () => {
+      document.removeEventListener('portfolio:intro-complete', startBoot);
+      if (bodyObserver) bodyObserver.disconnect();
+      if (bootTimer != null) clearTimeout(bootTimer);
+      if (bootHandle != null) {
+        (typeof cancelIdleCallback !== 'undefined') ? cancelIdleCallback(bootHandle) : clearTimeout(bootHandle);
+      }
+      if (cleanupReal) cleanupReal();
+    };
+  }, []); // mount once; all tunables read via propsRef
+
+  return <div className="antigravity-stage" ref={containerRef}></div>;
+}
+</script>
+
+<!-- Video Module -->
+<script type="text/babel">
+const VIDEO_LIST = [
+  { id: 'V01', title: '泰国宠物·夏季品牌片', tag: 'JIMENG · 30s', dur: '0:30', tool: 'Jimeng AI' },
+  { id: 'V02', title: 'Veo 3 商业概念短片',   tag: 'VEO · 15s',   dur: '0:15', tool: 'Google Veo' },
+  { id: 'V03', title: '产品快闪 Reel',         tag: 'JIMENG · 12s', dur: '0:12', tool: 'Jimeng AI' },
+  { id: 'V04', title: '品牌情绪短片',           tag: 'VEO · 20s',   dur: '0:20', tool: 'Google Veo' },
+];
+
+function VideoModule() {
+  const [idx, setIdx] = React.useState(0);
+  const [playing, setPlaying] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
+  const current = VIDEO_LIST[idx];
+
+  React.useEffect(() => {
+    if (!playing) return;
+    const id = setInterval(() => {
+      setProgress((p) => {
+        const next = p + 0.6;
+        if (next >= 100) { setPlaying(false); return 0; }
+        return next;
+      });
+    }, 80);
+    return () => clearInterval(id);
+  }, [playing]);
+
+  const select = (i) => { setIdx(i); setProgress(0); setPlaying(false); };
+  const totalSec = parseInt(current.dur.split(':')[1], 10);
+  const cur = Math.floor((progress / 100) * totalSec);
+  const fmt = (s) => `0:${String(s).padStart(2, '0')}`;
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div className="card-head-left">
+          <span className={`card-led ${playing ? '' : 'idle'}`}></span>
+          <span className="card-num">M.01</span>
+          <span className="card-name">多模态视频播放器</span>
+        </div>
+        <div className="card-head-right"><span>AIGC · VIDEO</span></div>
+      </div>
+      <div className="card-body">
+        <div className="video-stage">
+          <div className="video-placeholder">
+            <span className="frame-info">{current.id} · {current.tool}</span>
+            <span className="frame-info-r">{playing ? '● REC' : '◌ STBY'}</span>
+            <button className={`play-button ${playing ? 'playing' : ''}`} onClick={() => setPlaying(p => !p)}>
+              {playing ? '❚❚' : '▶'}
+            </button>
+            <div className="video-title-overlay">
+              <span className="t">{current.title}</span>
+              <div className="meta">{current.tag}<br/>{fmt(cur)} / {current.dur}</div>
+            </div>
+          </div>
+        </div>
+        <div className="video-controls">
+          <div className="video-progress" onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setProgress(Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)));
+          }}>
+            <div className="video-progress-fill" style={{ width: `${progress}%` }}></div>
+          </div>
+          <div className="video-meta">
+            <span>{fmt(cur)} / {current.dur}</span>
+            <span>{playing ? 'PLAYING' : 'PAUSED'} · 1080P · 24FPS</span>
+          </div>
+          <div className="video-thumbs">
+            {VIDEO_LIST.map((v, i) => (
+              <div key={v.id} className={`video-thumb ${i === idx ? 'active' : ''}`} onClick={() => select(i)}>{v.id}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="card-foot">
+        <span>4 件作品 · 即梦 + Veo</span>
+        <span>VIEW ALL →</span>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- Terminal Module -->
+<script type="text/babel">
+const TERM_BANNER = [
+  { type: 'dim', text: '────────────────────────────────────' },
+  { type: 'ok',  text: 'agent.eamon  v0.4.2  ·  ready' },
+  { type: 'dim', text: '输入 help 查看可用命令；works / agents / sites / about' },
+  { type: 'dim', text: '────────────────────────────────────' },
+];
+
+const RESP = {
+  help: [
+    { type: 'title', text: 'COMMANDS · 共 5 项' },
+    { type: 'line', html: <><span className="text-accent">help</span>{'      '}<span className="dim">显示命令列表</span></> },
+    { type: 'line', html: <><span className="text-accent">works</span>{'     '}<span className="dim">列出 AI 网站作品</span></> },
+    { type: 'line', html: <><span className="text-accent">agents</span>{'    '}<span className="dim">列出 AI 工作流</span></> },
+    { type: 'line', html: <><span className="text-accent">about</span>{'     '}<span className="dim">关于 vibe coding</span></> },
+    { type: 'line', html: <><span className="text-accent">clear</span>{'     '}<span className="dim">清空终端</span></> },
+  ],
+  works: [
+    { type: 'title', text: 'AI · WEBSITES' },
+    { type: 'line', html: <><span className="dim">[01]</span>{' '}<span>（待补充）</span><span className="dim"> — react · vibe-coded</span></> },
+    { type: 'line', html: <><span className="dim">[02]</span>{' '}<span>（待补充）</span><span className="dim"> — landing · 1d</span></> },
+    { type: 'line', html: <><span className="dim">[03]</span>{' '}<span>（待补充）</span><span className="dim"> — dashboard</span></> },
+    { type: 'dim', text: '提示：4 件作品占位中，待补充' },
+  ],
+  agents: [
+    { type: 'title', text: 'AGENT · WORKFLOWS' },
+    { type: 'line', html: <><span className="dim">→</span>{' '}<span>（待补充）</span><span className="dim"> · n8n + Claude pipeline</span></> },
+    { type: 'line', html: <><span className="dim">→</span>{' '}<span>（待补充）</span><span className="dim"> · content auto-gen</span></> },
+    { type: 'line', html: <><span className="dim">→</span>{' '}<span>（待补充）</span><span className="dim"> · cross-border ops</span></> },
+  ],
+  about: [
+    { type: 'title', text: 'ABOUT' },
+    { type: 'dim', text: '我把 LLM 当协作者而非工具——' },
+    { type: 'dim', text: '从 idea 到部署，氛围编码（vibe coding）' },
+    { type: 'dim', text: '让灵感在 1 个深夜里就能跑起来。' },
+  ],
+};
+
+function TerminalModule() {
+  const [lines, setLines] = React.useState(TERM_BANNER);
+  const [input, setInput] = React.useState('');
+  const [focused, setFocused] = React.useState(false);
+  const inputRef = React.useRef(null);
+  const outRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (outRef.current) outRef.current.scrollTop = outRef.current.scrollHeight;
+  }, [lines]);
+
+  const exec = (raw) => {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+    const next = [...lines, { type: 'cmd', text: raw }];
+    if (cmd === 'clear') { setLines(TERM_BANNER); return; }
+    if (RESP[cmd]) { setLines([...next, ...RESP[cmd]]); return; }
+    setLines([...next, { type: 'error', text: `未知命令: ${cmd} — 输入 help 查看可用命令` }]);
+  };
+
+  return (
+    <div className="card" onClick={() => inputRef.current && inputRef.current.focus()}>
+      <div className="card-head">
+        <div className="card-head-left">
+          <span className="card-led"></span>
+          <span className="card-num">M.02</span>
+          <span className="card-name">代理终端</span>
+        </div>
+        <div className="card-head-right"><span>AGENT · SHELL</span></div>
+      </div>
+      <div className="card-body">
+        <div className="term-body">
+          <div className="term-output" ref={outRef}>
+            {lines.map((l, i) => l.type === 'line'
+              ? <div className="term-line" key={i}>{l.html}</div>
+              : <div className={`term-line ${l.type || ''}`} key={i}>{l.text}</div>
+            )}
+          </div>
+          <div className="term-prompt">
+            <span className="caret">eamon@portfolio:~$</span>
+            <input
+              ref={inputRef} value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { exec(input); setInput(''); } }}
+              onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+              placeholder="输入 help" spellCheck="false" autoComplete="off"
+            />
+            {!focused && <span className="blink"></span>}
+          </div>
+        </div>
+      </div>
+      <div className="card-foot">
+        <span>VIBE CODING · 工作流 · 网站</span>
+        <span>{lines.length} 行</span>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- Business Module -->
+<script type="text/babel">
+const BIZ_TABS = [
+  {
+    id: 'pet', name: '泰国宠物',
+    summary: '在曼谷注册的自营品牌，主打宠物日用品与零食，覆盖 TikTok Shop / Shopee / Lazada 三个渠道。从选品、内容到投放全流程独立运转。',
+    bullets: ['近 30 天 GMV：约 ฿ 482K，环比 +18.4%', '订单量 2,140 单，复购率 23.1%', '在售 SKU 86 款，月均上新 12 款', '团队 6 人 · 客服平均响应 8 分钟'],
+    note: 'TH · 跨境出海 · 自营品牌',
+  },
+  {
+    id: 'ads', name: 'AdsPower 矩阵',
+    summary: '使用 AdsPower 多账号环境搭建的跨平台投放矩阵，结合自动化脚本完成账号养号、素材分发与数据回流。',
+    bullets: ['活跃账号 128 个，覆盖三大平台', '日均触达约 1.2M，CTR 3.42%', '近 30 天 ROAS 维持在 4.18x', '单条素材平均跑量周期 2.6 天'],
+    note: '多账号矩阵投放 · 跨平台',
+  },
+  {
+    id: 'ops', name: '运营节奏',
+    summary: '小团队 + 高自动化的运营哲学：工作流由 n8n 串联 ERP、客服、仓储与数据看板；AI Agent 处理 60% 的标准化客服与翻译。',
+    bullets: ['团队 6 人 · 远程协作 · 双时区', '月均上新 12 款 · 上架到推流 < 48h', '退货率从 5.0% 降至 4.2%', 'AI 客服处理 ~60% 工单'],
+    note: '小团队 · 高自动化',
+  },
+];
+
+function BizModule() {
+  const [tabId, setTabId] = React.useState('pet');
+  const tab = BIZ_TABS.find(t => t.id === tabId);
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div className="card-head-left">
+          <span className="card-led"></span>
+          <span className="card-num">M.03</span>
+          <span className="card-name">业务看板</span>
+        </div>
+        <div className="card-head-right"><span>OVERVIEW · TEXT</span></div>
+      </div>
+      <div className="card-body">
+        <div className="biz-body">
+          <div className="biz-tabs">
+            {BIZ_TABS.map(t => (
+              <div key={t.id} className={`biz-tab ${t.id === tabId ? 'active' : ''}`} onClick={() => setTabId(t.id)}>{t.name}</div>
+            ))}
+          </div>
+          <div className="biz-text">
+            <p className="biz-summary">{tab.summary}</p>
+            <ul className="biz-bullets">
+              {tab.bullets.map((b, i) => (
+                <li key={i}><span className="bullet-dash">—</span><span>{b}</span></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div className="card-foot">
+        <span>{tab.note}</span>
+        <span>占位文案 · 可替换</span>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- Music Module -->
+<script type="text/babel">
+const TRACKS = [
+  { id: 1, name: '夜行 · Night Drive',  tag: 'SUNO · LO-FI',     dur: '2:48' },
+  { id: 2, name: 'Linger',              tag: 'SUNO · ALT POP',   dur: '3:12' },
+  { id: 3, name: '失重 · Weightless',   tag: 'SUNO · AMBIENT',   dur: '4:01' },
+  { id: 4, name: 'Highway 22',          tag: 'BAND · INDIE ROCK', dur: '3:36' },
+  { id: 5, name: '盐 · Salt',           tag: 'BAND · ACOUSTIC',  dur: '2:54' },
+  { id: 6, name: 'October Rain',        tag: 'SUNO · DREAM POP', dur: '3:22' },
+];
+
+function Wave({ playing, progress }) {
+  const bars = React.useMemo(() => Array.from({ length: 36 }, (_, i) => 20 + Math.abs(Math.sin(i * 0.7) * 60) + (i % 5) * 6), []);
+  return (
+    <div className="music-wave">
+      {bars.map((h, i) => {
+        const playedThreshold = (progress / 100) * bars.length;
+        const isPlayed = i < playedThreshold;
+        return <span key={i} className={`bar ${isPlayed ? 'played' : ''}`} style={{ height: `${Math.min(100, h)}%` }}></span>;
+      })}
+    </div>
+  );
+}
+
+function MusicModule() {
+  const [idx, setIdx] = React.useState(0);
+  const [playing, setPlaying] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
+  const cur = TRACKS[idx];
+
+  React.useEffect(() => {
+    if (!playing) return;
+    const id = setInterval(() => {
+      setProgress(p => {
+        const next = p + 0.45;
+        if (next >= 100) { setIdx(i => (i + 1) % TRACKS.length); return 0; }
+        return next;
+      });
+    }, 90);
+    return () => clearInterval(id);
+  }, [playing]);
+
+  const select = (i) => {
+    if (i === idx) { setPlaying(p => !p); }
+    else { setIdx(i); setProgress(0); setPlaying(true); }
+  };
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div className="card-head-left">
+          <span className={`card-led ${playing ? '' : 'idle'}`}></span>
+          <span className="card-num">M.04</span>
+          <span className="card-name">媒体库</span>
+        </div>
+        <div className="card-head-right"><span>SUNO + BAND</span></div>
+      </div>
+      <div className="card-body">
+        <div className="music-body">
+          <div className="music-now">
+            <div className={`music-cover ${playing ? 'spinning' : ''}`}>
+              <span className="ring"></span>
+            </div>
+            <div className="music-now-meta">
+              <div className="music-title">{cur.name}</div>
+              <div className="music-tag">{cur.tag} · {cur.dur}</div>
+            </div>
+            <button className="music-play-btn" onClick={() => setPlaying(p => !p)}>
+              {playing ? '❚❚' : '▶'}
+            </button>
+          </div>
+          <Wave playing={playing} progress={progress} />
+          <div className="music-list">
+            {TRACKS.map((t, i) => (
+              <div key={t.id} className={`music-row ${i === idx ? 'active' : ''}`} onClick={() => select(i)}>
+                <span className="idx">{String(i + 1).padStart(2, '0')}</span>
+                <span className="name">{t.name}</span>
+                <span className="tag">{t.tag}</span>
+                <span className="dur">{t.dur}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="card-foot">
+        <span>{TRACKS.length} 首 · Suno + 乐队原创</span>
+        <span>{playing ? `▶ ${cur.name}` : '◌ 暂停'}</span>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- Tweaks Panel -->
+<script type="text/babel">
+function TweaksPanel({ tweaks, setTweak }) {
+  const [open, setOpen] = React.useState(false);
+
+  const PALETTES = [
+    { value: 'onyx', label: '纯黑 Onyx' },
+    { value: 'ember', label: '深灰 Graphite' },
+    { value: 'cobalt', label: '浅灰 Pewter' },
+    { value: 'terminal', label: '反相 Bone' },
+  ];
+  const TYPEFACES = [
+    { value: 'serif', label: '衬线' },
+    { value: 'sans', label: '无衬线' },
+    { value: 'mono', label: '等宽' },
+  ];
+  const LAYOUTS = [
+    { value: 'bento', label: 'Bento' },
+    { value: 'scroll', label: '长滚动' },
+  ];
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} style={{
+        position: 'fixed', right: 16, bottom: 16, zIndex: 9999,
+        background: 'rgba(250,249,247,.9)', color: '#29261b',
+        border: '.5px solid rgba(255,255,255,.6)', borderRadius: 10,
+        padding: '8px 14px', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+        backdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(0,0,0,.3)',
+        fontFamily: 'ui-sans-serif,system-ui,sans-serif', letterSpacing: '0.04em'
+      }}>
+        ⚙ Tweaks
+      </button>
+    );
+  }
+
+  return (
+    <div className="twk-panel">
+      <div className="twk-hd">
+        <b>Tweaks</b>
+        <button className="twk-x" onClick={() => setOpen(false)}>✕</button>
+      </div>
+      <div className="twk-body">
+        <div className="twk-sect">调色</div>
+        <div className="twk-row">
+          <label className="twk-lbl"><span>调色盘</span></label>
+          <select className="twk-field" value={tweaks.palette} onChange={e => setTweak('palette', e.target.value)}>
+            {PALETTES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+          </select>
+        </div>
+
+        <div className="twk-sect">字体</div>
+        <div className="twk-row">
+          <label className="twk-lbl"><span>字族</span></label>
+          <div className="twk-seg">
+            {TYPEFACES.map(t => (
+              <button key={t.value} className={tweaks.typeface === t.value ? 'active' : ''} onClick={() => setTweak('typeface', t.value)}>{t.label}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="twk-sect">背景</div>
+        <div className="twk-row">
+          <label className="twk-lbl"><span>粒子密度</span><span style={{color:'rgba(41,38,27,.5)'}}>{tweaks.particleDensity.toFixed(1)}</span></label>
+          <input type="range" className="twk-slider" min="0.4" max="2" step="0.1" value={tweaks.particleDensity} onChange={e => setTweak('particleDensity', parseFloat(e.target.value))} />
+        </div>
+        <div className="twk-row">
+          <label className="twk-lbl"><span>动态强度</span><span style={{color:'rgba(41,38,27,.5)'}}>{tweaks.particleIntensity.toFixed(1)}</span></label>
+          <input type="range" className="twk-slider" min="0.4" max="2" step="0.1" value={tweaks.particleIntensity} onChange={e => setTweak('particleIntensity', parseFloat(e.target.value))} />
+        </div>
+
+        <div className="twk-sect">布局</div>
+        <div className="twk-row">
+          <label className="twk-lbl"><span>模块网格</span></label>
+          <div className="twk-seg">
+            {LAYOUTS.map(l => (
+              <button key={l.value} className={tweaks.layout === l.value ? 'active' : ''} onClick={() => setTweak('layout', l.value)}>{l.label}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="twk-sect">文案</div>
+        <div className="twk-row">
+          <label className="twk-lbl"><span>首屏标题</span></label>
+          <input className="twk-field" value={tweaks.headline} onChange={e => setTweak('headline', e.target.value)} placeholder="如：决定·我" />
+        </div>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- AnimatedContent — React Bits component (GSAP + ScrollTrigger driven enter animation) -->
+<script type="text/babel">
+if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+function AnimatedContent({
+  children,
+  container,
+  distance = 100,
+  direction = 'vertical',
+  reverse = false,
+  duration = 0.8,
+  ease = 'power3.out',
+  initialOpacity = 0,
+  animateOpacity = true,
+  scale = 1,
+  threshold = 0.1,
+  delay = 0,
+  disappearAfter = 0,
+  disappearDuration = 0.5,
+  disappearEase = 'power3.in',
+  onComplete,
+  onDisappearanceComplete,
+  className = '',
+  ...rest
+}) {
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof gsap === 'undefined') return;
+
+    let scrollerTarget = container || document.getElementById('snap-main-container') || null;
+    if (typeof scrollerTarget === 'string') {
+      scrollerTarget = document.querySelector(scrollerTarget);
+    }
+
+    const axis   = direction === 'horizontal' ? 'x' : 'y';
+    const offset = reverse ? -distance : distance;
+    const startPct = (1 - threshold) * 100;
+
+    gsap.set(el, {
+      [axis]: offset,
+      scale,
+      opacity: animateOpacity ? initialOpacity : 1,
+      visibility: 'visible'
+    });
+
+    const tl = gsap.timeline({
+      paused: true,
+      delay,
+      onComplete: () => {
+        if (onComplete) onComplete();
+        if (disappearAfter > 0) {
+          gsap.to(el, {
+            [axis]: reverse ? distance : -distance,
+            scale: 0.8,
+            opacity: animateOpacity ? initialOpacity : 0,
+            delay: disappearAfter,
+            duration: disappearDuration,
+            ease: disappearEase,
+            onComplete: () => onDisappearanceComplete && onDisappearanceComplete()
+          });
+        }
+      }
+    });
+
+    tl.to(el, { [axis]: 0, scale: 1, opacity: 1, duration, ease });
+
+    const st = (typeof ScrollTrigger !== 'undefined')
+      ? ScrollTrigger.create({
+          trigger: el,
+          scroller: scrollerTarget,
+          start: `top ${startPct}%`,
+          once: true,
+          onEnter: () => tl.play()
+        })
+      : null;
+
+    // If ScrollTrigger isn't available, play immediately so content still shows.
+    if (!st) tl.play();
+
+    return () => {
+      if (st) st.kill();
+      tl.kill();
+    };
+  }, [
+    container, distance, direction, reverse, duration, ease,
+    initialOpacity, animateOpacity, scale, threshold, delay,
+    disappearAfter, disappearDuration, disappearEase,
+    onComplete, onDisappearanceComplete
+  ]);
+
+  return (
+    <div ref={ref} className={className} style={{ visibility: 'hidden' }} {...rest}>
+      {children}
+    </div>
+  );
+}
+window.AnimatedContent = AnimatedContent;
+</script>
+
+<!-- Scroll-reveal helper + ModuleSection wrapper -->
+<script type="text/babel">
+function useInView(threshold = 0.18) {
+  const ref = React.useRef(null);
+  const [inView, setInView] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') { setInView(true); return; }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => { if (entry.isIntersecting) setInView(true); });
+      },
+      { threshold, rootMargin: '0px 0px -10% 0px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return [ref, inView];
+}
+
+function ModuleSection({ num, title, desc, stats, from = 'left', children }) {
+  const [ref, inView] = useInView();
+  // Visual card slides in horizontally — left or right per `from`.
+  // `reverse=true`  → offset = -distance (starts left of final position) → slides FROM LEFT
+  // `reverse=false` → offset = +distance (starts right) → slides FROM RIGHT
+  const fromLeft = from === 'left';
+  return (
+    <div ref={ref} className={`module-section ${inView ? 'is-visible' : ''}`}>
+      <AnimatedContent
+        className="module-visual"
+        distance={140}
+        direction="horizontal"
+        reverse={fromLeft}
+        duration={1.2}
+        ease="power1.out"
+        scale={0.98}
+        threshold={0.2}
+        delay={0.05}
+      >
+        {children}
+      </AnimatedContent>
+      <div className="module-copy">
+        <div className="module-num">{num}</div>
+        <h3 className="module-title">{title}<span className="stop">。</span></h3>
+        <p className="module-desc">{desc}</p>
+        {stats && (
+          <div className="module-stats">
+            {stats.map((s, i) => (
+              <div key={i} className="module-stat">
+                <div className="module-stat-label">{s.label}</div>
+                <div className="module-stat-value">{s.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- Main App -->
+<script type="text/babel">
+function App() {
+  const [tweaks, setTweaks] = React.useState({
+    palette: 'onyx',
+    typeface: 'serif',
+    headline: '决定·我',
+    particleDensity: 1,
+    particleIntensity: 1,
+    layout: 'bento',
+  });
+
+  const setTweak = (key, val) => setTweaks(prev => ({ ...prev, [key]: val }));
+
+  // Dismiss the boot loader after first paint so the transition-video → portfolio
+  // hand-off stays black, then fades into the live page.
+  React.useEffect(() => {
+    const loader = document.getElementById('page-loader');
+    if (!loader) return;
+    const fade = () => {
+      loader.style.opacity = '0';
+      loader.style.pointerEvents = 'none';
+      setTimeout(() => { if (loader.parentNode) loader.remove(); }, 650);
+    };
+    // Wait two RAFs so the first real frame has painted before we fade.
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(fade, 60)));
+  }, []);
+
+  React.useEffect(() => {
+    document.documentElement.dataset.palette = tweaks.palette;
+    document.documentElement.dataset.typeface = tweaks.typeface;
+  }, [tweaks.palette, tweaks.typeface]);
+
+  const renderTitle = () => {
+    const txt = tweaks.headline || '决定·我';
+    const parts = txt.split(/[·•・]/);
+    const first = parts[0] || '';
+    const rest = parts.slice(1).join('·');
+    return (
+      <>
+        {first && <span className="title-line title-line-1">{first}</span>}
+        <span className="title-line title-line-2">{rest || first}<span className="stop">。</span></span>
+      </>
+    );
+  };
+
+  return (
+    <>
+      <Antigravity
+        count={Math.round(100 * tweaks.particleDensity)}
+        magnetRadius={42}
+        ringRadius={9}
+        waveSpeed={1.5}
+        waveAmplitude={1}
+        particleSize={1}
+        lerpSpeed={0.01}
+        color="#1a1611"
+        autoAnimate={true}
+        particleVariance={0}
+        depthFactor={5}
+        pulseSpeed={0}
+        particleShape="tetrahedron"
+        fieldStrength={9.2 * tweaks.particleIntensity}
+      />
+
+      <nav className="nav">
+        <div className="nav-brand">Eamon<span className="copy">©</span></div>
+        <div className="nav-links">
+          <a className="nav-link" href="#works">作品</a>
+          <a className="nav-link" href="#about">关于</a>
+          <a className="nav-link" href="#contact">联系</a>
+          <a className="nav-link primary" href="#resume">简历 ↗</a>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="hero" style={{ overflow:'hidden' }}>
+        <div className="hero-content">
+          <div className="hero-eyebrow">
+            <span className="dot"></span>
+            Eamon · 作品集 · 2026
+          </div>
+          <h1 className="hero-title">{renderTitle()}</h1>
+          <p className="hero-sub">
+            这并非偶然。Eamon 会思考，把 <b>AIGC 创作</b>、跨境业务与 <b>vibe coding</b>
+            编织在一起。白天操盘出海品牌，夜晚写歌、和 LLM 一起把想法落地。
+            个人计算的未来已经到来——而且，它就摆在你的浏览器里。
+          </p>
+          <div className="hero-cta">
+            <a className="btn-primary" href="#works">进入作品集</a>
+            <span className="hero-price">2026<span className="currency">EDITION</span></span>
+          </div>
+          <div className="hero-specs">
+            <div className="hero-spec">
+              <div className="hero-spec-label">视频</div>
+              <div className="hero-spec-value">即梦 + Veo</div>
+            </div>
+            <div className="hero-spec">
+              <div className="hero-spec-label">编码</div>
+              <div className="hero-spec-value">Claude · Cursor · n8n</div>
+            </div>
+            <div className="hero-spec">
+              <div className="hero-spec-label">业务</div>
+              <div className="hero-spec-value">TH · 宠物 · 出海</div>
+            </div>
+            <div className="hero-spec">
+              <div className="hero-spec-label">音乐</div>
+              <div className="hero-spec-value">Suno · 乐队原创</div>
+            </div>
+          </div>
+        </div>
+        <div className="hero-visual" aria-hidden="true"></div>
+      </section>
+
+      {/* Works */}
+      <section className="modules" id="works">
+        <div className="modules-header">
+          <h2><span className="num">// 02</span>四个模块，逐一登场</h2>
+          <div className="meta">VIDEO · AGENT · BIZ · MUSIC<br/>SCROLL TO REVEAL</div>
+        </div>
+        <div className="module-list">
+          <ModuleSection
+            from="left"
+            num="// 01 — VIDEO"
+            title={<>影像<br/>AIGC</>}
+            desc={<>用 <b>即梦 + Veo</b> 双引擎产出广告片、品牌片与产品短视频。从分镜到剪辑全 AI 驱动，一条素材从想法到上线最快只要 30 分钟。</>}
+            stats={[
+              { label: '工具',   value: '即梦 · Google Veo' },
+              { label: '产出',   value: '广告 / 品牌 / Reel' },
+              { label: '帧率',   value: '1080P · 24FPS' },
+              { label: '占位',   value: '4 件作品 · 待补' },
+            ]}
+          >
+            <VideoModule />
+          </ModuleSection>
+
+          <ModuleSection
+            from="right"
+            num="// 02 — AGENT"
+            title={<>终端<br/>Vibe Coding</>}
+            desc={<>vibe coding 的工作台。<b>Claude × Cursor × n8n</b> 串起从想法到部署的全链路，让一个深夜就能跑通一个产品。这套站点本身就是它的产物。</>}
+            stats={[
+              { label: '编辑器', value: 'Cursor · VS Code' },
+              { label: '大模型', value: 'Claude · GPT' },
+              { label: '工作流', value: 'n8n · Dify' },
+              { label: '风格',   value: '夜间 / 一次成型' },
+            ]}
+          >
+            <TerminalModule />
+          </ModuleSection>
+
+          <ModuleSection
+            from="left"
+            num="// 03 — BIZ"
+            title={<>业务<br/>跨境出海</>}
+            desc={<>泰国曼谷自营宠物品牌，覆盖 <b>TikTok Shop / Shopee / Lazada</b>。6 人远程团队 + AdsPower 矩阵 + AI 工作流，把「小团队、高自动化」做到极致。</>}
+            stats={[
+              { label: '主市场', value: '泰国 TH' },
+              { label: '渠道',   value: 'TikTok / Shopee / Lazada' },
+              { label: 'GMV',    value: '约 ฿ 482K / 30D' },
+              { label: '团队',   value: '6 人 · 远程' },
+            ]}
+          >
+            <BizModule />
+          </ModuleSection>
+
+          <ModuleSection
+            from="right"
+            num="// 04 — MUSIC"
+            title={<>声音<br/>Suno × 乐队</>}
+            desc={<>Suno 用来铺底、试旋律、生成 demo；<b>乐队的现场</b>补回了真人才有的那一点温度。AI 与肉身，两条腿一起跑。</>}
+            stats={[
+              { label: 'AI 音乐', value: 'Suno' },
+              { label: '风格',   value: 'Lo-fi / Indie / Dream Pop' },
+              { label: '乐队',   value: '主唱 · 吉他' },
+              { label: '曲目',   value: '6 首 · 持续更新' },
+            ]}
+          >
+            <MusicModule />
+          </ModuleSection>
+        </div>
+      </section>
+
+      {/* About + Skills + Contact */}
+      <section className="bottom-strip" id="about">
+        <div className="bottom-block">
+          <div className="label">// 03 · ABOUT</div>
+          <h3>跨界，<br/>是我的方法论。</h3>
+          <p>
+            我在「创作」与「业务」之间来回穿梭——白天操盘一家泰国宠物用品出海公司、
+            搭建 AdsPower 矩阵、跑投放与运营；晚上写歌、用 Suno 制作 demo、
+            在乐队里弹吉他与开嗓；间隙里用 Claude 与 Cursor 把每一个想法 vibe-code 成产品。
+            这个网站本身就是这种工作方式的一次自我证明。
+          </p>
+        </div>
+        <div className="bottom-block">
+          <div className="label">// 04 · SKILLS</div>
+          <div className="skill-list">
+            <div className="skill-row"><span className="n">AIGC 视频</span><span className="y">即梦 / Veo</span></div>
+            <div className="skill-row"><span className="n">Vibe Coding</span><span className="y">Claude · Cursor</span></div>
+            <div className="skill-row"><span className="n">AI 工作流</span><span className="y">n8n · Dify</span></div>
+            <div className="skill-row"><span className="n">跨境运营</span><span className="y">TH · 宠物</span></div>
+            <div className="skill-row"><span className="n">广告矩阵</span><span className="y">AdsPower</span></div>
+            <div className="skill-row"><span className="n">AI 音乐</span><span className="y">Suno</span></div>
+            <div className="skill-row"><span className="n">乐队</span><span className="y">主唱 / 吉他</span></div>
+          </div>
+        </div>
+        <div className="bottom-block" id="contact">
+          <div className="label">// 05 · CONTACT</div>
+          <div className="contact-list">
+            <div className="contact-row"><span className="k">EMAIL</span><a className="v" href="mailto:hello@eamon.studio">hello@eamon.studio</a></div>
+            <div className="contact-row"><span className="k">微信</span><span className="v">eamon_xxx</span></div>
+            <div className="contact-row"><span className="k">小红书</span><a className="v" href="#">@Eamon</a></div>
+            <div className="contact-row"><span className="k">GitHub</span><a className="v" href="#">github.com/eamon</a></div>
+            <div className="contact-row"><span className="k">LOC</span><span className="v">Bangkok · Hangzhou</span></div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="foot">
+        <span>© 2026 EAMON · ALL RIGHTS RESERVED</span>
+        <span>VIBE-CODED · BUILT WITH CLAUDE</span>
+      </footer>
+
+      <TweaksPanel tweaks={tweaks} setTweak={setTweak} />
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  if (!window.initScrollFloatText) return;
+  window.initScrollFloatText({
+    root: document.getElementById('root'),
+    selector: [
+      '.nav-brand',
+      '.nav-link',
+      '.hero-eyebrow',
+      '.hero-title .title-line',
+      '.hero-sub',
+      '.btn-primary',
+      '.hero-price',
+      '.hero-spec-label',
+      '.hero-spec-value',
+      '.modules-header h2',
+      '.modules-header .meta',
+      '.module-num',
+      '.module-title',
+      '.module-desc',
+      '.module-stat-label',
+      '.module-stat-value',
+      '.card-num',
+      '.card-name',
+      '.card-head-right span',
+      '.card-foot span',
+      '.video-title-overlay .t',
+      '.video-title-overlay .meta',
+      '.video-thumb',
+      '.biz-tab',
+      '.biz-summary',
+      '.biz-bullets li span:last-child',
+      '.music-title',
+      '.music-tag',
+      '.music-row span',
+      '.bottom-block .label',
+      '.bottom-block h3',
+      '.bottom-block p',
+      '.skill-row span',
+      '.contact-row .k',
+      '.contact-row .v',
+      '.foot span'
+    ].join(','),
+    animationDuration: 1,
+    ease: 'back.inOut(2)',
+    scrollStart: 'center bottom+=50%',
+    scrollEnd: 'bottom bottom-=40%'
+  });
+}));
+</script>
+</body>
+</html>

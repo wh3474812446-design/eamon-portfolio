@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eamon · ENTRY · 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ScrollFloat.css">
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js" crossorigin></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js" crossorigin></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js" crossorigin></script>
+<script src="assets/ScrollFloat.js"></script>
+
+<!-- Warm the cache for the next page so ENTER feels instant -->
+<link rel="preload" href="assets/intro.mp4" as="video" type="video/mp4" fetchpriority="high">
+<link rel="prefetch" href="portfolio.html?skipIntro=1">
+<link rel="prefetch" href="assets/transition.mp4" as="video" type="video/mp4">
+<link rel="prefetch" href="assets/bg.mp4" as="video">
+<link rel="prefetch" href="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin>
+<link rel="prefetch" href="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin>
+
+<style>
+/* === Tokens (mirrors portfolio.html so the two feel like one work) === */
+:root {
+  /* Warm paper system — bg #faf8f5, near-black ink, indigo accent */
+  --bg:           #faf8f5;
+  --bg-elev:      #ffffff;
+  --bg-card:      rgba(10, 10, 10, 0.025);
+  --border:       rgba(10, 10, 10, 0.09);
+  --border-strong:rgba(10, 10, 10, 0.22);
+  --fg:           #0a0a0a;
+  --fg-dim:       #3d3a35;
+  --fg-mute:      #8b857c;
+  --fg-faint:     #c8c3ba;
+  --accent:       #2c4a8c;
+  --accent-soft:  rgba(44, 74, 140, 0.10);
+  --accent-glow:  rgba(44, 74, 140, 0.28);
+
+  --font-display: 'Noto Serif SC', 'Songti SC', 'STSong', 'Source Han Serif SC', serif;
+  --font-sans:    'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  --font-mono:    'JetBrains Mono', 'SF Mono', Menlo, ui-monospace, monospace;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* === Background video (looped, muted, covers viewport) === */
+.bg-video {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  /* Tone the video toward the warm-paper palette */
+  filter: saturate(0.85) contrast(0.95);
+}
+/* Cream tint over the video so text & ticket stay legible against the warm-paper system */
+.bg-tint {
+  position: fixed; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(250, 248, 245, 0.55);
+}
+
+/* Antigravity background — sits above video + tint */
+.antigravity-stage {
+  position: fixed; inset: 0;
+  z-index: 2; pointer-events: none;
+}
+.antigravity-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+.stage, .topbar, .foot-hud, .enter, .enter-hint { position: relative; }
+.stage { z-index: 3; }
+
+/* ===== Top bar — mirrors portfolio .nav-brand ===== */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 22px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 20;
+}
+.brand {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--fg);
+}
+.brand .copy {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-mute);
+  margin-left: 2px;
+}
+.hud {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+}
+.hud .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  margin-right: 10px;
+  vertical-align: 1px;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* Bottom-left & bottom-right HUD */
+.foot-hud {
+  position: fixed;
+  bottom: 32px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+  z-index: 5;
+  pointer-events: none;
+}
+.foot-hud.left { left: 40px; }
+
+/* ===== Ticket card ===== */
+.stage {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px;
+}
+.ticket {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  width: min(1000px, 88vw);
+  aspect-ratio: 16 / 7;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 30px 80px -36px rgba(20, 16, 8, 0.22),
+    0 8px 22px -12px rgba(20, 16, 8, 0.10);
+  /* Initial state — GSAP (AnimatedContent semantics) animates this in on load */
+  opacity: 0;
+  transform: translateY(60px) scale(0.96);
+  visibility: hidden;
+}
+
+/* Left — entry art (pure white + blue particle planet) */
+.ticket-art {
+  position: relative;
+  background: #ffffff;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.ticket-art .art-text {
+  position: relative;
+  padding: 28px 28px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  color: var(--fg);
+  line-height: 1;
+  z-index: 2;
+}
+.ticket-art .planet-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.ticket-art .planet-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ticket-art .art-text .l1 { font-size: clamp(34px, 4.2vw, 56px); letter-spacing: -0.02em; }
+.ticket-art .art-text .l2 {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-top: 10px;
+  opacity: .9;
+}
+.ticket-art .art-text .l3 {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+  margin-top: 2px;
+  opacity: .9;
+}
+
+/* Right — info table */
+.ticket-info {
+  padding: 28px 34px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-width: 0;
+  background: var(--bg);
+}
+.row {
+  display: grid;
+  grid-template-columns: 78px 18px 1fr;
+  align-items: baseline;
+}
+.row .k { color: var(--fg-mute); font-weight: 500; }
+.row .s { color: var(--fg-faint); }
+.row .v { color: var(--fg); font-weight: 500; }
+.row .v .accent {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.group { display: flex; flex-direction: column; gap: 6px; }
+
+.sep-l {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--fg-faint);
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 10px;
+  color: var(--fg-mute);
+  gap: 16px;
+  padding-top: 8px;
+}
+.footer .title-line {
+  color: var(--fg);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+}
+.footer .id-line {
+  margin-top: 4px;
+  color: var(--fg-mute);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.footer .valid {
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
+/* ===== Enter pill — mirrors portfolio's primary nav-link ===== */
+.enter {
+  position: fixed;
+  bottom: 36px;
+  right: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  border: 1px solid var(--fg);
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .35s var(--ease),
+              background .35s var(--ease),
+              color .35s var(--ease),
+              border-color .35s var(--ease),
+              box-shadow .35s var(--ease);
+  z-index: 30;
+  animation: fadeUp 1.3s .35s var(--ease) both;
+  box-shadow: 0 14px 30px -16px rgba(20, 16, 8, 0.35);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.enter:hover {
+  transform: translateY(-2px);
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 22px 38px -16px var(--accent-glow), 0 6px 14px -6px rgba(10, 10, 10, 0.25);
+}
+.enter .e-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--bg);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.enter .zh {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  text-transform: none;
+}
+.enter .arr {
+  display: inline-block;
+  transition: transform .35s var(--ease);
+}
+.enter:hover .arr { transform: translate(4px, -4px); }
+
+/* Helper "press any key" hint above the button */
+.enter-hint {
+  position: fixed;
+  bottom: 86px;
+  right: 40px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 30;
+  pointer-events: none;
+  animation: fadeUp 1.3s .55s var(--ease) both;
+}
+
+/* ===== Intro gate — plays once before the entry ticket appears ===== */
+.intro-gate {
+  position: fixed; inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: opacity 1.0s var(--ease), visibility 1.0s var(--ease);
+}
+.intro-gate.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.intro-gate video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.intro-skip {
+  position: absolute;
+  bottom: 32px; right: 36px;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.intro-skip.is-play {
+  top: 42%; left: 50%; right: auto; bottom: auto;
+  padding: 22px 54px;
+  font-size: 18px;
+  background: rgba(5, 5, 5, 0.9);
+  border-color: rgba(255, 255, 255, 0.58);
+  color: rgba(255, 255, 255, 0.96);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 22px 72px rgba(0, 0, 0, 0.5);
+}
+.intro-skip:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: translateY(-1px);
+}
+.intro-skip.is-play:hover {
+  transform: translate(-50%, -50%) scale(1.03);
+}
+.intro-skip .arr { display: inline-block; transition: transform .3s var(--ease); }
+.intro-skip:hover .arr { transform: translate(3px, -3px); }
+@media (prefers-reduced-motion: reduce) {
+  .intro-gate { display: none; }
+}
+
+/* ===== Lightweight page handoff ===== */
+.handoff-cover {
+  position: fixed; inset: 0;
+  z-index: 10000;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms var(--ease);
+}
+.handoff-cover.visible { opacity: 1; }
+
+/* ===== Transition video between page one and page two ===== */
+.transition-gate {
+  position: fixed; inset: 0;
+  z-index: 9998;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 180ms var(--ease), visibility 180ms var(--ease);
+}
+.transition-gate.active {
+  opacity: 1; visibility: visible; pointer-events: auto;
+}
+.transition-gate video {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  background: #000;
+}
+@media (prefers-reduced-motion: reduce) {
+  .transition-gate { display: none; }
+}
+
+/* Responsive */
+@media (max-width: 820px) {
+  .ticket {
+    grid-template-columns: 1fr;
+    aspect-ratio: auto;
+    width: 92vw;
+  }
+  .ticket-art {
+    aspect-ratio: 16 / 9;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ticket-info { padding: 22px 24px; gap: 14px; }
+  .row { grid-template-columns: 68px 16px 1fr; font-size: 11px; }
+  .topbar { padding: 16px 20px; }
+  .brand { font-size: 17px; }
+  .hud, .foot-hud { font-size: 9px; }
+  .foot-hud.left { left: 20px; bottom: 18px; }
+  .enter-hint { right: 24px; bottom: 70px; }
+  .enter { right: 24px; bottom: 20px; padding: 11px 18px; font-size: 11px; letter-spacing: 0.16em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticket, .enter, .enter-hint { animation: none; }
+  .hud .dot, .enter .e-dot { animation: none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Intro gate — full-screen video that plays once before the entry ticket reveals -->
+<div class="intro-gate" id="intro-gate" aria-hidden="true">
+  <video id="intro-video" muted playsinline preload="auto">
+    <source src="assets/intro.mp4" type="video/mp4">
+  </video>
+  <audio id="intro-audio" preload="auto">
+    <source src="assets/transition.mp4" type="video/mp4">
+  </audio>
+  <button class="intro-skip is-play" id="intro-skip" type="button" aria-label="播放开场">
+    <span>ENTER</span>
+    <span class="arr">↗</span>
+  </button>
+</div>
+
+<!-- Transition gate — plays after ENTER, then opens portfolio.html -->
+<div class="transition-gate" id="transition-gate" aria-hidden="true">
+  <video id="transition-video" playsinline preload="metadata">
+    <source src="assets/transition.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- Looped background video (no audio) -->
+<video class="bg-video" loop muted playsinline preload="metadata" aria-hidden="true">
+  <source src="assets/bg.mp4" type="video/mp4">
+</video>
+
+<!-- Antigravity background canvas -->
+<div class="antigravity-stage" id="antigravity-stage"></div>
+
+<!-- Top bar (mirrors portfolio .nav-brand + HUD) -->
+<div class="topbar">
+  <div class="brand">Eamon<span class="copy">©</span></div>
+  <div class="hud"><span class="dot"></span>ENTRY · 2026 EDITION</div>
+</div>
+
+<!-- Bottom-left HUD -->
+<div class="foot-hud left">SYS · STABLE · 99.8%</div>
+
+<!-- Centered ticket card -->
+<div class="stage">
+  <article class="ticket">
+    <!-- Left: entry — 入场 + blue particle planet -->
+    <div class="ticket-art">
+      <div class="art-text">
+        <div class="l1">入场。</div>
+        <div class="l2">MEMORY · BREAKING</div>
+        <div class="l3">VOL · DIGITAL</div>
+      </div>
+      <div class="planet-stage">
+        <canvas id="planet-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Right: info table -->
+    <div class="ticket-info">
+      <div class="group">
+        <div class="row"><span class="k">TYPE</span><span class="s">&gt;</span><span class="v">GENERAL ADMISSION</span></div>
+        <div class="row"><span class="k">ACCESS</span><span class="s">&gt;</span><span class="v">ALL CHAPTERS</span></div>
+      </div>
+
+      <div class="group">
+        <div class="row"><span class="k">DATE</span><span class="s">&gt;</span><span class="v">05.14.2026</span></div>
+        <div class="row"><span class="k">VENUE</span><span class="s">&gt;</span><span class="v">EAMON / LAYER 01</span></div>
+        <div class="row"><span class="k">CITY</span><span class="s">&gt;</span><span class="v">DIGITAL</span></div>
+      </div>
+
+      <div class="sep-l">LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL</div>
+
+      <div class="group">
+        <div class="row"><span class="k">ACT 01</span><span class="s">&gt;</span><span class="v">VIDEO · AGENT · BIZ</span></div>
+        <div class="row"><span class="k">ACT 02</span><span class="s">&gt;</span><span class="v"><span class="accent">王涵</span> / EAMON</span></div>
+      </div>
+
+      <div class="footer">
+        <div>
+          <div class="title-line">FOLIO BREAKING · VOL. 04</div>
+          <div class="id-line">ID · 0029384-A</div>
+        </div>
+        <div class="valid">VALID ON ENTRY ONLY</div>
+      </div>
+    </div>
+  </article>
+</div>
+
+<!-- Hint + Enter pill (bottom-right) -->
+<div class="enter-hint">PRESS ENTER / 点击进入</div>
+<a class="enter" href="portfolio.html?skipIntro=1" aria-label="进入作品集">
+  <span class="e-dot"></span>
+  <span class="zh">进入</span>
+  <span>ENTER</span>
+  <span class="arr">↗</span>
+</a>
+
+<script>
+  /* === Intro gate + Vanilla AnimatedContent on the ticket ===
+   * Flow: page loads → intro video plays full-screen → on ended (or skip) →
+   * gate fades out → ticket animates in with AnimatedContent semantics. */
+  (function setupIntro() {
+    const gate    = document.getElementById('intro-gate');
+    const video   = document.getElementById('intro-video');
+    const introAudio = document.getElementById('intro-audio');
+    const skipBtn = document.getElementById('intro-skip');
+    const ticket  = document.querySelector('.ticket');
+    const bgVideo = document.querySelector('.bg-video');
+    const tGate = document.getElementById('transition-gate');
+    const tVid = document.getElementById('transition-video');
+    let introNeedsGesture = false;
+
+    const setIntroButtonMode = (mode) => {
+      if (!skipBtn) return;
+      const label = skipBtn.querySelector('span:first-child');
+      const isPlay = mode === 'play';
+      if (label) label.textContent = isPlay ? 'ENTER' : 'SKIP';
+      skipBtn.classList.toggle('is-play', isPlay);
+      skipBtn.setAttribute('aria-label', isPlay ? '播放开场' : '跳过开场');
+    };
+
+    const playIntroWithSecondAudio = () => {
+      if (!video || gateDismissed) return;
+      introNeedsGesture = false;
+      setIntroButtonMode('skip');
+      try { video.muted = true; } catch (_) {}
+      if (introAudio) {
+        try { introAudio.muted = false; } catch (_) {}
+        try { introAudio.volume = 1; } catch (_) {}
+      }
+      if (video.ended || video.currentTime > 0.15) {
+        try { video.currentTime = 0; } catch (_) {}
+      }
+      if (introAudio && (introAudio.ended || introAudio.currentTime > 0.15)) {
+        try { introAudio.currentTime = 0; } catch (_) {}
+      }
+
+      const videoPromise = video.play();
+      const audioPromise = introAudio ? introAudio.play() : null;
+      if (videoPromise && typeof videoPromise.catch === 'function') {
+        videoPromise.catch(() => {
+          try { video.pause(); } catch (_) {}
+          try { video.currentTime = 0; } catch (_) {}
+          if (introAudio) {
+            try { introAudio.pause(); } catch (_) {}
+            try { introAudio.currentTime = 0; } catch (_) {}
+          }
+          introNeedsGesture = true;
+          setIntroButtonMode('play');
+        });
+      }
+      if (audioPromise && typeof audioPromise.catch === 'function') {
+        audioPromise.catch(() => {
+          try { video.pause(); } catch (_) {}
+          try { video.currentTime = 0; } catch (_) {}
+          if (introAudio) {
+            try { introAudio.pause(); } catch (_) {}
+            try { introAudio.currentTime = 0; } catch (_) {}
+          }
+          introNeedsGesture = true;
+          setIntroButtonMode('play');
+        });
+      }
+    };
+
+    window.__entryIntroComplete = false;
+    if (bgVideo) {
+      try { bgVideo.pause(); } catch (_) {}
+    }
+
+    const startHiddenMotion = () => {
+      if (window.__entryIntroComplete) return;
+      window.__entryIntroComplete = true;
+      document.dispatchEvent(new Event('entry:intro-complete'));
+      if (bgVideo && !window.__portfolioHandedOff) {
+        setTimeout(() => {
+          if (document.hidden || window.__portfolioHandedOff) return;
+          try {
+            const playPromise = bgVideo.play();
+            if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+          } catch (_) {}
+        }, 250);
+      }
+      if (tVid) {
+        try {
+          tVid.preload = 'auto';
+          tVid.load();
+        } catch (_) {}
+        try { fetch('assets/transition.mp4', { cache: 'force-cache', credentials: 'omit' }); } catch (_) {}
+      }
+    };
+
+    // Initial state: ticket hidden; GSAP will animate it in once gate dismisses.
+    if (typeof gsap !== 'undefined' && ticket) {
+      gsap.set(ticket, { y: 60, scale: 0.96, opacity: 0, visibility: 'visible' });
+    }
+
+    let ticketPlayed = false;
+    const playTicketIn = () => {
+      if (ticketPlayed || typeof gsap === 'undefined' || !ticket) return;
+      ticketPlayed = true;
+      gsap.to(ticket, {
+        y: 0, scale: 1, opacity: 1,
+        duration: 1.0, ease: 'power3.out',
+        delay: 0.2  // small breathing room after the gate fade
+      });
+    };
+
+    let gateDismissed = false;
+    let introSafetyTimer = null;
+    const armIntroSafetyTimer = () => {
+      if (introSafetyTimer) return;
+      introSafetyTimer = setTimeout(dismissGate, 45000);
+    };
+    const dismissGate = () => {
+      if (gateDismissed || !gate) return;
+      gateDismissed = true;
+      if (introAudio) {
+        try { introAudio.pause(); } catch (_) {}
+      }
+      gate.classList.add('done');
+      playTicketIn();
+      startHiddenMotion();
+      setTimeout(() => { if (gate.parentNode) gate.remove(); }, 1100);
+    };
+
+    if (!gate) {                         // safety: no gate → just play ticket
+      playTicketIn();
+      startHiddenMotion();
+      return;
+    }
+
+    if (video) {
+      introNeedsGesture = true;
+      setIntroButtonMode('play');
+      video.addEventListener('ended', dismissGate, { once: true });
+      // If autoplay is blocked or load fails, don't trap the user
+      video.addEventListener('error', dismissGate, { once: true });
+      // Hard cap after playback begins so a stalled load can't lock the page.
+      video.addEventListener('playing', armIntroSafetyTimer, { once: true });
+    } else {
+      dismissGate();
+    }
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        if (introNeedsGesture || (video && video.paused && !video.ended)) {
+          playIntroWithSecondAudio();
+          return;
+        }
+        dismissGate();
+      });
+    }
+
+    /* === Portfolio handoff — ENTER navigates without running two pages at once === */
+    const enterLink = document.querySelector('.enter');
+    const portfolioTarget = 'portfolio.html?skipIntro=1';
+
+    const pauseEntryPage = (keepVideo) => {
+      window.__portfolioHandedOff = true;
+      document.querySelectorAll('video').forEach((v) => {
+        if (v === keepVideo) return;
+        try { v.pause(); } catch (_) {}
+      });
+    };
+
+    let transitioning = false;
+    const enterPortfolio = () => {
+      if (transitioning) return;
+      transitioning = true;
+
+      [
+        portfolioTarget,
+        'assets/transition.mp4',
+        'assets/bg.mp4',
+        'https://unpkg.com/react@18.3.1/umd/react.production.min.js',
+        'https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js'
+      ].forEach((u) => { try { fetch(u, { cache: 'force-cache', credentials: 'omit' }); } catch (_) {} });
+
+      const navigate = () => {
+        window.location.href = portfolioTarget;
+      };
+
+      if (!tGate || !tVid) {
+        pauseEntryPage();
+        const cover = document.createElement('div');
+        cover.className = 'handoff-cover';
+        document.body.appendChild(cover);
+        requestAnimationFrame(() => {
+          cover.classList.add('visible');
+          setTimeout(navigate, 90);
+        });
+        return;
+      }
+
+      pauseEntryPage(tVid);
+      tGate.classList.add('active');
+      try { tVid.muted = false; } catch (_) {}
+      try { tVid.volume = 1; } catch (_) {}
+      try { tVid.currentTime = 0; } catch (_) {}
+
+      let navigated = false;
+      const navigateOnce = () => {
+        if (navigated) return;
+        navigated = true;
+        navigate();
+      };
+
+      tVid.addEventListener('ended', navigateOnce, { once: true });
+      tVid.addEventListener('error', navigateOnce, { once: true });
+
+      const playPromise = tVid.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          try { tVid.muted = true; } catch (_) {}
+          const retry = tVid.play();
+          if (retry && typeof retry.catch === 'function') retry.catch(navigateOnce);
+        });
+      }
+
+      setTimeout(navigateOnce, 15000);
+    };
+
+    // Intercept the ENTER pill click — reveal the preloaded portfolio page.
+    if (enterLink) {
+      enterLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        enterPortfolio();
+      });
+    }
+
+    // Unified keyboard handler:
+    //  - while the intro gate is up   → Enter / Space / Esc / → skips intro video
+    //  - after the intro gate is dismissed → Enter / Space / → enters portfolio
+    document.addEventListener('keydown', (e) => {
+      const k = e.key;
+      if (transitioning) return;
+      if (!gateDismissed) {
+        if (k === 'Escape') {
+          e.preventDefault();
+          dismissGate();
+          return;
+        }
+        if (k === 'Enter' || k === ' ' || k === 'ArrowRight') {
+          e.preventDefault();
+          if (introNeedsGesture || (video && video.paused && !video.ended)) {
+            playIntroWithSecondAudio();
+          } else {
+            dismissGate();
+          }
+        }
+        return;
+      }
+      if (k === 'Enter' || k === ' ' || k === 'ArrowRight') {
+        e.preventDefault();
+        enterPortfolio();
+      }
+    });
+  })();
+
+  document.addEventListener('entry:intro-complete', () => {
+    requestAnimationFrame(() => {
+      if (!window.initScrollFloatText) return;
+      window.initScrollFloatText({
+        selector: [
+          '.topbar .brand',
+          '.topbar .hud',
+          '.foot-hud',
+          '.ticket .l1',
+          '.ticket .l2',
+          '.ticket .l3',
+          '.ticket .row span',
+          '.ticket .title-line',
+          '.ticket .id-line',
+          '.ticket .valid',
+          '.enter-hint',
+          '.enter span'
+        ].join(','),
+        mode: 'load',
+        animationDuration: 0.9,
+        ease: 'back.inOut(2)',
+        stagger: 0.012
+      });
+    });
+  }, { once: true });
+</script>
+
+<!-- Antigravity — vanilla port of portfolio.html Antigravity component, COUNT = 150 -->
+<script>
+(function() {
+  const container = document.getElementById('antigravity-stage');
+  if (!container || typeof THREE === 'undefined') return;
+
+  const startAntigravity = () => {
+  if (window.__portfolioHandedOff) return;
+
+  const COUNT          = 150;
+  const SHAPE          = 'tetrahedron';
+  const COLOR          = '#1a1611';
+  const magnetRadius   = 42;
+  const ringRadius     = 9;
+  const waveSpeed      = 1.5;
+  const waveAmplitude  = 1;
+  const particleSize   = 1;
+  const lerpSpeed      = 0.01;
+  const autoAnimate    = true;
+  const particleVariance = 0;
+  const rotationSpeed    = 0;
+  const depthFactor      = 5;
+  const pulseSpeed       = 0;
+  const fieldStrength    = 9.2;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(
+    35,
+    Math.max(1, container.clientWidth) / Math.max(1, container.clientHeight),
+    0.1, 1000
+  );
+  camera.position.set(0, 0, 50);
+
+  const renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: false,
+    powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+  renderer.setSize(container.clientWidth, container.clientHeight, false);
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+  renderer.domElement.style.display = 'block';
+
+  const computeViewport = () => {
+    const fovRad = (camera.fov * Math.PI) / 180;
+    const h = 2 * Math.tan(fovRad / 2) * camera.position.z;
+    return { width: h * camera.aspect, height: h };
+  };
+  let viewport = computeViewport();
+
+  const particles = [];
+  for (let i = 0; i < COUNT; i++) {
+    const x = (Math.random() - 0.5) * viewport.width;
+    const y = (Math.random() - 0.5) * viewport.height;
+    const z = (Math.random() - 0.5) * 20;
+    particles.push({
+      t: Math.random() * 100,
+      speed: 0.01 + Math.random() / 200,
+      mx: x, my: y, mz: z,
+      cx: x, cy: y, cz: z,
+      randomRadiusOffset: (Math.random() - 0.5) * 2,
+    });
+  }
+
+  let geometry;
+  if (SHAPE === 'capsule')     geometry = new THREE.CapsuleGeometry(0.1, 0.4, 4, 8);
+  else if (SHAPE === 'sphere') geometry = new THREE.SphereGeometry(0.2, 12, 12);
+  else if (SHAPE === 'box')    geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+  else                         geometry = new THREE.TetrahedronGeometry(0.3);
+
+  // Material left white so per-instance colors render true.
+  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const mesh = new THREE.InstancedMesh(geometry, material, COUNT);
+  mesh.frustumCulled = false;
+  // Per-instance color mix: 65% near-black ink, 20% indigo accent, 15% warm gray.
+  const _palette = [
+    new THREE.Color('#0a0a0a'),
+    new THREE.Color('#2c4a8c'),
+    new THREE.Color('#6b635a'),
+  ];
+  const _tmpColor = new THREE.Color();
+  for (let i = 0; i < COUNT; i++) {
+    const r = Math.random();
+    const pick = r < 0.65 ? _palette[0] : (r < 0.85 ? _palette[1] : _palette[2]);
+    _tmpColor.copy(pick);
+    mesh.setColorAt(i, _tmpColor);
+  }
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  scene.add(mesh);
+
+  const dummy = new THREE.Object3D();
+  const pointer = { x: 0, y: 0 };
+  const lastMousePos = { x: 0, y: 0 };
+  let lastMouseMoveTime = Date.now();
+  const virtualMouse = { x: 0, y: 0 };
+
+  const updatePointer = (cx, cy) => {
+    pointer.x = (cx / window.innerWidth) * 2 - 1;
+    pointer.y = -(cy / window.innerHeight) * 2 + 1;
+  };
+  const onPointerMove = (e) => updatePointer(e.clientX, e.clientY);
+  const onTouchMove   = (e) => { if (e.touches && e.touches[0]) updatePointer(e.touches[0].clientX, e.touches[0].clientY); };
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('mousemove',   onPointerMove, { passive: true });
+  window.addEventListener('touchmove',   onTouchMove,   { passive: true });
+
+  const clock = new THREE.Clock();
+  let raf;
+  let running = true;
+
+  const animate = () => {
+    if (!running || window.__portfolioHandedOff) return;
+    raf = requestAnimationFrame(animate);
+
+    const elapsed = clock.getElapsedTime();
+    const m = pointer;
+    const v = viewport;
+
+    const mdx = m.x - lastMousePos.x, mdy = m.y - lastMousePos.y;
+    if (mdx * mdx + mdy * mdy > 1e-6) {
+      lastMouseMoveTime = Date.now();
+      lastMousePos.x = m.x;
+      lastMousePos.y = m.y;
+    }
+
+    let destX = (m.x * v.width) / 2;
+    let destY = (m.y * v.height) / 2;
+    if (autoAnimate && Date.now() - lastMouseMoveTime > 2000) {
+      destX = Math.sin(elapsed * 0.5) * (v.width / 4);
+      destY = Math.cos(elapsed * 1.0) * (v.height / 4);
+    }
+    virtualMouse.x += (destX - virtualMouse.x) * 0.05;
+    virtualMouse.y += (destY - virtualMouse.y) * 0.05;
+
+    const targetX = virtualMouse.x;
+    const targetY = virtualMouse.y;
+    const globalRotation = elapsed * rotationSpeed;
+
+    for (let i = 0; i < particles.length; i++) {
+      const particle = particles[i];
+      particle.t += particle.speed * 0.5;
+      const t = particle.t;
+      const mx = particle.mx, my = particle.my, mz = particle.mz, cz = particle.cz;
+      const randomRadiusOffset = particle.randomRadiusOffset;
+
+      const projectionFactor = 1 - cz / 50;
+      const projectedTargetX = targetX * projectionFactor;
+      const projectedTargetY = targetY * projectionFactor;
+
+      const dx = mx - projectedTargetX;
+      const dy = my - projectedTargetY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      let tx = mx, ty = my, tz = mz * depthFactor;
+      if (dist < magnetRadius) {
+        const angle = Math.atan2(dy, dx) + globalRotation;
+        const wave = Math.sin(t * waveSpeed + angle) * (0.5 * waveAmplitude);
+        const deviation = randomRadiusOffset * (5 / (fieldStrength + 0.1));
+        const currentRingRadius = ringRadius + wave + deviation;
+        tx = projectedTargetX + currentRingRadius * Math.cos(angle);
+        ty = projectedTargetY + currentRingRadius * Math.sin(angle);
+        tz = mz * depthFactor + Math.sin(t) * (waveAmplitude * depthFactor);
+      }
+
+      particle.cx += (tx - particle.cx) * lerpSpeed;
+      particle.cy += (ty - particle.cy) * lerpSpeed;
+      particle.cz += (tz - particle.cz) * lerpSpeed;
+
+      dummy.position.set(particle.cx, particle.cy, particle.cz);
+      dummy.lookAt(projectedTargetX, projectedTargetY, particle.cz);
+      dummy.rotateX(Math.PI / 2);
+
+      const ddx = particle.cx - projectedTargetX;
+      const ddy = particle.cy - projectedTargetY;
+      const currentDistToMouse = Math.sqrt(ddx * ddx + ddy * ddy);
+      const distFromRing = Math.abs(currentDistToMouse - ringRadius);
+      let scaleFactor = 1 - distFromRing / 10;
+      if (scaleFactor < 0) scaleFactor = 0; else if (scaleFactor > 1) scaleFactor = 1;
+      const finalScale =
+        scaleFactor *
+        (0.8 + Math.sin(t * pulseSpeed) * 0.2 * particleVariance) *
+        particleSize;
+      dummy.scale.set(finalScale, finalScale, finalScale);
+
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    }
+
+    mesh.instanceMatrix.needsUpdate = true;
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  const onResize = () => {
+    const w = Math.max(1, container.clientWidth);
+    const h = Math.max(1, container.clientHeight);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    viewport = computeViewport();
+  };
+  window.addEventListener('resize', onResize);
+
+  const onVisibility = () => {
+    if (document.hidden) { running = false; cancelAnimationFrame(raf); }
+    else if (!running && !window.__portfolioHandedOff)   { running = true; clock.getDelta(); animate(); }
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+
+  };
+
+  if (window.__entryIntroComplete) {
+    startAntigravity();
+  } else {
+    document.addEventListener('entry:intro-complete', startAntigravity, { once: true });
+  }
+})();
+</script>
+
+<!-- Blue particle planet — vanilla port of the backup PlanetField (solid volumetric cluster + tilted ring) -->
+<script>
+(function() {
+  const canvas = document.getElementById('planet-canvas');
+  if (!canvas) return;
+
+  const startPlanet = () => {
+  if (window.__portfolioHandedOff) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  let W, H, cx, cy, pR;
+  let raf, t = 0;
+  let parts = [];
+
+  const BODY_N   = 1800;
+  const RING_N   = 620;
+  const RING_IN  = 1.28;
+  const RING_OUT = 2.10;
+  const RING_TILT = 0.40; // ~23°
+
+  const rng = (n) => { const s = Math.sin(n * 9301.7 + 49297.3) * 233280; return s - Math.floor(s); };
+
+  const setup = () => {
+    W = canvas.clientWidth;
+    H = canvas.clientHeight;
+    if (W < 2 || H < 2) return;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    cx = W * 0.5;
+    cy = H * 0.5;
+    pR = Math.min(W * 0.34, H * 0.40, 175);
+
+    parts = [];
+
+    // Body: solid volumetric cluster (cube-root radius, slight outer bias)
+    for (let i = 0; i < BODY_N; i++) {
+      const u   = rng(i*7+3) * 2 - 1;
+      const phi = rng(i*11+5) * Math.PI * 2;
+      const sq  = Math.sqrt(Math.max(0, 1 - u*u));
+      const dx  = sq * Math.cos(phi);
+      const dy  = u;
+      const dz  = sq * Math.sin(phi);
+      const rr  = Math.pow(rng(i*17+9), 0.40);
+      parts.push({
+        hx: dx*rr, hy: dy*rr, hz: dz*rr,
+        x:  dx*rr, y:  dy*rr, z:  dz*rr,
+        vx:0, vy:0, vz:0,
+        type:'body',
+        sz: 0.95 + rng(i*11+5) * 0.65,
+        ct: rng(i*13+7),
+      });
+    }
+
+    // Ring: tilted around X-axis
+    for (let i = 0; i < RING_N; i++) {
+      const a  = (i / RING_N) * Math.PI * 2 + rng(i*17+3) * 0.6;
+      const rr = RING_IN + rng(i*19+9) * (RING_OUT - RING_IN);
+      const x0 = rr * Math.cos(a);
+      const y0 = -rr * Math.sin(a) * Math.sin(RING_TILT);
+      const z0 =  rr * Math.sin(a) * Math.cos(RING_TILT);
+      parts.push({
+        hx:x0, hy:y0, hz:z0,
+        x:x0,  y:y0,  z:z0,
+        vx:0, vy:0, vz:0,
+        type:'ring',
+        sz: 0.35 + rng(i*23+7) * 0.50,
+        ct: rng(i*29+11),
+      });
+    }
+  };
+
+  // Click → scatter, spring physics pulls everything back to home
+  const scatter = (mx, my) => {
+    const rotY = t * 0.0032;
+    const breathe = 1 + 0.05 * Math.sin(t * 0.010);
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    for (const p of parts) {
+      const rx = p.x*cosY + p.z*sinY;
+      const rz = -p.x*sinY + p.z*cosY;
+      const ry = p.y * breathe;
+      const fov = 3.8;
+      const sc  = fov / (fov + rz * 0.35) * pR;
+      const sx  = cx + rx * sc;
+      const sy  = cy + ry * sc;
+      const dx  = sx - mx, dy = sy - my;
+      const d   = Math.sqrt(dx*dx + dy*dy);
+      const R   = Math.max(85, pR * 0.75);
+      if (d < R) {
+        const f   = Math.pow(1 - d/R, 1.4) * 1.1;
+        const ang = Math.atan2(dy, dx);
+        // Softer impulse with a tangential swirl component → drifts outward instead of bursting
+        const tx = -Math.sin(ang), ty = Math.cos(ang);
+        p.vx += (Math.cos(ang) * 0.65 + tx * 0.35) * f * 0.055;
+        p.vy += (Math.sin(ang) * 0.65 + ty * 0.35) * f * 0.055;
+        p.vz += (Math.random() - 0.5) * f * 0.035;
+      }
+    }
+  };
+  canvas.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    scatter(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  const draw = () => {
+    if (window.__portfolioHandedOff) return;
+    ctx.clearRect(0, 0, W, H);
+    t++;
+
+    const rotY    = t * 0.0032;
+    const breathe = 1 + 0.05 * Math.sin(t * 0.010);
+    const cosY    = Math.cos(rotY), sinY = Math.sin(rotY);
+
+    const proj = parts.map(p => {
+      // Gentle spring → particles drift home over several seconds
+      p.vx += (p.hx - p.x) * 0.0085;
+      p.vy += (p.hy - p.y) * 0.0085;
+      p.vz += (p.hz - p.z) * 0.0085;
+      // Light damping → keeps the float / antigravity feel
+      p.vx *= 0.945; p.vy *= 0.945; p.vz *= 0.945;
+      p.x  += p.vx; p.y  += p.vy; p.z  += p.vz;
+
+      const rx =  p.x*cosY + p.z*sinY;
+      const rz = -p.x*sinY + p.z*cosY;
+      const ry =  p.y * breathe;
+
+      const fov  = 3.8;
+      const sc   = fov / (fov + rz * 0.35);
+      const sx   = cx + rx * sc * pR;
+      const sy   = cy + ry * sc * pR;
+      const depth = (rz + 2.5) / 5.0;
+      return { p, sx, sy, rz, depth, sc };
+    });
+
+    proj.sort((a, b) => a.rz - b.rz);
+
+    for (const { p, sx, sy, depth, sc } of proj) {
+      if (p.type === 'body') {
+        // Deep navy (back) → rich royal blue (front)
+        const pr = Math.round(4   + p.ct*8   + depth*22);
+        const pg = Math.round(14  + p.ct*18  + depth*55);
+        const pb = Math.round(55  + p.ct*35  + depth*120);
+        const pa = 0.55 + depth * 0.40;
+        const sz = Math.max(0.6, p.sz * sc * (1.15 + depth*0.85));
+
+        ctx.beginPath();
+        ctx.arc(sx, sy, sz, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${pr},${Math.min(255,pg)},${Math.min(255,pb)},${pa})`;
+        ctx.fill();
+
+        if (depth > 0.55 && sz > 0.7) {
+          const gr = ctx.createRadialGradient(sx,sy,0, sx,sy, sz*4.5);
+          gr.addColorStop(0, `rgba(30,70,170,${(depth-0.55)*0.55})`);
+          gr.addColorStop(1, 'rgba(30,70,170,0)');
+          ctx.fillStyle = gr;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sz*4.5, 0, Math.PI*2);
+          ctx.fill();
+        }
+      } else {
+        // Ring: very deep midnight blue
+        const pa = (0.70 + depth*0.30) * (0.75 + p.ct*0.25);
+        const sz = Math.max(0.7, p.sz * sc * 1.80);
+        ctx.beginPath();
+        ctx.arc(sx, sy, sz, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(6,22,72,${Math.min(1.0, pa)})`;
+        ctx.fill();
+
+        if (depth > 0.5 && sz > 0.55) {
+          const gr = ctx.createRadialGradient(sx,sy,0, sx,sy, sz*3.4);
+          gr.addColorStop(0, `rgba(15,45,130,${(depth-0.5)*0.60})`);
+          gr.addColorStop(1, 'rgba(15,45,130,0)');
+          ctx.fillStyle = gr;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sz*3.4, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+    }
+
+    raf = requestAnimationFrame(draw);
+  };
+
+  setup();
+  draw();
+  window.addEventListener('resize', setup);
+
+  // Pause when tab hidden
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { cancelAnimationFrame(raf); }
+    else if (!window.__portfolioHandedOff) { raf = requestAnimationFrame(draw); }
+  });
+
+  };
+
+  if (window.__entryIntroComplete) {
+    startPlanet();
+  } else {
+    document.addEventListener('entry:intro-complete', startPlanet, { once: true });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+.scroll-float {
+  overflow: hidden;
+}
+
+.scroll-float-text {
+  display: inline-block;
+  font-size: clamp(1.6rem, 8vw, 10rem);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.char {
+  display: inline-block;
+}
+
+.scroll-float-auto {
+  overflow: hidden;
+}
+
+.scroll-float-auto .char {
+  display: inline-block;
+  transform-origin: 50% 0%;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-float-auto .char,
+  .scroll-float .char {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}
