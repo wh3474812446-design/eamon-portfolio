@@ -152,12 +152,22 @@ body.intro-done .back-to-ticket { display: inline-flex; }
   letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 4px;
 }
 .nav-brand .copy { font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); margin-left: 2px; }
-.nav-links { display: flex; gap: 8px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-.nav-link {
-  padding: 9px 18px; border: 1px solid var(--border-strong); border-radius: 999px;
-  color: var(--fg); font-weight: 600; transition: all 0.2s var(--ease);
+.nav-links {
+  display: flex; gap: 6px; padding: 5px;
+  border: 1px solid rgba(20,17,12,.88);
+  border-radius: 999px;
+  background: rgba(20,17,12,.08);
+  box-shadow: 0 14px 34px -28px rgba(20,17,12,.65);
+  font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
 }
-.nav-link:hover { color: var(--fg); border-color: var(--border-strong); background: var(--bg-card); }
+.nav-link {
+  min-width: 62px;
+  padding: 9px 18px; border: 1px solid var(--fg); border-radius: 999px;
+  color: var(--bg); background: var(--fg); font-weight: 700; text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(243,239,232,.08);
+  transition: all 0.2s var(--ease);
+}
+.nav-link:hover { color: var(--bg); border-color: var(--accent); background: var(--accent); transform: translateY(-1px); }
 .nav-link.primary { color: var(--bg); background: var(--fg); border-color: var(--fg); }
 .nav-link.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
@@ -685,36 +695,243 @@ video.mlb-media { width: min(1200px, 94vw); }
 .module-list { padding-bottom: 60px; }
 
 /* GitHub module */
-.github-body { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.repo-list { display: flex; flex-direction: column; gap: 10px; }
+.github-body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.repo-list { display: flex; flex-direction: column; gap: 7px; }
 .repo-card {
   border: 1px solid var(--border);
   background: #fff;
-  padding: 14px 16px;
+  padding: 8px 10px;
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px 18px;
-  transition: border-color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);
+  grid-template-columns: 1fr;
+  gap: 4px;
+  cursor: var(--cursor-hand);
+  transition: border-color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
 }
-.repo-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 14px 30px -24px rgba(10,10,10,.4); }
-.repo-name { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--fg); line-height: 1.2; }
-.repo-meta { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-.repo-desc { grid-column: 1 / -1; color: var(--fg-dim); font-size: 13px; line-height: 1.6; }
+.repo-card:hover { border-color: var(--accent); transform: translateY(-2px); background: #fbfaf7; box-shadow: 0 14px 30px -24px rgba(10,10,10,.4); }
+.repo-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.repo-title { min-width: 0; }
+.repo-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--fg); line-height: 1.15; }
+.repo-meta { margin-top: 2px; font-family: var(--font-mono); font-size: 9px; color: var(--fg-mute); letter-spacing: .08em; text-transform: uppercase; }
+.repo-desc {
+  color: var(--fg-dim); font-size: 11.5px; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.repo-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.repo-open-note {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+}
+.repo-detail,
+.repo-link {
+  flex: 0 0 auto;
+  min-height: 24px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  appearance: none;
+  background: #f3efe8;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: var(--cursor-hand);
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .12s var(--ease);
+}
+.repo-link { background: var(--fg); border-color: var(--fg); color: #f3efe8; }
+.repo-detail:hover,
+.repo-link:hover { border-color: var(--accent); background: var(--accent); color: #f3efe8; transform: translateY(-1px); }
+.repo-modal {
+  position: fixed; inset: 0; z-index: 100000;
+  display: flex; align-items: center; justify-content: center;
+  padding: max(22px, 4vh) max(18px, 4vw);
+  background: rgba(8,7,5,.82);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  backdrop-filter: blur(16px) saturate(1.08);
+}
+.repo-modal-panel {
+  position: relative;
+  width: min(780px, 94vw);
+  max-height: 90vh;
+  overflow: auto;
+  border: 1px solid rgba(243,239,232,.22);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(44,74,140,.32), transparent 34%),
+    linear-gradient(145deg, #14110c 0%, #211d16 46%, #10100f 100%);
+  color: #f3efe8;
+  padding: clamp(22px, 4vw, 36px);
+  box-shadow: 0 60px 140px -48px rgba(0,0,0,.9);
+}
+.repo-modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid rgba(243,239,232,.28);
+  background: rgba(243,239,232,.06);
+  color: #f3efe8;
+  font-size: 18px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: var(--cursor-hand);
+}
+.repo-modal-close:hover { border-color: var(--accent); background: rgba(44,74,140,.45); }
+.repo-modal-kicker {
+  margin-right: 48px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(243,239,232,.64);
+}
+.repo-modal-title {
+  margin: 12px 48px 10px 0;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: .95;
+  letter-spacing: 0;
+}
+.repo-modal-desc {
+  max-width: 64ch;
+  margin: 0 0 22px;
+  color: rgba(243,239,232,.78);
+  font-size: 15px;
+  line-height: 1.85;
+}
+.repo-modal-hero-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin: -6px 0 20px;
+}
+.repo-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.repo-modal-section {
+  border: 1px solid rgba(243,239,232,.16);
+  background: rgba(243,239,232,.055);
+  border-radius: 16px;
+  padding: 16px;
+}
+.repo-modal-section h4 {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .13em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.repo-chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.repo-chip {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(243,239,232,.1);
+  color: rgba(243,239,232,.82);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.repo-modal-section p { margin: 0; color: rgba(243,239,232,.78); line-height: 1.7; }
+.repo-modal-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.repo-modal-list li {
+  position: relative;
+  padding-left: 18px;
+  color: rgba(243,239,232,.82);
+  line-height: 1.65;
+}
+.repo-modal-list li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: .72em;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.repo-modal-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.repo-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.repo-github-cta,
+.repo-back {
+  min-height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(243,239,232,.24);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: var(--cursor-hand);
+}
+.repo-github-cta { background: #f3efe8; color: #14110c; border-color: #f3efe8; }
+.repo-back { background: transparent; color: rgba(243,239,232,.74); }
+.repo-github-cta:hover { background: var(--accent); color: #f3efe8; border-color: var(--accent); }
+.repo-back:hover { color: #f3efe8; border-color: var(--accent); }
 .repo-graph { margin-top: auto; }
 .repo-graph-label {
-  display: flex; justify-content: space-between; margin-bottom: 9px;
+  display: flex; justify-content: space-between; margin-bottom: 6px;
   font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em;
   text-transform: uppercase; color: var(--fg-mute);
 }
 .repo-spark {
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
-  gap: 3px; height: 46px; align-items: end;
+  gap: 3px; height: 34px; align-items: end;
 }
 .repo-spark span {
   background: rgba(44,74,140,.22); border-radius: 1.5px;
   min-height: 3px; transition: background .2s var(--ease);
 }
 .repo-spark span:last-child { background: var(--accent); }
+
+.module-copy.is-clickable {
+  cursor: var(--cursor-hand);
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease), filter .2s var(--ease);
+}
+.module-copy.is-clickable:hover {
+  transform: translateY(-3px);
+  filter: saturate(1.05);
+}
+.module-copy-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 22px;
+  padding: 9px 13px;
+  border: 1px solid rgba(243,239,232,.34);
+  border-radius: 999px;
+  color: rgba(243,239,232,.88);
+  background: rgba(243,239,232,.08);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
 
 /* Badge image module */
 .badge-body { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
@@ -795,6 +1012,71 @@ video.mlb-media { width: min(1200px, 94vw); }
 .contact-row .k { color: var(--fg-mute); letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
 .contact-row .v { color: var(--fg); }
 .contact-row .v:hover { color: var(--accent-2); }
+
+.profile-modal-panel { width: min(860px, 94vw); }
+.profile-modal-lead {
+  max-width: 68ch;
+  margin: 0 0 22px;
+  color: rgba(243,239,232,.78);
+  font-size: 15px;
+  line-height: 1.85;
+}
+.profile-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+.profile-modal-card {
+  border: 1px solid rgba(243,239,232,.16);
+  background: rgba(243,239,232,.055);
+  border-radius: 16px;
+  padding: 16px;
+}
+.profile-modal-card h4 {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .13em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.profile-list,
+.profile-contact-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.profile-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid rgba(243,239,232,.1);
+  padding-bottom: 8px;
+}
+.profile-list b,
+.profile-contact-row b {
+  color: #f3efe8;
+  font-weight: 700;
+}
+.profile-list span,
+.profile-contact-row span,
+.profile-contact-row a {
+  color: rgba(243,239,232,.76);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-align: right;
+}
+.profile-contact-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid rgba(243,239,232,.1);
+  padding-bottom: 10px;
+}
+.profile-contact-row a:hover { color: var(--accent); }
 
 /* Footer */
 .foot {
@@ -877,7 +1159,15 @@ select.twk-field { padding-right: 22px; }
   .module-copy .module-stats { grid-template-columns: 1fr; gap: 14px; }
   .badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .repo-card { grid-template-columns: 1fr; }
+  .repo-top { flex-direction: column; }
   .repo-meta { white-space: normal; }
+  .repo-modal-grid { grid-template-columns: 1fr; }
+  .repo-modal-extra-grid { grid-template-columns: 1fr; }
+  .repo-modal-panel { border-radius: 18px; }
+  .repo-modal-actions { align-items: stretch; }
+  .repo-github-cta,
+  .repo-back { width: 100%; }
+  .profile-modal-grid { grid-template-columns: 1fr; }
   .bottom-strip { margin: 0 20px 60px; padding: 24px 20px; }
   .foot { margin: 0 20px 20px; padding: 18px; flex-direction: column; gap: 8px; }
 }
@@ -2376,7 +2666,26 @@ const BADGE_WORKS = window.PORTFOLIO_DATA.badges;
 // Deterministic commit-activity sparkline (24 weeks) — looks intentional, not placeholder
 const REPO_SPARK = [22, 38, 30, 54, 44, 70, 58, 86, 64, 48, 76, 92, 72, 60, 84, 100, 78, 56, 90, 68, 82, 46, 62, 96];
 function GitHubModule() {
-  return React.createElement("div", {
+  const [selectedRepo, setSelectedRepo] = React.useState(null);
+  React.useEffect(() => {
+    if (!selectedRepo) return undefined;
+    const prevOverflow = document.body.style.overflow;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setSelectedRepo(null);
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [selectedRepo]);
+  const openRepo = (repo) => setSelectedRepo(repo);
+  const modal = selectedRepo ? ReactDOM.createPortal(React.createElement(RepoModal, {
+    repo: selectedRepo,
+    onClose: () => setSelectedRepo(null)
+  }), document.body) : null;
+  return React.createElement(React.Fragment, null, React.createElement("div", {
     className: "card"
   }, React.createElement("div", {
     className: "card-head"
@@ -2396,14 +2705,31 @@ function GitHubModule() {
     className: "github-body"
   }, React.createElement("div", {
     className: "repo-list"
-  }, GITHUB_PROJECTS.map((repo, index) => React.createElement("div", {
+  }, GITHUB_PROJECTS.map((repo, index) => React.createElement("article", {
     key: repo.name,
-    className: "repo-card"
+    className: "repo-card",
+    onMouseDown: () => openRepo(repo),
+    title: "\u70B9\u51FB\u67E5\u770B\u9879\u76EE\u8BE6\u60C5"
+  }, React.createElement("div", {
+    className: "repo-top"
+  }, React.createElement("div", {
+    className: "repo-title"
   }, React.createElement("div", {
     className: "repo-name"
   }, repo.name), React.createElement("div", {
     className: "repo-meta"
-  }, String(index + 1).padStart(2, '0'), " \xB7 ", repo.meta), React.createElement("div", {
+  }, String(index + 1).padStart(2, '0'), " \xB7 ", repo.meta, " \xB7 \u70B9\u51FB\u770B\u8BE6\u60C5")), React.createElement("button", {
+    type: "button",
+    className: "repo-link",
+    onMouseDown: (event) => {
+      event.stopPropagation();
+      openRepo(repo);
+    },
+    onClick: (event) => {
+      event.stopPropagation();
+      openRepo(repo);
+    }
+  }, "\u6253\u5F00github")), React.createElement("div", {
     className: "repo-desc"
   }, repo.desc)))), React.createElement("div", {
     className: "repo-graph",
@@ -2417,7 +2743,78 @@ function GitHubModule() {
     style: { height: h + '%' }
   })))))), React.createElement("div", {
     className: "card-foot"
-  }, React.createElement("span", null, window.PORTFOLIO_DATA.metrics.githubCount, " \xB7 GitHub"), React.createElement("span", null, "BUILD \xB7 SHIP \xB7 ITERATE")));
+  }, React.createElement("span", null, window.PORTFOLIO_DATA.metrics.githubCount, " \xB7 GitHub"), React.createElement("span", null, "BUILD \xB7 SHIP \xB7 ITERATE"))), modal);
+}
+function RepoModal({
+  repo,
+  onClose
+}) {
+  const stop = (event) => event.stopPropagation();
+  return React.createElement("div", {
+    className: "repo-modal",
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": `${repo.name} \u9879\u76EE\u8BE6\u60C5`,
+    onMouseDown: onClose
+  }, React.createElement("div", {
+    className: "repo-modal-panel",
+    onMouseDown: stop
+  }, React.createElement("button", {
+    type: "button",
+    className: "repo-modal-close",
+    "aria-label": "\u5173\u95ED",
+    onClick: onClose
+  }, "\xD7"), React.createElement("div", {
+    className: "repo-modal-kicker"
+  }, "GitHub Project \xB7 ", repo.repo, " \xB7 ", repo.source), React.createElement("h3", {
+    className: "repo-modal-title"
+  }, repo.name), React.createElement("p", {
+    className: "repo-modal-desc"
+  }, repo.detail), React.createElement("div", {
+    className: "repo-modal-hero-actions"
+  }, React.createElement("a", {
+    className: "repo-github-cta",
+    href: repo.url,
+    target: "_blank",
+    rel: "noreferrer"
+  }, "\u6253\u5F00 GitHub \u9879\u76EE")), React.createElement("div", {
+    className: "repo-modal-grid"
+  }, React.createElement("section", {
+    className: "repo-modal-section"
+  }, React.createElement("h4", null, "\u6280\u672F\u6808"), React.createElement("div", {
+    className: "repo-chip-list"
+  }, repo.stack.map(item => React.createElement("span", {
+    className: "repo-chip",
+    key: item
+  }, item)))), React.createElement("section", {
+    className: "repo-modal-section"
+  }, React.createElement("h4", null, "\u4EA4\u4ED8\u7269"), React.createElement("p", null, repo.deliverable))), React.createElement("section", {
+    className: "repo-modal-section"
+  }, React.createElement("h4", null, "\u9879\u76EE\u4EAE\u70B9"), React.createElement("ul", {
+    className: "repo-modal-list"
+  }, repo.highlights.map(item => React.createElement("li", {
+    key: item
+  }, item)))), repo.sections && React.createElement("div", {
+    className: "repo-modal-extra-grid"
+  }, repo.sections.map(section => React.createElement("section", {
+    className: "repo-modal-section",
+    key: section.title
+  }, React.createElement("h4", null, section.title), section.body && React.createElement("p", null, section.body), section.items && React.createElement("ul", {
+    className: "repo-modal-list"
+  }, section.items.map(item => React.createElement("li", {
+    key: item
+  }, item)))))), React.createElement("div", {
+    className: "repo-modal-actions"
+  }, React.createElement("a", {
+    className: "repo-github-cta",
+    href: repo.url,
+    target: "_blank",
+    rel: "noreferrer"
+  }, "\u6253\u5F00 GitHub \u9879\u76EE"), React.createElement("button", {
+    type: "button",
+    className: "repo-back",
+    onClick: onClose
+  }, "\u8FD4\u56DE\u4F5C\u54C1\u96C6"))));
 }
 const BADGE_SHOTS = [
   { src: 'assets/badge-1.jpg', cn: '\u9ED1\u7EF8\u4E3B\u89C6\u89C9', en: 'HERO' },
@@ -2895,21 +3292,44 @@ function ModuleSection({
   title,
   desc,
   stats,
+  detail,
   from = 'left',
   children
 }) {
   const [ref, inView] = useInView();
+  const [detailOpen, setDetailOpen] = React.useState(false);
+  const hasDetail = !!detail;
+  React.useEffect(() => {
+    if (!detailOpen) return undefined;
+    const prevOverflow = document.body.style.overflow;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setDetailOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [detailOpen]);
+  const openDetail = (event) => {
+    if (!hasDetail) return;
+    if (event) event.stopPropagation();
+    setDetailOpen(true);
+  };
   // data-from drives the CSS slide-in direction of the left (visual) column;
   // the right (copy) column stays put. Reveal is pure CSS (transform clears to
   // none when settled, so nothing stays offset / unclickable).
-  return React.createElement("div", {
+  return React.createElement(React.Fragment, null, React.createElement("div", {
     ref: ref,
     "data-from": from,
     className: `module-section ${inView ? 'is-visible' : ''}`
   }, React.createElement("div", {
     className: "module-visual"
   }, children), React.createElement("div", {
-    className: "module-copy"
+    className: `module-copy ${hasDetail ? 'is-clickable' : ''}`,
+    onMouseDown: hasDetail ? openDetail : undefined,
+    title: hasDetail ? "\u70B9\u51FB\u67E5\u770B\u9879\u76EE\u8BE6\u60C5" : undefined
   }, React.createElement("div", {
     className: "module-num"
   }, num), React.createElement("h3", {
@@ -2927,7 +3347,12 @@ function ModuleSection({
     className: "module-stat-label"
   }, s.label), React.createElement("div", {
     className: "module-stat-value"
-  }, s.value))))));
+  }, s.value)))), hasDetail && React.createElement("span", {
+    className: "module-copy-hint"
+  }, "\u70B9\u51FB\u67E5\u770B\u8BE6\u60C5"))), detailOpen && ReactDOM.createPortal(React.createElement(RepoModal, {
+    repo: detail,
+    onClose: () => setDetailOpen(false)
+  }), document.body));
 }
 </script>
 
@@ -3086,6 +3511,72 @@ function ResumeModal({ onClose }) {
     onClick: () => scrollResumeTo('bottom')
   }, "底部"))));
 }
+function SiteInfoModal({ type, data, onClose }) {
+  const isContact = type === 'contact';
+  React.useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+  const title = isContact ? ['联系', '与到岗信息'] : data.about.title;
+  return React.createElement("div", {
+    className: "repo-modal",
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": isContact ? "\u8054\u7CFB\u4FE1\u606F" : "\u5173\u4E8E Eamon",
+    onMouseDown: onClose
+  }, React.createElement("div", {
+    className: "repo-modal-panel profile-modal-panel",
+    onMouseDown: e => e.stopPropagation()
+  }, React.createElement("button", {
+    type: "button",
+    className: "repo-modal-close",
+    "aria-label": "\u5173\u95ED",
+    onClick: onClose
+  }, "\xD7"), React.createElement("div", {
+    className: "repo-modal-kicker"
+  }, isContact ? "CONTACT \xB7 AVAILABILITY" : "PROFILE \xB7 ABOUT"), React.createElement("h3", {
+    className: "repo-modal-title"
+  }, renderTitleLines(title)), React.createElement("p", {
+    className: "profile-modal-lead"
+  }, isContact ? "\u53EF\u968F\u65F6\u5230\u5C97\uFF0C\u5750\u6807\u676D\u5DDE\u3002\u5982\u9700\u8054\u7CFB\uFF0C\u53EF\u4EE5\u901A\u8FC7\u90AE\u7BB1\u3001\u7535\u8BDD\u6216 GitHub \u76F4\u63A5\u627E\u5230\u6211\u3002" : data.about.body), React.createElement("div", {
+    className: "profile-modal-grid"
+  }, isContact ? React.createElement(React.Fragment, null, React.createElement("section", {
+    className: "profile-modal-card"
+  }, React.createElement("h4", null, "\u8054\u7CFB\u65B9\u5F0F"), React.createElement("div", {
+    className: "profile-contact-list"
+  }, data.contacts.map(contact => React.createElement("div", {
+    className: "profile-contact-row",
+    key: contact.label
+  }, React.createElement("b", null, contact.label), contact.href ? React.createElement("a", {
+    href: contact.href,
+    target: contact.href.startsWith('http') ? "_blank" : undefined,
+    rel: contact.href.startsWith('http') ? "noreferrer" : undefined
+  }, contact.value) : React.createElement("span", null, contact.value))))), React.createElement("section", {
+    className: "profile-modal-card"
+  }, React.createElement("h4", null, "\u5173\u952E\u6807\u7B7E"), React.createElement("ul", {
+    className: "profile-list"
+  }, data.skills.slice(0, 5).map(skill => React.createElement("li", {
+    key: skill.name
+  }, React.createElement("b", null, skill.name), React.createElement("span", null, skill.value)))))) : React.createElement(React.Fragment, null, React.createElement("section", {
+    className: "profile-modal-card"
+  }, React.createElement("h4", null, "\u80FD\u529B\u6458\u8981"), React.createElement("ul", {
+    className: "profile-list"
+  }, data.capabilities.slice(0, 3).map(cap => React.createElement("li", {
+    key: cap.no
+  }, React.createElement("b", null, cap.name), React.createElement("span", null, cap.no))))), React.createElement("section", {
+    className: "profile-modal-card"
+  }, React.createElement("h4", null, "\u6280\u80FD\u65B9\u5411"), React.createElement("ul", {
+    className: "profile-list"
+  }, data.skills.map(skill => React.createElement("li", {
+    key: skill.name
+  }, React.createElement("b", null, skill.name), React.createElement("span", null, skill.value)))))))));
+}
 function App() {
   const data = window.PORTFOLIO_DATA;
   const [tweaks, setTweaks] = React.useState({
@@ -3101,6 +3592,19 @@ function App() {
     [key]: val
   }));
   const [resumeOpen, setResumeOpen] = React.useState(false);
+  const [infoOpen, setInfoOpen] = React.useState(null);
+  const handleNavClick = item => e => {
+    if (item.href === '#resume') {
+      e.preventDefault();
+      setResumeOpen(true);
+    } else if (item.href === '#about') {
+      e.preventDefault();
+      setInfoOpen('about');
+    } else if (item.href === '#contact') {
+      e.preventDefault();
+      setInfoOpen('contact');
+    }
+  };
   React.useEffect(() => {
     const loader = document.getElementById('page-loader');
     if (!loader) return;
@@ -3157,7 +3661,8 @@ function App() {
     key: item.href,
     className: "nav-link",
     href: item.href,
-    onClick: item.href === '#resume' ? (e => { e.preventDefault(); setResumeOpen(true); }) : undefined
+    "aria-label": item.label,
+    onClick: handleNavClick(item)
   }, item.label)))), React.createElement("section", {
     className: "hero",
     style: {
@@ -3214,7 +3719,8 @@ function App() {
     stats: module.stats.map(stat => ({
       label: stat.label,
       value: statValue(stat)
-    }))
+    })),
+    detail: data.moduleDetails && data.moduleDetails[module.id]
   }, moduleVisual(module.id))))), React.createElement("section", {
     className: "caps",
     id: "resume"
@@ -3280,6 +3786,10 @@ function App() {
     key: item
   }, item))), resumeOpen && React.createElement(ResumeModal, {
     onClose: () => setResumeOpen(false)
+  }), infoOpen && React.createElement(SiteInfoModal, {
+    type: infoOpen,
+    data: data,
+    onClose: () => setInfoOpen(null)
   }));
 }
 function bootPortfolioApp() {
