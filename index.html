@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-palette="onyx" data-typeface="serif">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,8 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/ScrollFloat.css">
-<link rel="preload" href="assets/intro-2s.mp4" as="video" type="video/mp4" fetchpriority="high">
-<link rel="preload" href="assets/transition-2s.mp4" as="video" type="video/mp4" fetchpriority="high">
 
 <style>
 /* ===== Eamon Portfolio — Tokens & Base ===== */
@@ -47,29 +45,6 @@
   --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
   --ease: cubic-bezier(.2, .7, .2, 1);
 }
-
-[data-palette="ember"] {
-  --bg: #050505; --bg-elev: #0d0d0d; --bg-card: rgba(255,255,255,0.03);
-  --border: rgba(255,255,255,0.10); --border-strong: rgba(255,255,255,0.20);
-  --fg: oklch(0.96 0 0); --fg-dim: oklch(0.72 0 0); --fg-mute: oklch(0.5 0 0); --fg-faint: oklch(0.32 0 0);
-  --accent: oklch(0.96 0 0); --accent-soft: oklch(0.96 0 0 / 0.10); --accent-glow: oklch(0.96 0 0 / 0.30);
-}
-[data-palette="cobalt"] {
-  --bg: #0c0c0c; --bg-elev: #161616; --bg-card: rgba(255,255,255,0.04);
-  --border: rgba(255,255,255,0.12); --border-strong: rgba(255,255,255,0.22);
-  --fg: oklch(0.96 0 0); --fg-dim: oklch(0.78 0 0); --fg-mute: oklch(0.55 0 0); --fg-faint: oklch(0.36 0 0);
-  --accent: oklch(0.88 0 0); --accent-soft: oklch(0.88 0 0 / 0.10); --accent-glow: oklch(0.88 0 0 / 0.30);
-}
-[data-palette="terminal"] {
-  --bg: #f4f4f4; --bg-elev: #ececec; --bg-card: rgba(0,0,0,0.025);
-  --border: rgba(0,0,0,0.10); --border-strong: rgba(0,0,0,0.22);
-  --fg: oklch(0.18 0 0); --fg-dim: oklch(0.36 0 0); --fg-mute: oklch(0.55 0 0); --fg-faint: oklch(0.72 0 0);
-  --accent: oklch(0.18 0 0); --accent-soft: oklch(0.18 0 0 / 0.08); --accent-glow: oklch(0.18 0 0 / 0.20);
-}
-
-[data-typeface="serif"]  { --font-display: 'Noto Serif SC', 'Songti SC', serif; }
-[data-typeface="sans"]   { --font-display: 'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif; }
-[data-typeface="mono"]   { --font-display: 'JetBrains Mono', 'SF Mono', Menlo, monospace; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -168,8 +143,6 @@ body.intro-done .back-to-ticket { display: inline-flex; }
   transition: all 0.2s var(--ease);
 }
 .nav-link:hover { color: var(--bg); border-color: var(--accent); background: var(--accent); transform: translateY(-1px); }
-.nav-link.primary { color: var(--bg); background: var(--fg); border-color: var(--fg); }
-.nav-link.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
 /* Hero — Fig Mint inspired two-column layout */
 .hero {
@@ -241,18 +214,6 @@ body.intro-done .back-to-ticket { display: inline-flex; }
   color: var(--fg-dim); letter-spacing: 0.02em;
 }
 
-/* Legacy ghost button (kept for the resume secondary CTA elsewhere if needed) */
-.btn-ghost {
-  padding: 12px 22px; border: 1px solid var(--border-strong); border-radius: 999px;
-  font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 0.04em;
-  color: var(--fg); display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s var(--ease);
-}
-.btn-ghost:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.btn-ghost .arrow {
-  width: 22px; height: 22px; border-radius: 50%; border: 1px solid currentColor;
-  display: inline-flex; align-items: center; justify-content: center; font-size: 10px;
-}
-
 /* Modules */
 .modules { padding: 0 60px 120px; position: relative; z-index: 3; max-width: none; margin: 0; }
 .modules-header {
@@ -264,9 +225,6 @@ body.intro-done .back-to-ticket { display: inline-flex; }
 .modules-header h2 { font-family: var(--font-display); font-size: clamp(44px, 6vw, 88px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; }
 .modules-header h2 .num { font-family: var(--font-mono); font-size: 12px; color: var(--accent); margin-right: 12px; vertical-align: top; letter-spacing: 0; }
 .modules-header .meta { font-family: var(--font-mono); font-size: 11px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.1em; text-align: right; }
-
-.grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; position: relative; }
-.grid.bento { grid-template-columns: 1.4fr 1fr; grid-template-rows: 1fr 1fr; }
 
 /* Core capabilities — editorial list, full-paragraph presentation */
 .caps { padding: 0 60px 120px; position: relative; z-index: 3; }
@@ -599,6 +557,12 @@ body.intro-done .back-to-ticket { display: inline-flex; }
   animation: bgFade .5s var(--ease);
   pointer-events: none;
 }
+/* Xiaojian shots are near-square. As an in-flow replaced element the img resolves
+   its height from its own aspect ratio, stretching .bg-feature past its flex height
+   so a tall image covers the thumbnail strip below. Taking it out of flow (absolute)
+   lets .bg-feature keep its flex height; object-fit: contain then letterboxes any
+   aspect ratio. Scoped to .xj-gallery so the landscape badge gallery is untouched. */
+.xj-gallery .bg-img { position: absolute; inset: 0; }
 @keyframes bgFade { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: none; } }
 .bg-cap {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none;
@@ -716,15 +680,6 @@ video.mlb-media { width: min(1200px, 94vw); }
   color: var(--fg-dim); font-size: 11.5px; line-height: 1.35;
   display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
 }
-.repo-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.repo-open-note {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--fg-mute);
-}
-.repo-detail,
 .repo-link {
   flex: 0 0 auto;
   min-height: 24px;
@@ -745,7 +700,6 @@ video.mlb-media { width: min(1200px, 94vw); }
   transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .12s var(--ease);
 }
 .repo-link { background: var(--fg); border-color: var(--fg); color: #f3efe8; }
-.repo-detail:hover,
 .repo-link:hover { border-color: var(--accent); background: var(--accent); color: #f3efe8; transform: translateY(-1px); }
 .repo-modal {
   position: fixed; inset: 0; z-index: 100000;
@@ -938,52 +892,6 @@ video.mlb-media { width: min(1200px, 94vw); }
   text-transform: uppercase;
 }
 
-/* Badge image module */
-.badge-body { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.badge-grid { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
-.badge-item {
-  min-height: 118px;
-  border: 1px solid var(--border);
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 12px;
-  overflow: hidden;
-  position: relative;
-}
-.badge-item::before {
-  content: '';
-  position: absolute;
-  width: 74px; height: 74px; border-radius: 50%;
-  left: 50%; top: 48%;
-  transform: translate(-50%, -50%);
-  border: 1px solid rgba(10,10,10,.16);
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(255,255,255,.15) 32%, transparent 33%),
-    conic-gradient(from 20deg, #0a0a0a, #2c4a8c, #c8c3ba, #0a0a0a);
-  box-shadow: inset 0 0 0 10px rgba(255,255,255,.82), 0 14px 26px -20px rgba(10,10,10,.45);
-}
-.badge-item:nth-child(2n)::before { border-radius: 20px; transform: translate(-50%, -50%) rotate(18deg); }
-.badge-item:nth-child(3n)::before { clip-path: polygon(50% 0, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%); border-radius: 0; }
-.badge-name,
-.badge-tag,
-.badge-status { position: relative; z-index: 1; }
-.badge-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--fg); }
-.badge-tag { margin-top: auto; font-size: 11px; line-height: 1.45; color: var(--fg-dim); max-width: 120px; }
-.badge-status { align-self: flex-end; font-family: var(--font-mono); font-size: 9px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; }
-.badge-note {
-  border: 1px solid var(--border);
-  padding: 12px 14px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1.6;
-  color: var(--fg-mute);
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  background: rgba(44,74,140,.06);
-}
-
 /* Bottom strip */
 .bottom-strip {
   margin: 0 40px 80px;
@@ -1096,43 +1004,8 @@ video.mlb-media { width: min(1200px, 94vw); }
   letter-spacing: 0.08em; text-transform: uppercase;
 }
 
-/* Tweaks panel */
-.twk-panel {
-  position: fixed; right: 16px; bottom: 16px; z-index: 9999; width: 280px;
-  max-height: calc(100vh - 32px); display: flex; flex-direction: column;
-  background: rgba(250,249,247,.78); color: #29261b;
-  -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
-  border: .5px solid rgba(255,255,255,.6); border-radius: 14px;
-  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 12px 40px rgba(0,0,0,.18);
-  font: 11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif; overflow: hidden;
-}
-.twk-hd { display: flex; align-items: center; justify-content: space-between; padding: 10px 8px 10px 14px; cursor: move; user-select: none; }
-.twk-hd b { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
-.twk-x { appearance: none; border: 0; background: transparent; color: rgba(41,38,27,.55); width: 22px; height: 22px; border-radius: 6px; cursor: var(--cursor-hand); font-size: 13px; line-height: 1; }
-.twk-x:hover { background: rgba(0,0,0,.06); color: #29261b; }
-.twk-body { padding: 2px 14px 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
-.twk-row { display: flex; flex-direction: column; gap: 5px; }
-.twk-lbl { display: flex; justify-content: space-between; align-items: baseline; color: rgba(41,38,27,.72); }
-.twk-lbl > span:first-child { font-weight: 500; }
-.twk-sect { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: rgba(41,38,27,.45); padding: 10px 0 0; }
-.twk-sect:first-child { padding-top: 0; }
-.twk-field { appearance: none; width: 100%; height: 26px; padding: 0 8px; border: .5px solid rgba(0,0,0,.1); border-radius: 7px; background: rgba(255,255,255,.6); color: inherit; font: inherit; outline: none; }
-.twk-field:focus { border-color: rgba(0,0,0,.25); background: rgba(255,255,255,.85); }
-select.twk-field { padding-right: 22px; }
-.twk-slider { appearance: none; -webkit-appearance: none; width: 100%; height: 4px; margin: 6px 0; border-radius: 999px; background: rgba(0,0,0,.12); outline: none; }
-.twk-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: .5px solid rgba(0,0,0,.12); box-shadow: 0 1px 3px rgba(0,0,0,.2); cursor: var(--cursor-hand); }
-.twk-seg { position: relative; display: flex; padding: 2px; border-radius: 8px; background: rgba(0,0,0,.06); user-select: none; }
-.twk-seg button { appearance: none; position: relative; z-index: 1; flex: 1; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 500; min-height: 22px; border-radius: 6px; cursor: var(--cursor-hand); padding: 4px 6px; line-height: 1.2; }
-.twk-seg button.active { background: rgba(255,255,255,.9); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
-
-/* Utilities */
-.mono { font-family: var(--font-mono); }
-.dim { color: var(--fg-mute); }
-.text-accent { color: var(--accent); }
-
 /* Responsive */
 @media (max-width: 1100px) {
-  .grid { grid-template-columns: 1fr; grid-template-rows: auto; }
   .hero { grid-template-columns: 1fr; gap: 40px; padding: 110px 40px 60px; }
   .hero-visual { height: clamp(360px, 60vw, 560px); order: -1; }
   .hero-specs { grid-template-columns: 1fr 1fr; gap: 20px 60px; }
@@ -1162,7 +1035,6 @@ select.twk-field { padding-right: 22px; }
   .module-section { padding: 0; }
   .module-copy { padding: 24px 20px; }
   .module-copy .module-stats { grid-template-columns: 1fr; gap: 14px; }
-  .badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .repo-card { grid-template-columns: 1fr; }
   .repo-top { flex-direction: column; }
   .repo-meta { white-space: normal; }
@@ -2668,7 +2540,6 @@ function Antigravity(props) {
 <!-- GitHub + Badge Modules -->
 <script>
 const GITHUB_PROJECTS = window.PORTFOLIO_DATA.projects;
-const BADGE_WORKS = window.PORTFOLIO_DATA.badges;
 // Deterministic commit-activity sparkline (24 weeks) — looks intentional, not placeholder
 const REPO_SPARK = [22, 38, 30, 54, 44, 70, 58, 86, 64, 48, 76, 92, 72, 60, 84, 100, 78, 56, 90, 68, 82, 46, 62, 96];
 function GitHubModule() {
@@ -2949,7 +2820,7 @@ function XiaojianModule() {
   }, React.createElement("span", null, "PRODUCT \u00B7 SHOTS"))), React.createElement("div", {
     className: "card-body"
   }, React.createElement("div", {
-    className: "badge-gallery"
+    className: "badge-gallery xj-gallery"
   }, React.createElement("div", {
     className: "bg-feature", onClick: openImg, role: "button", "aria-label": "\u653E\u5927\u67E5\u770B\u4EA7\u54C1\u5927\u56FE"
   }, React.createElement("img", {
@@ -3130,134 +3001,6 @@ function RealVideoCard({ id }) {
 
 
 
-
-<!-- Tweaks Panel -->
-<script>
-function TweaksPanel({
-  tweaks,
-  setTweak
-}) {
-  const [open, setOpen] = React.useState(false);
-  const PALETTES = window.PORTFOLIO_DATA.tweaks.palettes;
-  const TYPEFACES = window.PORTFOLIO_DATA.tweaks.typefaces;
-  const LAYOUTS = window.PORTFOLIO_DATA.tweaks.layouts;
-  if (!open) {
-    return React.createElement("button", {
-      onClick: () => setOpen(true),
-      style: {
-        position: 'fixed',
-        right: 16,
-        bottom: 16,
-        zIndex: 9999,
-        background: 'rgba(250,249,247,.9)',
-        color: '#29261b',
-        border: '.5px solid rgba(255,255,255,.6)',
-        borderRadius: 10,
-        padding: '8px 14px',
-        fontSize: 11,
-        fontWeight: 600,
-        cursor: 'var(--cursor-hand)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 4px 20px rgba(0,0,0,.3)',
-        fontFamily: 'ui-sans-serif,system-ui,sans-serif',
-        letterSpacing: '0.04em'
-      }
-    }, "\u2699 Tweaks");
-  }
-  return React.createElement("div", {
-    className: "twk-panel"
-  }, React.createElement("div", {
-    className: "twk-hd"
-  }, React.createElement("b", null, "Tweaks"), React.createElement("button", {
-    className: "twk-x",
-    onClick: () => setOpen(false)
-  }, "\u2715")), React.createElement("div", {
-    className: "twk-body"
-  }, React.createElement("div", {
-    className: "twk-sect"
-  }, "\u8C03\u8272"), React.createElement("div", {
-    className: "twk-row"
-  }, React.createElement("label", {
-    className: "twk-lbl"
-  }, React.createElement("span", null, "\u8C03\u8272\u76D8")), React.createElement("select", {
-    className: "twk-field",
-    value: tweaks.palette,
-    onChange: e => setTweak('palette', e.target.value)
-  }, PALETTES.map(p => React.createElement("option", {
-    key: p.value,
-    value: p.value
-  }, p.label)))), React.createElement("div", {
-    className: "twk-sect"
-  }, "\u5B57\u4F53"), React.createElement("div", {
-    className: "twk-row"
-  }, React.createElement("label", {
-    className: "twk-lbl"
-  }, React.createElement("span", null, "\u5B57\u65CF")), React.createElement("div", {
-    className: "twk-seg"
-  }, TYPEFACES.map(t => React.createElement("button", {
-    key: t.value,
-    className: tweaks.typeface === t.value ? 'active' : '',
-    onClick: () => setTweak('typeface', t.value)
-  }, t.label)))), React.createElement("div", {
-    className: "twk-sect"
-  }, "\u80CC\u666F"), React.createElement("div", {
-    className: "twk-row"
-  }, React.createElement("label", {
-    className: "twk-lbl"
-  }, React.createElement("span", null, "\u7C92\u5B50\u5BC6\u5EA6"), React.createElement("span", {
-    style: {
-      color: 'rgba(41,38,27,.5)'
-    }
-  }, tweaks.particleDensity.toFixed(1))), React.createElement("input", {
-    type: "range",
-    className: "twk-slider",
-    min: "0.4",
-    max: "2",
-    step: "0.1",
-    value: tweaks.particleDensity,
-    onChange: e => setTweak('particleDensity', parseFloat(e.target.value))
-  })), React.createElement("div", {
-    className: "twk-row"
-  }, React.createElement("label", {
-    className: "twk-lbl"
-  }, React.createElement("span", null, "\u52A8\u6001\u5F3A\u5EA6"), React.createElement("span", {
-    style: {
-      color: 'rgba(41,38,27,.5)'
-    }
-  }, tweaks.particleIntensity.toFixed(1))), React.createElement("input", {
-    type: "range",
-    className: "twk-slider",
-    min: "0.4",
-    max: "2",
-    step: "0.1",
-    value: tweaks.particleIntensity,
-    onChange: e => setTweak('particleIntensity', parseFloat(e.target.value))
-  })), React.createElement("div", {
-    className: "twk-sect"
-  }, "\u5E03\u5C40"), React.createElement("div", {
-    className: "twk-row"
-  }, React.createElement("label", {
-    className: "twk-lbl"
-  }, React.createElement("span", null, "\u6A21\u5757\u7F51\u683C")), React.createElement("div", {
-    className: "twk-seg"
-  }, LAYOUTS.map(l => React.createElement("button", {
-    key: l.value,
-    className: tweaks.layout === l.value ? 'active' : '',
-    onClick: () => setTweak('layout', l.value)
-  }, l.label)))), React.createElement("div", {
-    className: "twk-sect"
-  }, "\u6587\u6848"), React.createElement("div", {
-    className: "twk-row"
-  }, React.createElement("label", {
-    className: "twk-lbl"
-  }, React.createElement("span", null, "\u9996\u5C4F\u6807\u9898")), React.createElement("input", {
-    className: "twk-field",
-    value: tweaks.headline,
-    onChange: e => setTweak('headline', e.target.value),
-    placeholder: "\u5982\uFF1A\u51B3\u5B9A\xB7\u6211"
-  }))));
-}
-</script>
 
 <!-- AnimatedContent — React Bits component (GSAP + ScrollTrigger driven enter animation) -->
 <script>
@@ -3670,18 +3413,6 @@ function SiteInfoModal({ type, data, onClose }) {
 }
 function App() {
   const data = window.PORTFOLIO_DATA;
-  const [tweaks, setTweaks] = React.useState({
-    palette: 'onyx',
-    typeface: 'serif',
-    headline: data.hero.headline,
-    particleDensity: 1,
-    particleIntensity: 1,
-    layout: 'bento'
-  });
-  const setTweak = (key, val) => setTweaks(prev => ({
-    ...prev,
-    [key]: val
-  }));
   const [resumeOpen, setResumeOpen] = React.useState(false);
   const [infoOpen, setInfoOpen] = React.useState(null);
   const handleNavClick = item => e => {
@@ -3708,12 +3439,8 @@ function App() {
     };
     requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(fade, 60)));
   }, []);
-  React.useEffect(() => {
-    document.documentElement.dataset.palette = tweaks.palette;
-    document.documentElement.dataset.typeface = tweaks.typeface;
-  }, [tweaks.palette, tweaks.typeface]);
   const renderTitle = () => {
-    const txt = tweaks.headline || data.hero.headline;
+    const txt = data.hero.headline;
     const parts = txt.split(/[·•・]/);
     const first = parts[0] || '';
     const rest = parts.slice(1).join('·');
@@ -3726,7 +3453,7 @@ function App() {
     }, "\u3002")));
   };
   return React.createElement(React.Fragment, null, React.createElement(Antigravity, {
-    count: Math.round(100 * tweaks.particleDensity),
+    count: 100,
     magnetRadius: 42,
     ringRadius: 9,
     waveSpeed: 1.5,
@@ -3739,7 +3466,7 @@ function App() {
     depthFactor: 5,
     pulseSpeed: 0,
     particleShape: "tetrahedron",
-    fieldStrength: 9.2 * tweaks.particleIntensity
+    fieldStrength: 9.2
   }), React.createElement("nav", {
     className: "nav"
   }, React.createElement("div", {

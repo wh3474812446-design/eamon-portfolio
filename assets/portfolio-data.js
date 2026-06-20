@@ -136,14 +136,6 @@
         source: 'GitHub README · 更新于 2026-06-13',
       },
     ],
-    badges: [
-      { name: 'Meta Badge', tag: '金属浮雕 · 黑银', status: 'Prompt + Refine' },
-      { name: 'Pet Club Mark', tag: '宠物社群 · 圆章', status: 'Ready' },
-      { name: 'AI Agent Seal', tag: '未来终端 · 认证章', status: 'Iteration' },
-      { name: 'Creator Patch', tag: '贴纸徽章 · 高饱和', status: 'Export' },
-      { name: 'Brand Coin', tag: '品牌纪念币 · 3D', status: 'Render' },
-      { name: 'Event Pin', tag: '活动胸针 · 透明底', status: 'Batch' },
-    ],
     modules: [
       {
         id: 'github',
@@ -367,23 +359,6 @@
       { label: 'GitHub', value: 'github.com/wh3474812446-design', href: 'https://github.com/wh3474812446-design' },
       { label: '状态', value: '可随时到岗 · 杭州' },
     ],
-    tweaks: {
-      palettes: [
-        { value: 'onyx', label: '纯黑 Onyx' },
-        { value: 'ember', label: '深灰 Graphite' },
-        { value: 'cobalt', label: '浅灰 Pewter' },
-        { value: 'terminal', label: '反相 Bone' },
-      ],
-      typefaces: [
-        { value: 'serif', label: '衬线' },
-        { value: 'sans', label: '无衬线' },
-        { value: 'mono', label: '等宽' },
-      ],
-      layouts: [
-        { value: 'bento', label: 'Bento' },
-        { value: 'scroll', label: '长滚动' },
-      ],
-    },
     footer: ['© 2026 EAMON · ALL RIGHTS RESERVED', 'VIBE-CODED · BUILT WITH CLAUDE'],
   };
 
