@@ -1,0 +1,3296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 产品尚未上线（备案中），此原型随作品集部署但不进搜索引擎：
+     noindex 挡收录，nofollow 挡站外爬虫顺链，文件名不规则挡枚举。
+     刻意不写进 robots.txt —— robots.txt 是公开的，写进去等于公示文件名。 -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>静食 · App 原型 v1.0</title>
+<style>
+  :root{
+    /* 色板：taste 定稿「静食」，落地不得推翻 */
+    --paper:#FBFBF9;        /* 页面底，近白微暖 */
+    --surface:#FEFEFD;      /* 浮层与弹层底 */
+    --wash:#F3F4F0;         /* 次级分区背景 */
+    --green-wash:#EDF2ED;   /* 选中态、AI 相关区域 */
+    --ink:#20261F;          /* 主文字，墨绿黑 */
+    --ink-2:#61675F;        /* 次级文字 */
+    --ink-3:#9AA09B;        /* 占位符、禁用态 */
+    --line:#E4E6E1;         /* 发丝线 */
+    --green:#3E6B4F;        /* 唯一强调色 */
+    --green-deep:#2A4A37;
+    --alert:#B0503C;        /* 仅语义：超标、真实错误。禁止装饰、禁止用于安全拦截 */
+    --on-green:#FFFFFF;     /* 绿底之上的文字与图标。视觉主张 §4.2 那句「--green 对白 5.1:1」算的就是纯白，
+                               所以这里不能收编成 --paper，收编等于推翻主张里的对比度结论 */
+    --mask:rgba(32,38,31,.28);      /* 遮罩：--ink 的 28% */
+    --scrim:rgba(251,251,249,.9);   /* 图片之上的浅色衬底（热量角标）：--paper 的 90% */
+
+    --serif:"Source Han Serif SC","思源宋体","Noto Serif SC","Songti SC","STSong","SimSun",serif;
+    --sans:"MiSans","MiSans VF","PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",sans-serif;
+
+    --r-block:12px; --r-pill:999px; --r-tag:6px;
+    --bar:#C6CBC3;          /* 数据条专用中性色，介于 line 与 ink-3 之间 */
+
+    /* 演示台专用，不属于 App 设计系统，第 1 周提取令牌时整组跳过。
+       凡 --stage-* 前缀者即白名单——这样「排除手机外壳」可以写成机器检查：
+       CSS 里除 --stage-* 的定义行外，不得出现任何字面色值 */
+    --stage-bg:#E9EBE5;     /* 演示页面底 */
+    --stage-shell:#33372F;  /* 手机壳与刘海 */
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  /* 全局兜底：强调文字一律 500。漏写时浏览器默认给 700，会静默破掉红线第 2 条 */
+  b,strong{font-weight:500}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans);background:var(--stage-bg);color:var(--ink);
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:36px 24px;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
+  }
+  .stage{display:flex;gap:56px;align-items:flex-start;max-width:1240px;width:100%;justify-content:center}
+
+  /* ---------- 左侧页面索引 ---------- */
+  .nav{width:308px;flex-shrink:0;padding-top:8px;position:sticky;top:36px;max-height:calc(100vh - 72px);overflow-y:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav .brand{font-family:var(--serif);font-size:34px;font-weight:400;letter-spacing:3px;line-height:1.2}
+  .nav .ver{margin-top:9px;font-size:11px;letter-spacing:.14em;color:var(--ink-2)}
+  .nav .lede{margin-top:16px;font-size:12.5px;line-height:1.95;color:var(--ink-2)}
+  .nav-group{margin-top:22px;padding-top:14px;border-top:.5px solid var(--line)}
+  .nav-group:first-of-type{margin-top:26px}
+  .ng-title{font-family:var(--serif);font-size:13px;color:var(--ink-2);margin-bottom:8px}
+  .nav-item{
+    display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;
+    font-family:var(--sans);font-size:12.5px;line-height:2.1;color:var(--ink-2);
+    padding:0 0 0 11px;position:relative;transition:color .12s ease;
+  }
+  .nav-item:hover{color:var(--ink)}
+  .nav-item.on{color:var(--ink);font-weight:500}
+  .nav-item.on::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:12px;background:var(--green)}
+  .nav-item small{color:var(--ink-3);font-size:11px;margin-left:5px}
+  .nav-foot{margin-top:24px;padding-top:14px;border-top:.5px solid var(--line);font-size:11.5px;line-height:1.95;color:var(--ink-3)}
+
+  /* ---------- 手机壳 ---------- */
+  .phone{width:392px;height:800px;flex-shrink:0;background:var(--stage-shell);border-radius:50px;padding:10px;position:sticky;top:36px}
+  .screen{position:relative;width:100%;height:100%;background:var(--paper);border-radius:42px;overflow:hidden;display:flex;flex-direction:column}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:24px;background:var(--stage-shell);border-radius:14px;z-index:120}
+  .statusbar{height:42px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 4px;font-size:12.5px;font-weight:500}
+  .statusbar .sicons{display:flex;gap:6px;align-items:center}
+  .statusbar svg{display:block}
+
+  main{flex:1;position:relative;overflow:hidden}
+  .page{position:absolute;inset:0;overflow-y:auto;padding:4px 20px 22px;display:none;scrollbar-width:none}
+  .page::-webkit-scrollbar{display:none}
+  .page.active{display:block}
+  @media (prefers-reduced-motion:no-preference){
+    .page.active{animation:pageIn .16s cubic-bezier(.16,1,.3,1)}
+    @keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  }
+
+  /* ---------- 通用件 ---------- */
+  .page-title{font-family:var(--serif);font-size:26px;font-weight:400;letter-spacing:.02em;line-height:1.3}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;padding:14px 0 18px}
+  .page-head .sub{font-size:12px;color:var(--ink-2);margin-top:6px}
+  .sec-title{font-family:var(--serif);font-size:17px;font-weight:400;margin:28px 0 12px}
+  /* 可收起的分区标题：跟 sec-title 同字号，右侧箭头指示开合 */
+  .fold-title{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+  .fold-title:active{opacity:.55}
+  .fold-arrow{flex-shrink:0;color:var(--ink-3);transition:transform .2s ease}
+  .fold-title.closed .fold-arrow{transform:rotate(-90deg)}
+  .fold-body{overflow:hidden;max-height:600px;transition:max-height .24s cubic-bezier(.16,1,.3,1)}
+  .fold-body.closed{max-height:0}
+  .label{font-size:11px;letter-spacing:.08em;color:var(--ink-2);font-weight:500}
+  .tag{display:inline-block;font-size:10.5px;font-weight:500;line-height:1.6;padding:2px 7px;border-radius:var(--r-tag);background:var(--wash);color:var(--ink-2)}
+  .tag.ai{background:var(--green-wash);color:var(--green-deep)}
+  .tag.est{background:var(--green-wash);color:var(--green-deep)}
+  .tag.later{background:var(--wash);color:var(--ink-3)}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--r-pill);
+    background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:13.5px;font-weight:500;
+    padding:11px 20px;cursor:pointer;transition:opacity .12s ease,transform .12s ease;
+  }
+  .btn:active{transform:scale(.98);opacity:.8}
+  .btn.solid{background:var(--green);color:var(--on-green)}
+  .btn.block{display:flex;width:100%}
+  .btn-text{background:none;border:none;font-family:var(--sans);font-size:12.5px;font-weight:500;color:var(--green-deep);cursor:pointer;padding:4px 0;border-bottom:.5px solid var(--line)}
+  .btn-text:active{opacity:.6}
+  .btn-text.mute{color:var(--ink-3)}
+
+  .rows>*{padding:13px 0;border-top:.5px solid var(--line)}
+  .rows>*:first-child{border-top:none}
+  .note{font-size:11.5px;line-height:1.85;color:var(--ink-2);margin-top:18px;padding-top:14px;border-top:.5px solid var(--line)}
+  .foot-note{font-size:11px;color:var(--ink-3);text-align:center;line-height:1.8}
+
+  /* 空态 / 错误态（taste 扩展 §四） */
+  .empty{text-align:center;padding:40px 0}
+  .empty b{display:block;font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:9px}
+  .empty span{font-size:12.5px;color:var(--ink-3);line-height:1.8}
+  .err{font-size:12.5px;color:var(--alert);line-height:1.8}
+
+  /* ---------- 小满（首页） ---------- */
+  #tab-ai{padding:0;display:none;flex-direction:column}
+  #tab-ai.active{display:flex}
+  .ai-topbar{flex-shrink:0;display:flex;align-items:center;gap:11px;padding:12px 20px 11px;border-bottom:.5px solid transparent;transition:border-color .2s ease}
+  #tab-ai.chat-on .ai-topbar{border-bottom-color:var(--line);background:var(--paper)}
+  .tb-btn{width:32px;height:32px;border:none;background:none;border-radius:var(--r-pill);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .tb-btn:active{background:var(--wash)}
+  .tb-mascot{width:28px;height:28px;border-radius:var(--r-pill);background:var(--green);color:var(--on-green);font-family:var(--serif);font-size:14px;display:none;align-items:center;justify-content:center;flex-shrink:0}
+  #tab-ai.chat-on .tb-mascot{display:flex}
+  .tb-title{flex:1;min-width:0}
+  .tb-title b{display:block;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tb-title small{font-size:10.5px;color:var(--ink-3)}
+
+  .drawer-mask{position:absolute;inset:0;background:var(--mask);z-index:70;display:none}
+  .drawer-mask.show{display:block}
+  .drawer{position:absolute;top:0;left:0;bottom:0;width:272px;background:var(--surface);padding:52px 18px 18px;display:flex;flex-direction:column}
+  @media (prefers-reduced-motion:no-preference){
+    .drawer-mask.show .drawer{animation:drawerIn .22s cubic-bezier(.16,1,.3,1)}
+    @keyframes drawerIn{from{transform:translateX(-14px);opacity:.4}to{transform:none;opacity:1}}
+  }
+  .dw-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .dw-title{font-family:var(--serif);font-size:19px;font-weight:400}
+  .dw-title small{display:block;font-family:var(--sans);font-size:10.5px;color:var(--ink-3);margin-top:5px}
+  .dw-list{flex:1;overflow-y:auto;scrollbar-width:none}
+  .dw-list::-webkit-scrollbar{display:none}
+  .dw-item{padding:12px;border-radius:var(--r-block);cursor:pointer;position:relative;margin-bottom:2px}
+  .dw-item.on{background:var(--green-wash)}
+  .di-title{font-size:13px;font-weight:500;margin-bottom:4px;padding-right:30px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .di-preview{font-size:11px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .di-time{position:absolute;right:12px;top:12px;font-size:10px;color:var(--ink-3)}
+  .di-del{position:absolute;right:12px;bottom:10px;font-family:var(--sans);font-size:10.5px;color:var(--ink-3);background:none;border:none;cursor:pointer}
+  .di-del:active{color:var(--alert)}
+  .dw-new{margin-top:12px;width:100%;padding:12px;border:none;border-radius:var(--r-pill);background:var(--green);color:var(--on-green);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer}
+
+  /* 两屏分离：信息概况一屏、小满一屏，各自独立滚动，靠 scroll-snap 整屏卡位。
+     概况在上、小满在下：唤起小满＝滑到下面那屏（聊天顶到最上）；在聊天顶部继续下拉＝回到概况。 */
+  .ai-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;scroll-behavior:smooth;scroll-snap-type:y mandatory;display:flex;flex-direction:column}
+  .ai-scroll::-webkit-scrollbar{display:none}
+  .ai-pane{flex:0 0 100%;min-height:0;overflow-y:auto;scrollbar-width:none;scroll-snap-align:start;scroll-snap-stop:always}
+  .ai-pane::-webkit-scrollbar{display:none}
+  .ai-dash{padding:0 20px 14px}
+  .greet{padding:10px 0 22px}
+  .greet .hi{font-family:var(--serif);font-size:26px;font-weight:400;letter-spacing:.02em}
+  .greet .date{font-size:11.5px;color:var(--ink-2);margin-top:8px}
+
+  .dash-pager{height:186px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none}
+  .dash-pager::-webkit-scrollbar{display:none}
+  .dash-pane{height:176px;margin-bottom:10px;scroll-snap-align:start}
+
+  .ov-cap{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:4px}
+  .ov-num{font-family:var(--serif);font-size:64px;font-weight:400;line-height:1;letter-spacing:-.02em;display:block}
+  .ov-unit{font-size:11px;letter-spacing:.08em;color:var(--ink-2);margin-top:8px;display:block}
+  .prog{margin-top:18px;height:1px;background:var(--line);position:relative}
+  .prog i{position:absolute;left:0;top:-.5px;height:2px;background:var(--green);display:block}
+  .ov-foot{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2);margin-top:11px}
+
+  .cc-title{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .cc-desc{font-size:12.5px;line-height:1.85;color:var(--ink-2);margin-bottom:14px}
+  .cc-btns{display:flex;gap:10px}
+  .mem-pane{cursor:pointer}
+  .mp-item{font-size:12.5px;padding:8px 0;border-top:.5px solid var(--line);color:var(--ink-2);line-height:1.6}
+  .cc-title + .mp-item{border-top:none}
+  .mp-more{font-size:11.5px;color:var(--green-deep);margin-top:10px}
+
+  .pager-dots{display:flex;justify-content:center;gap:5px;margin:14px 0 22px}
+  .pager-dots i{width:4px;height:4px;border-radius:var(--r-pill);background:var(--line);transition:all .2s}
+  .pager-dots i.on{width:14px;background:var(--green)}
+
+  .meal-row{display:flex;align-items:baseline;gap:14px;font-size:13px}
+  .meal-row .mr-when{width:32px;flex-shrink:0;color:var(--ink-2);font-size:12px}
+  .meal-row .mr-what{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meal-row .mr-kcal{font-size:13px;font-weight:500}
+  .meal-row.empty2 .mr-what,.meal-row.empty2 .mr-kcal{color:var(--ink-3)}
+  .meal-row .mr-add{font-size:12px;color:var(--green-deep);cursor:pointer}
+
+  .quick-row{display:flex;gap:10px;margin:22px 0 0}
+  .quick-btn{
+    flex:1;background:var(--wash);border:none;border-radius:var(--r-block);padding:15px 8px 13px;
+    display:flex;flex-direction:column;align-items:center;gap:9px;font-family:var(--sans);font-size:12px;
+    font-weight:500;color:var(--ink);cursor:pointer;transition:transform .12s ease;
+  }
+  .quick-btn:active{transform:scale(.98)}
+  .quick-btn.primary{background:var(--green-wash)}
+
+  /* 话题引子只用在小满屏的空态里 */
+  .prompt-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:24px 0 0}
+  .pchip{font-size:12px;padding:8px 14px;border-radius:var(--r-pill);background:var(--wash);color:var(--ink-2);cursor:pointer}
+  .pchip:active{background:var(--green-wash)}
+
+  .ai-chat{padding:16px 20px 18px}
+  /* 没有消息时不再整屏隐藏（隐藏了就滑不下来），改成显示空态 */
+  #tab-ai.has-conv .chat-empty{display:none}
+  #tab-ai:not(.has-conv) .chat .disclaimer{display:none}
+  .chat-empty{text-align:center;padding:52px 0 0}
+  .ce-mascot{width:44px;height:44px;border-radius:var(--r-pill);background:var(--green);color:var(--on-green);font-family:var(--serif);font-size:21px;display:flex;align-items:center;justify-content:center;margin:0 auto 15px}
+  .chat-empty b{display:block;font-family:var(--serif);font-size:17px;font-weight:400;margin-bottom:9px}
+  .chat-empty span{font-size:12px;color:var(--ink-3);line-height:1.85}
+  .chat{padding-bottom:16px}
+  .msg{display:flex;gap:9px;margin-bottom:18px;align-items:flex-start}
+  .msg .m-avatar{width:26px;height:26px;border-radius:var(--r-pill);background:var(--green);color:var(--on-green);font-family:var(--serif);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .msg .bubble{font-size:13.5px;line-height:1.85;color:var(--ink);max-width:262px;background:var(--wash);padding:12px 14px;border-radius:var(--r-block)}
+  .msg.user{justify-content:flex-end}
+  .msg.user .bubble{background:var(--green-wash)}
+  /* 多段回复合并进同一气泡，用发丝线分段（扩展红线 12） */
+  .plan{margin-top:10px}
+  .plan div{font-size:12.5px;line-height:1.75;padding:7px 0;border-top:.5px solid var(--line);color:var(--ink-2)}
+  .plan div:first-child{border-top:none}
+  .plan a{color:var(--green-deep);border-bottom:.5px solid var(--green);cursor:pointer}
+  .reco-post{margin-top:12px;background:var(--surface);border-radius:var(--r-block);padding:12px 13px;cursor:pointer}
+  .rp-tag{font-size:10px;letter-spacing:.08em;color:var(--green-deep);margin-bottom:6px}
+  .rp-title{font-family:var(--serif);font-size:14px;font-weight:400;line-height:1.5}
+  .rp-meta{font-size:10.5px;color:var(--ink-3);margin-top:6px}
+  .disclaimer{font-size:10.5px;color:var(--ink-3);text-align:center;padding:6px 0 2px;line-height:1.7}
+
+  .ai-inputbar{flex-shrink:0;display:flex;gap:9px;align-items:center;padding:10px 20px 14px;background:var(--paper);border-top:.5px solid var(--line)}
+  .ai-inputbar input{flex:1;border:none;background:var(--wash);border-radius:var(--r-pill);padding:12px 16px;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none}
+  .ai-inputbar input::placeholder{color:var(--ink-3)}
+  .ai-inputbar .send{width:38px;height:38px;flex-shrink:0;border:none;border-radius:var(--r-pill);background:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .ai-inputbar .send:active{background:var(--green-deep)}
+  .dash-fab{
+    position:absolute;top:56px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--paper);
+    border:.5px solid var(--line);border-radius:var(--r-pill);padding:7px 15px;font-family:var(--sans);
+    font-size:11.5px;font-weight:500;color:var(--ink-2);cursor:pointer;z-index:40;opacity:0;pointer-events:none;transition:all .2s ease;
+  }
+  .dash-fab.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+
+
+  /* ---------- 图标：定义一次，颜色跟随 currentColor（原先 40 处内联 svg） ---------- */
+  .ico{display:block;flex-shrink:0}
+  .arrow{width:15px;height:15px;color:var(--ink-3)}
+  .arrow.end{margin-left:auto}
+  .arrow.faint{color:var(--line)}   /* 漏记的日子连箭头也退后（PRD §6.5 不惩罚） */
+  .ico-back{width:18px;height:18px;color:var(--ink)}
+
+  /* ---------- 周记录小图 ---------- */
+  .wk-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+  .wk-bar{width:3px;background:var(--bar);display:block;border-radius:var(--r-pill)}
+  .wk-day{font-size:10px;color:var(--ink-3)}
+
+  /* ---------- 复用文本块 ---------- */
+  .never-item{font-size:12.5px;color:var(--ink-3);line-height:1.8}
+  .sheet-text{font-size:13px;line-height:1.9;color:var(--ink-2)}
+  .center-act{text-align:center;margin-top:16px}
+  .feed-line{font-size:12.5px;line-height:1.75}
+  .feed-time{font-size:10.5px;color:var(--ink-3);margin-top:5px}
+  .meal-meta{font-size:11px;color:var(--ink-3);margin-top:4px}
+
+  /* ---------- 社区 ---------- */
+  .subtabs{display:flex;gap:20px;padding:2px 0 16px;border-bottom:.5px solid var(--line);margin-bottom:18px}
+  .subtab{background:none;border:none;font-family:var(--sans);font-size:13.5px;color:var(--ink-3);cursor:pointer;padding:0;position:relative}
+  .subtab.on{color:var(--ink);font-weight:500}
+  .subtab.on::after{content:"";position:absolute;left:0;right:0;bottom:-16.5px;height:1px;background:var(--green)}
+  .subpane{display:none}
+  .subpane.on{display:block}
+
+  .wf{column-count:2;column-gap:12px}
+  .wf-card{break-inside:avoid;margin-bottom:14px;cursor:pointer}
+  .wf-cover{border-radius:var(--r-block);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .wf-cover span.ch{font-family:var(--serif);font-size:34px;font-weight:400;color:var(--ink);opacity:.42}
+  .kcal-badge{position:absolute;left:9px;bottom:9px;font-size:10px;padding:3px 7px;border-radius:var(--r-tag);background:var(--scrim);color:var(--ink-2)}
+  .wf-title{font-size:13px;line-height:1.6;margin:9px 0 8px}
+  .wf-foot{display:flex;align-items:center;gap:6px}
+  .avatar{width:20px;height:20px;border-radius:var(--r-pill);background:var(--wash);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ink-2)}
+  .avatar.man{background:var(--green);color:var(--on-green);font-family:var(--serif)}
+  .wf-name{font-size:10.5px;color:var(--ink-3);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wf-like{font-size:10.5px;color:var(--ink-3)}
+  .wf-like.liked{color:var(--green-deep)}
+  /* AI 生产标识：green-wash 标签，不得弱化成灰字（扩展红线 10） */
+  .ai-flag{font-size:11px;font-weight:500;padding:2px 6px;border-radius:var(--r-tag);background:var(--green-wash);color:var(--green-deep);flex-shrink:0}
+
+  .g-title{font-family:var(--serif);font-size:19px;font-weight:400;display:flex;align-items:center;gap:9px}
+  .g-sub{font-size:12px;color:var(--ink-2);margin-top:7px}
+  .member-row{display:flex;gap:14px;margin:18px 0 4px}
+  .member{text-align:center}
+  .member .avatar{width:34px;height:34px;font-size:12px;margin-bottom:6px}
+  /* 07-30 #11：不做灰绿区分。「谁记了谁没记」不进界面——没有推送的公示版催促，撞不打扰 */
+  .member span{font-size:9.5px;color:var(--ink-3);display:block}
+  .group-note{font-size:11.5px;line-height:1.85;color:var(--ink-2);margin-top:16px;padding-top:14px;border-top:.5px solid var(--line)}
+  .group-row{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .gr-name{font-size:13.5px;font-weight:500}
+  .gr-sub{font-size:11px;color:var(--ink-3);margin-top:4px}
+
+  /* ---------- 热量查询 ---------- */
+  .search-box{flex:1;display:flex;align-items:center;gap:9px;background:var(--wash);border-radius:var(--r-pill);padding:11px 16px}
+  .search-box input{flex:1;border:none;background:none;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none}
+  .search-box input::placeholder{color:var(--ink-3)}
+  .scan-btn{width:42px;height:42px;border:none;border-radius:var(--r-pill);background:var(--green-wash);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .scan-btn:active{transform:scale(.96)}
+  .cat-chips{display:flex;gap:8px;overflow-x:auto;padding:16px 0 18px;scrollbar-width:none}
+  .cat-chips::-webkit-scrollbar{display:none}
+  .cat-chip{flex-shrink:0;font-family:var(--sans);font-size:12px;padding:7px 14px;border:none;border-radius:var(--r-pill);background:var(--wash);color:var(--ink-2);cursor:pointer}
+  .cat-chip.on{background:var(--green);color:var(--on-green)}
+  .food-row{display:flex;align-items:center;gap:13px;cursor:pointer}
+  .fr-icon{width:34px;height:34px;border-radius:var(--r-pill);background:var(--wash);flex-shrink:0;font-family:var(--serif);font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+  .fr-name{font-size:13.5px;display:flex;align-items:center;gap:7px}
+  .fr-sub{font-size:11px;color:var(--ink-3);margin-top:4px}
+  .fr-kcal{margin-left:auto;text-align:right}
+  .fr-kcal b{font-size:15px;font-weight:500}
+
+  /* ---------- 常吃：用户私有库（PRD §7.3） ---------- */
+  .mine-head{display:flex;align-items:baseline;justify-content:space-between;margin-top:20px;margin-bottom:4px}
+  .mine-title{font-family:var(--serif);font-size:19px;font-weight:400}
+  .mine-title small{font-family:var(--sans);font-size:11px;font-weight:400;color:var(--ink-3);margin-left:9px;letter-spacing:.06em}
+  .mine-all{border:none;background:none;font-family:var(--sans);font-size:12.5px;color:var(--green-deep);cursor:pointer;padding:0}
+  .mine-row{display:flex;align-items:center;gap:12px;padding:11px 0;cursor:pointer}
+  .mine-row:active{opacity:.7}
+  .mine-shop{font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
+  .mine-name{font-size:13.5px;margin-top:3px;line-height:1.4}
+  .mine-kcal{margin-left:auto;font-size:14px;font-weight:500;text-align:right;white-space:nowrap}
+  .mine-kcal small{display:block;font-size:9.5px;color:var(--ink-3);font-weight:400;margin-top:2px}
+  .mg-title{font-family:var(--serif);font-size:15px;font-weight:400;margin-top:26px;margin-bottom:2px;display:flex;align-items:baseline;justify-content:space-between}
+  .mg-title span{font-family:var(--sans);font-size:11px;color:var(--ink-3);letter-spacing:.06em}
+
+  /* 入库询问：小满在问，形态同 .guard，不是系统提示（扩展红线 9 的同类处理） */
+  .ask-save{background:var(--green-wash);border-radius:var(--r-block);padding:14px 15px;margin-top:12px;font-size:13px;line-height:1.85;color:var(--ink-2)}
+  .ask-save b{color:var(--ink);font-weight:500}
+  .ask-save-btns{display:flex;gap:10px;margin-top:12px}
+  .ask-save-btns .btn{flex:1;font-size:12.5px;padding:9px 0}
+  .shop-input{width:100%;background:var(--surface);border:none;border-radius:var(--r-pill);padding:10px 14px;font-family:var(--sans);font-size:13px;color:var(--ink);margin-top:11px}
+  .shop-input::placeholder{color:var(--ink-3)}
+  .shop-tips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .fr-kcal small{display:block;font-size:9.5px;color:var(--ink-3);margin-top:2px}
+
+  /* ---------- 消息 ---------- */
+  .notice-row{display:flex;gap:12px;align-items:flex-start}
+  .n-icon{width:30px;height:30px;border-radius:var(--r-pill);background:var(--wash);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .n-text{font-size:12.5px;line-height:1.7}
+  .n-text b{font-weight:500}
+  .n-time{font-size:10.5px;color:var(--ink-3);margin-top:5px}
+  .chat-row{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .chat-row .avatar{width:38px;height:38px;font-size:13px}
+  .cr-name{font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:6px}
+  .cr-last{font-size:11.5px;color:var(--ink-3);margin-top:4px;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cr-right{margin-left:auto;text-align:right}
+  .cr-right .t{font-size:10px;color:var(--ink-3)}
+  .badge{display:inline-block;margin-top:6px;min-width:16px;height:16px;line-height:16px;border-radius:var(--r-pill);background:var(--green);color:var(--on-green);font-size:10px;padding:0 5px}
+
+  /* ---------- 我的 ---------- */
+  .profile{display:flex;align-items:center;gap:14px;padding-bottom:20px}
+  .profile .avatar{width:52px;height:52px;font-family:var(--serif);font-size:20px;background:var(--green-wash);color:var(--green-deep);flex-shrink:0}
+  .pc-main{flex:1;min-width:0}
+  .pc-name{font-family:var(--serif);font-size:20px;font-weight:400}
+  .pc-bio{font-size:11.5px;color:var(--ink-2);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .info-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .ir-label{color:var(--ink-2)}
+  .set-row{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+  .set-row small{font-size:11px;color:var(--ink-3);margin-left:auto}
+  .set-row .arrow{flex-shrink:0}
+  .switch{width:38px;height:22px;border-radius:var(--r-pill);background:var(--green);position:relative;flex-shrink:0;cursor:pointer;transition:background .18s ease}
+  .switch::after{content:"";position:absolute;top:2px;left:18px;width:18px;height:18px;border-radius:var(--r-pill);background:var(--surface);transition:left .18s cubic-bezier(.16,1,.3,1)}
+  .switch.off{background:var(--line)}
+  .switch.off::after{left:2px}
+
+  /* 勋章：宋体字 + 发丝圆环，零金色零光晕（扩展红线 8） */
+  .badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+  .medal{text-align:center}
+  .medal i{
+    width:56px;height:56px;border-radius:var(--r-pill);border:.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
+    font-family:var(--serif);font-size:21px;font-style:normal;color:var(--ink);
+  }
+  .medal span{font-size:10px;color:var(--ink-3);line-height:1.5;display:block}
+
+  /* ---------- 底部标签栏 ---------- */
+  .tabbar{flex-shrink:0;display:flex;background:var(--paper);border-top:.5px solid var(--line);padding:9px 6px 16px}
+  .tabbar button{flex:1;background:none;border:none;cursor:pointer;font-family:var(--sans);display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--ink-3);padding:0}
+  .tabbar button.on{color:var(--green-deep);font-weight:500}
+  .tabbar button svg{stroke:currentColor}
+
+  /* ---------- 二级页（全屏，带返回栏） ---------- */
+  /* 二级页从状态栏下方开始，让状态栏始终可见 */
+  .subpage{position:absolute;top:42px;left:0;right:0;bottom:0;background:var(--paper);z-index:90;display:none;flex-direction:column}
+  .subpage.show{display:flex}
+  @media (prefers-reduced-motion:no-preference){
+    .subpage.show{animation:spIn .2s cubic-bezier(.16,1,.3,1)}
+    @keyframes spIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+  }
+  .sp-head{
+    flex-shrink:0;height:48px;display:flex;align-items:center;padding:0 14px;
+    border-bottom:.5px solid var(--line);position:relative;
+  }
+  .sp-back{width:30px;height:30px;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:var(--r-pill)}
+  .sp-back:active{background:var(--wash)}
+  .sp-title{position:absolute;left:0;right:0;text-align:center;font-family:var(--serif);font-size:17px;font-weight:400;pointer-events:none}
+  .sp-act{margin-left:auto;font-family:var(--sans);font-size:12.5px;font-weight:500;color:var(--green-deep);background:none;border:none;cursor:pointer;z-index:2}
+  .sp-act.mute{color:var(--ink-3)}
+  .sp-body{flex:1;overflow-y:auto;padding:18px 20px 26px;scrollbar-width:none}
+  .sp-body::-webkit-scrollbar{display:none}
+  .sp-foot{flex-shrink:0;padding:12px 20px 20px;border-top:.5px solid var(--line);background:var(--paper)}
+
+  /* 行式编辑：数值不用输入框（扩展红线 11） */
+  .form-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:.5px solid var(--line);cursor:pointer}
+  .form-row:first-child{border-top:none}
+  .fm-label{font-size:13px;color:var(--ink-2)}
+  .fm-val{font-size:14px;font-weight:500;border-bottom:.5px solid var(--line);padding-bottom:2px}
+  .fm-val.ph{color:var(--ink-3);font-weight:400}
+  .fm-hint{font-size:11.5px;color:var(--ink-3);margin-top:6px;line-height:1.7}
+  .field{margin-bottom:20px}
+  .field>.label{display:block;margin-bottom:9px}
+  .input{width:100%;border:none;background:var(--wash);border-radius:var(--r-pill);padding:12px 16px;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none}
+  .textarea{width:100%;border:none;background:var(--wash);border-radius:var(--r-block);padding:13px 15px;font-family:var(--sans);font-size:13px;line-height:1.8;color:var(--ink);outline:none;resize:none;min-height:110px}
+  .input::placeholder,.textarea::placeholder{color:var(--ink-3)}
+  /* 安全阈值拦截：green-wash，不用 alert 色，无图标无边框（扩展红线 9） */
+  .guard{background:var(--green-wash);border-radius:var(--r-block);padding:13px 14px;margin-top:10px;font-size:13px;line-height:1.85;color:var(--ink-2)}
+  .guard b{color:var(--ink);font-weight:500}
+  .more-toggle{font-size:12.5px;color:var(--green-deep);cursor:pointer;padding:14px 0 0;border-top:.5px solid var(--line);margin-top:4px}
+
+  /* 订阅：纵向三行，零角标零划线零倒计时（扩展红线 7） */
+  .plan-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 14px;border-top:.5px solid var(--line);cursor:pointer;border-radius:var(--r-block)}
+  .plan-row:first-of-type{border-top:none}
+  .plan-row.on{background:var(--green-wash)}
+  .pl-name{font-size:15px;font-weight:500}
+  .pl-desc{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.7}
+  .pl-price{text-align:right;flex-shrink:0}
+  .pl-price b{font-family:var(--serif);font-size:34px;font-weight:400;line-height:1;letter-spacing:-.02em;display:block}
+  .pl-price span{font-size:11px;letter-spacing:.08em;color:var(--ink-2);display:block;margin-top:7px}
+  .compliance{margin:22px 0 14px}
+  .compliance div{font-size:11.5px;color:var(--ink-2);line-height:2}
+
+  /* 聊天会话页 */
+  .conv{padding:6px 0}
+  .conv .who{font-size:10.5px;color:var(--ink-3);margin:0 0 5px 35px}
+
+  /* 帖子详情 */
+  .post-cover{height:196px;border-radius:var(--r-block);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:18px}
+  .post-cover span.ch{font-family:var(--serif);font-size:56px;color:var(--ink);opacity:.38}
+  .post-title{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.45}
+  .post-meta{display:flex;align-items:center;gap:8px;margin:16px 0 20px;padding-bottom:16px;border-bottom:.5px solid var(--line)}
+  .pm-name{font-size:12.5px;font-weight:500}
+  .pm-time{font-size:10.5px;color:var(--ink-3);margin-top:3px}
+  .post-body{font-size:14px;line-height:1.85;color:var(--ink)}
+  .post-body p{margin-bottom:14px}
+  .spec-row{display:flex;justify-content:space-between;font-size:12.5px;padding:11px 0;border-top:.5px solid var(--line)}
+  .spec-row:first-of-type{border-top:none}
+  .spec-row span:first-child{color:var(--ink-2)}
+  .cmt{display:flex;gap:10px;padding:13px 0;border-top:.5px solid var(--line)}
+  .cmt .avatar{width:24px;height:24px;font-size:10.5px}
+  .cmt-name{font-size:11.5px;color:var(--ink-3);margin-bottom:5px}
+  .cmt-text{font-size:12.5px;line-height:1.7}
+
+  /* ---------- 弹层 ---------- */
+  .sheet-mask{position:absolute;inset:0;background:var(--mask);z-index:100;display:none;align-items:flex-end}
+  .sheet-mask.show{display:flex}
+  .sheet{width:100%;max-height:88%;overflow-y:auto;background:var(--surface);border-radius:var(--r-block) var(--r-block) 42px 42px;padding:22px 20px 26px;scrollbar-width:none}
+  .sheet::-webkit-scrollbar{display:none}
+  @media (prefers-reduced-motion:no-preference){
+    .sheet-mask.show .sheet{animation:sheetIn .22s cubic-bezier(.16,1,.3,1)}
+    @keyframes sheetIn{from{transform:translateY(12px);opacity:.5}to{transform:none;opacity:1}}
+  }
+  .sheet.center{border-radius:var(--r-block);margin:auto 20px;max-height:82%}
+  .sheet-mask.mid{align-items:center}
+  .sh-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .sh-title{font-family:var(--serif);font-size:20px;font-weight:400;display:flex;align-items:center;gap:8px}
+  .sh-close{width:28px;height:28px;border:none;background:var(--wash);border-radius:var(--r-pill);font-size:13px;color:var(--ink-2);cursor:pointer;line-height:1}
+
+  .viewfinder{height:186px;background:var(--wash);border-radius:var(--r-block);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+  .vf-text{font-size:12.5px;color:var(--ink-2)}
+  .flash{position:absolute;inset:0;background:var(--paper);opacity:0;pointer-events:none}
+  .flash.go{animation:flashA .35s ease}
+  @keyframes flashA{0%{opacity:0}30%{opacity:.9}100%{opacity:0}}
+  .shutter{display:block;margin:20px auto 8px;width:58px;height:58px;border-radius:var(--r-pill);border:.5px solid var(--line);background:var(--surface);cursor:pointer;position:relative;padding:0}
+  .shutter span{position:absolute;inset:6px;border-radius:var(--r-pill);background:var(--green);transition:transform .1s}
+  .shutter:active span{transform:scale(.88)}
+
+  .photo-preview{display:flex;align-items:center;gap:13px;background:var(--wash);border-radius:var(--r-block);padding:13px 15px;margin-bottom:14px}
+  .pp-thumb{width:48px;height:48px;border-radius:var(--r-tag);background:var(--green-wash);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .photo-preview b{font-size:13.5px;font-weight:500}
+  .photo-preview small{display:block;font-size:11px;color:var(--ink-3);margin-top:4px}
+  .photo-preview a{color:var(--green-deep);cursor:pointer;border-bottom:.5px solid var(--line)}
+
+  .ck-textarea,.ck-input{width:100%;border:none;background:var(--wash);border-radius:var(--r-block);padding:13px 15px;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;resize:none}
+  .ck-textarea{min-height:78px;line-height:1.8}
+  .ck-input{border-radius:var(--r-pill)}
+  .ck-textarea::placeholder,.ck-input::placeholder{color:var(--ink-3)}
+  .ck-sec{margin-bottom:22px}
+  .ck-label{font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:10px}
+  .ck-auto{font-size:11.5px;color:var(--ink-2);line-height:1.8;margin-bottom:10px}
+  .ck-photo-result{margin-bottom:10px}
+  .ck-photo-head{font-size:11px;color:var(--green-deep);margin-bottom:8px}
+  .ck-photo-chip{display:inline-block;font-size:11px;background:var(--green-wash);color:var(--green-deep);border-radius:var(--r-tag);padding:4px 9px;margin:0 6px 6px 0}
+
+  .dish-row{padding:16px 0;border-top:.5px solid var(--line)}
+  .dish-row:first-of-type{border-top:none;padding-top:2px}
+  .dr-top{display:flex;align-items:baseline;gap:10px}
+  .dr-name{font-size:14px;flex:1;min-width:0;display:flex;align-items:center;gap:7px}
+  .dr-conf{font-size:10.5px;color:var(--ink-3);margin-top:6px}
+  .dr-kcal{font-size:15px;font-weight:500;flex-shrink:0}
+  .dr-kcal small{font-size:10px;color:var(--ink-3);font-weight:400}
+  .portion-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .pr-label{font-size:11px;color:var(--ink-3);margin-right:2px}
+  .portion{font-family:var(--sans);font-size:11.5px;padding:6px 12px;border:none;border-radius:var(--r-pill);background:var(--wash);color:var(--ink-2);cursor:pointer}
+  .portion.on{background:var(--green);color:var(--on-green)}
+  .dr-ops{display:flex;gap:16px;margin-top:12px}
+  .dr-ops button{background:none;border:none;font-family:var(--sans);font-size:11.5px;color:var(--ink-3);cursor:pointer;padding:0}
+  .dr-ops button.fix{color:var(--green-deep)}
+  .ask-box{background:var(--green-wash);border-radius:var(--r-block);padding:13px 14px;margin-top:12px;font-size:12.5px;line-height:1.8;color:var(--ink-2)}
+  .ask-box b{color:var(--ink);font-weight:500}
+  .add-miss{width:100%;margin-top:14px;padding:12px;border:none;border-radius:var(--r-pill);background:var(--wash);font-family:var(--sans);font-size:12.5px;color:var(--ink-2);cursor:pointer}
+  .sheet-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:20px;padding-top:16px;border-top:.5px solid var(--line)}
+  .st-label{font-size:11.5px;color:var(--ink-2)}
+  .st-num{font-family:var(--serif);font-size:30px;font-weight:400}
+  .st-num small{font-family:var(--sans);font-size:11px;color:var(--ink-2)}
+  .sheet-btns{display:flex;gap:10px;margin-top:18px}
+  /* 额度提示：只在临界点出现，一行小字，不做角标（用户 07-28 拍板） */
+  .quota{display:none;font-size:11.5px;color:var(--ink-2);text-align:center;margin-top:14px;line-height:1.8}
+
+  .nutri-row{display:flex;gap:22px;margin:20px 0 22px}
+  .nutri b{font-size:16px;font-weight:500;display:block}
+  .nutri span{font-size:10.5px;color:var(--ink-3);display:block;margin-top:4px}
+  .nutri .n-bar{height:1px;background:var(--line);margin-top:9px;width:56px;position:relative}
+  .nutri .n-bar i{position:absolute;left:0;top:-.5px;height:2px;background:var(--green)}
+  .serving-row{display:flex;justify-content:space-between;align-items:center}
+  .sv-name{font-size:13px}
+  .sv-name small{display:block;font-size:10.5px;color:var(--ink-3);margin-top:4px}
+  .sv-kcal{font-size:13.5px;font-weight:500}
+
+  .scan-total{margin:6px 0 20px}
+  .scan-total b{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1;letter-spacing:-.02em}
+  .scan-total span{display:block;font-size:11px;letter-spacing:.08em;color:var(--ink-2);margin-top:9px}
+
+  .date-row{display:flex;gap:7px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+  .date-row input[type=date]{border:none;background:var(--wash);border-radius:var(--r-pill);padding:6px 12px;font-family:var(--sans);font-size:11.5px;color:var(--ink-2);outline:none}
+  .hist-row b{display:block;font-size:10.5px;letter-spacing:.08em;color:var(--ink-3);margin-bottom:6px;font-weight:400}
+  .hist-row{font-size:13px;line-height:1.75}
+
+  .mem-input-box{display:flex;gap:9px;margin-bottom:22px}
+  .mem-input-box input{flex:1;border:none;background:var(--wash);border-radius:var(--r-pill);padding:11px 16px;font-family:var(--sans);font-size:12.5px;color:var(--ink);outline:none}
+  .mem-input-box input::placeholder{color:var(--ink-3)}
+  .mem-group{margin-bottom:24px}
+  .mg-title{font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:10px}
+  .mem-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-top:.5px solid var(--line)}
+  .mg-title + .mem-item{border-top:none}
+  .mi-text{flex:1;font-size:12.5px;line-height:1.7}
+  .mi-text small{display:block;font-size:10.5px;color:var(--ink-3);margin-top:5px}
+  .mi-forget{background:none;border:none;font-family:var(--sans);font-size:11px;color:var(--ink-3);cursor:pointer;flex-shrink:0;padding:2px 0}
+  .mi-forget:active{color:var(--alert)}
+
+  /* 里程碑庆祝 */
+  .celebrate{text-align:center;padding:12px 0 4px}
+  .celebrate .medal-big{
+    width:88px;height:88px;border-radius:var(--r-pill);border:.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+    font-family:var(--serif);font-size:32px;color:var(--ink);
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .sheet-mask.show .medal-big{animation:medalIn .22s cubic-bezier(.16,1,.3,1)}
+    @keyframes medalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+  }
+  .celebrate h4{font-family:var(--serif);font-size:20px;font-weight:400;margin-bottom:10px}
+  .celebrate p{font-size:12.5px;color:var(--ink-2);line-height:1.85}
+
+  /* 启动 / 登录（覆盖整机，含 tabbar） */
+  .boot{position:absolute;top:42px;left:0;right:0;bottom:0;background:var(--paper);z-index:110;display:none;flex-direction:column;padding:0 32px}
+  .boot.show{display:flex}
+  .boot>div{flex:1;display:flex;flex-direction:column}
+  .boot-brand{margin-top:110px;text-align:center}
+  .boot-brand b{font-family:var(--serif);font-size:38px;font-weight:400;letter-spacing:6px;display:block}
+  /* 口号走宋体：它是品牌发声不是功能说明，黑体会读成副标题（字体纪律：宋体只用在发声的位置） */
+  .boot-brand span{font-family:var(--serif);font-size:15px;color:var(--ink-2);display:block;margin-top:16px;letter-spacing:.22em}
+  .boot-body{flex:1;display:flex;flex-direction:column;justify-content:center}
+  .onb-q{font-family:var(--serif);font-size:24px;font-weight:400;line-height:1.5;margin-bottom:8px}
+  .onb-hint{font-size:12.5px;color:var(--ink-2);line-height:1.8;margin-bottom:24px}
+  .onb-opts{display:flex;flex-wrap:wrap;gap:9px}
+  .onb-step{font-size:11px;letter-spacing:.08em;color:var(--ink-3);margin-bottom:14px}
+
+  .toast{
+    position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);background:var(--ink);
+    color:var(--paper);font-size:12px;padding:10px 18px;border-radius:var(--r-pill);opacity:0;pointer-events:none;
+    transition:all .2s ease;z-index:130;max-width:300px;text-align:center;line-height:1.6;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:900px){
+    body{padding:20px 10px}
+    .stage{flex-direction:column;align-items:center;gap:28px}
+    .nav{width:392px;max-width:100%;position:static;max-height:none}
+    .phone{position:static}
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+</svg>
+<div class="stage">
+
+  <!-- ========== 左侧：可点页面索引 ========== -->
+  <aside class="nav">
+    <div class="brand">静食</div>
+    <div class="ver">原型 V1.0 · 按 PRD v1.0 · 演示数据</div>
+    <div class="lede">点左边任意一项直达该屏，手机里也能正常点流程。共 43 屏 + 4 个次级弹层，覆盖 PRD 五个板块的全部功能入口。</div>
+
+    <div class="nav-group">
+      <div class="ng-title">开始</div>
+      <button class="nav-item" onclick="go('boot')">注册与登录</button>
+      <button class="nav-item" onclick="go('onb')">首次引导 <small>一屏一问</small></button>
+    </div>
+
+    <div class="nav-group">
+      <div class="ng-title">小满</div>
+      <button class="nav-item on" onclick="go('home')">首页 <small>空白首页</small></button>
+      <button class="nav-item" onclick="go('cards')">卡片区三卡</button>
+      <button class="nav-item" onclick="go('chat')">全屏对话</button>
+      <button class="nav-item" onclick="go('drawer')">多会话抽屉</button>
+      <button class="nav-item" onclick="go('camera')">拍照识别 <small>四步</small></button>
+      <button class="nav-item" onclick="go('camerafail')">识别失败 <small>错误态</small></button>
+      <button class="nav-item" onclick="go('text')">文字描述记录</button>
+      <button class="nav-item" onclick="go('record')">今日三行</button>
+      <button class="nav-item" onclick="go('asksave')">常吃入库询问 <small>记满 3 次</small></button>
+      <button class="nav-item" onclick="go('history')">记录历史 <small>含漏记留空</small></button>
+      <button class="nav-item" onclick="go('memory')">小满的记忆</button>
+      <button class="nav-item" onclick="go('relapse')">破戒时刻 <small>四段式</small></button>
+      <button class="nav-item" onclick="go('safety')">极端饮食拦截 <small>一级·二级</small></button>
+      <button class="nav-item" onclick="go('safety3')">三级：正常回答 <small>轻断食·生酮·用药</small></button>
+      <button class="nav-item" onclick="go('paywall')">免费额度用尽 <small>转制后才会出现</small></button>
+    </div>
+
+    <div class="nav-group">
+      <div class="ng-title">社区</div>
+      <button class="nav-item" onclick="go('feed')">推荐 <small>双列瀑布流</small></button>
+      <button class="nav-item" onclick="go('follow')">关注</button>
+      <button class="nav-item" onclick="go('groups')">互助小组</button>
+      <button class="nav-item" onclick="go('groupdetail')">小组详情</button>
+      <button class="nav-item" onclick="go('post')">帖子详情</button>
+      <button class="nav-item" onclick="go('compose')">发帖 <small>二期</small></button>
+    </div>
+
+    <div class="nav-group">
+      <div class="ng-title">热量查询</div>
+      <button class="nav-item" onclick="go('calorie')">查询首页</button>
+      <button class="nav-item" onclick="go('search')">搜索与 AI 兜底</button>
+      <button class="nav-item" onclick="go('mine')">常吃 <small>私有库</small></button>
+      <button class="nav-item" onclick="go('food')">食物详情</button>
+      <button class="nav-item" onclick="go('scan')">扫一扫 <small>不写入记录</small></button>
+      <button class="nav-item" onclick="go('scanf')">扫一扫失败 <small>错误态</small></button>
+    </div>
+
+    <div class="nav-group">
+      <div class="ng-title">消息</div>
+      <button class="nav-item" onclick="go('msg')">消息首页</button>
+      <button class="nav-item" onclick="go('conv')">聊天会话</button>
+      <button class="nav-item" onclick="go('notify')">通知设置 <small>默认全关</small></button>
+    </div>
+
+    <div class="nav-group">
+      <div class="ng-title">我的</div>
+      <button class="nav-item" onclick="go('me')">我的首页</button>
+      <button class="nav-item" onclick="go('body')">身体档案</button>
+      <button class="nav-item" onclick="go('guard')">安全阈值拦截</button>
+      <button class="nav-item" onclick="go('mycontent')">我的内容</button>
+      <button class="nav-item" onclick="go('diary')">饮食日记</button>
+      <button class="nav-item" onclick="go('badges')">勋章</button>
+      <button class="nav-item" onclick="go('celebrate')">里程碑庆祝</button>
+      <button class="nav-item" onclick="go('notice')">转制预告 <small>提前两周</small></button>
+      <button class="nav-item" onclick="go('trialend')">免费开放结束 <small>转订阅那一天</small></button>
+      <button class="nav-item" onclick="go('subscribe')">订阅 <small>两档</small></button>
+      <button class="nav-item" onclick="go('settings')">设置</button>
+    </div>
+
+    <div class="nav-foot">
+      社区封面是设计占位（色块加菜名首字），不是随机图库照片，接真后替换为用户实拍图。<br>
+      视觉主张见同目录 视觉主张-v3-静食.md 与 视觉主张-v1.0-扩展.md。
+    </div>
+  </aside>
+
+  <!-- ========== 手机 ========== -->
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="sicons">
+          <svg width="16" height="10" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="4.5" width="3" height="6.5" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".3"/></svg>
+          <svg width="24" height="11" viewBox="0 0 25 12" fill="none"><rect x=".8" y=".8" width="20" height="10.4" rx="3" stroke="currentColor" stroke-width="1"/><rect x="2.6" y="2.6" width="13" height="6.8" rx="1.4" fill="currentColor"/><path d="M23 4v4c1.2-.3 2-1 2-2s-.8-1.7-2-2z" fill="currentColor"/></svg>
+        </span>
+      </div>
+
+      <main id="main">
+
+        <!-- ============ 板块一：小满 ============ -->
+        <section class="page active" id="tab-ai">
+          <button class="dash-fab" id="dash-fab" onclick="goDash()">回到今日</button>
+
+          <div class="ai-topbar">
+            <button class="tb-btn" onclick="openDrawer()" title="对话列表">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h16"/></svg>
+            </button>
+            <div class="tb-mascot" id="tb-mascot">满</div>
+            <div class="tb-title">
+              <b id="tb-title">新对话</b>
+              <small>与小满的对话，各自独立记忆</small>
+            </div>
+            <button class="tb-btn" onclick="newSession()" title="新对话">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <div class="drawer-mask" id="drawer-mask" onclick="if(event.target===this)closeDrawer()">
+            <div class="drawer">
+              <div class="dw-head">
+                <div class="dw-title">对话<small>每个对话是独立上下文，小满分开记</small></div>
+                <button class="sh-close" onclick="closeDrawer()">✕</button>
+              </div>
+              <div class="dw-list" id="dw-list"></div>
+              <button class="dw-new" onclick="newSession()">新对话</button>
+            </div>
+          </div>
+
+          <div class="ai-scroll" id="ai-scroll">
+            <!-- 第一屏：信息概况 -->
+            <div class="ai-pane ai-dash" id="ai-dash">
+              <div class="greet">
+                <div class="hi">晚上好，Eamon</div>
+                <!-- PRD §6.6：不显示连续天数。这里只留日期 -->
+                <div class="date">7月27日 周一</div>
+              </div>
+
+              <div class="dash-pager" id="dash-pager">
+                <div class="dash-pane">
+                  <!-- 空态规则（07-30 #8）：零记录时大数字照显示——剩余=目标（1,800），同一组件同一语义，
+                           不配插画不加特殊态；ov-foot 只放一句「还没记，拍一张就行」。数字是事实不是催促 -->
+                  <div class="ov-cap">今晚还能吃</div>
+                  <b class="ov-num" id="kcal-left">560</b>
+                  <span class="ov-unit">千卡</span>
+                  <div class="prog"><i style="width:69%"></i></div>
+                  <div class="ov-foot">
+                    <span>已记录 <span id="kcal-now">1,240</span> / 1,800 千卡</span>
+                    <span>今天记了 2 餐</span>
+                  </div>
+                </div>
+
+                <div class="dash-pane">
+                  <div class="cc-title">今日三行 <span class="tag" id="cc-tag">还没写</span></div>
+                  <div class="cc-desc" id="cc-desc">吃了什么，动了什么，对自己说一句。记下的内容会进小满的长期记忆。</div>
+                  <div class="cc-btns">
+                    <button class="btn solid" style="flex:1" id="cc-btn" onclick="openRecord()">去记一笔</button>
+                    <button class="btn" style="flex:1" onclick="openHistory()">看历史</button>
+                  </div>
+                </div>
+
+                <div class="dash-pane">
+                  <div class="mem-pane" onclick="openMemory()">
+                    <div class="cc-title">小满的记忆 <span class="tag ai">记得 <span id="mem-count">15</span> 件</span></div>
+                    <div class="mp-item">不吃香菜，晚上 10 点后容易饿</div>
+                    <div class="mp-item">下周三出差两天，吃饭会不规律</div>
+                    <div class="mp-item">破戒时别讲道理，先给方案</div>
+                    <div class="mp-more">查看全部，也可以直接告诉它新的</div>
+                  </div>
+                </div>
+              </div>
+              <div class="pager-dots" id="pager-dots"><i class="on"></i><i></i><i></i></div>
+
+              <div class="rows">
+                <div class="meal-row">
+                  <span class="mr-when">早餐</span>
+                  <span class="mr-what">豆浆、茶叶蛋、全麦包</span>
+                  <span class="mr-kcal">420</span>
+                </div>
+                <div class="meal-row">
+                  <span class="mr-when">午餐</span>
+                  <span class="mr-what">潮汕牛肉火锅（聚餐）</span>
+                  <span class="mr-kcal">820</span>
+                </div>
+                <div class="meal-row empty2" id="row-dinner">
+                  <span class="mr-when">晚餐</span>
+                  <span class="mr-what">还没记</span>
+                  <span class="mr-add" onclick="openCamera()">记一笔</span>
+                </div>
+              </div>
+
+              <div class="quick-row">
+                <button class="quick-btn primary" onclick="openCamera()">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.4"/></svg>
+                  拍照记录
+                </button>
+                <button class="quick-btn" onclick="openText()">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"><path d="M5 6h14M5 11h14M5 16h8"/></svg>
+                  文字描述
+                </button>
+                <button class="quick-btn" onclick="switchTab('calorie')">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"><circle cx="11" cy="11" r="6.4"/><path d="M16 16l4.5 4.5"/></svg>
+                  搜索添加
+                </button>
+              </div>
+
+            </div>
+
+            <!-- 第二屏：小满对话。整屏独立滚动，滚到顶继续下拉回到概况 -->
+            <div class="ai-pane ai-chat" id="ai-chat">
+              <div class="chat-empty">
+                <div class="ce-mascot">满</div>
+                <b>说一句就开始</b>
+                <span>吃了什么、想吃什么、今天怎么样<br>都可以直接说，不用先想好怎么问</span>
+                <!-- 话题引子跟着对话走：两屏分开后它属于小满这一屏，不属于概况 -->
+                <div class="prompt-chips">
+                  <span class="pchip" onclick="sendPrompt('中午点外卖，附近这几家选哪个')">中午点外卖选哪个</span>
+                  <span class="pchip" onclick="sendPrompt('分析我刚吃的一顿')">分析我刚吃的一顿</span>
+                  <span class="pchip" onclick="sendPrompt('昨晚吃撑了，今天怎么办')">昨晚吃撑了</span>
+                </div>
+              </div>
+              <div class="chat" id="chat">
+                <div class="disclaimer">热量为 AI 估算，仅供参考。健康建议不构成医疗意见</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 对话错误态规格（07-30 #13）：连不上时只给一句文字「小满这会儿连不上，等网络好了再来」，
+               不做转圈、不放重试主按钮、不引导去手动记录——手动入口本来就在首页，用户自己会去 -->
+          <div class="ai-inputbar">
+            <input id="chat-input" placeholder="和小满说说这顿吃了什么" onkeydown="if(event.key==='Enter')sendMsg()">
+            <button class="send" onclick="sendMsg()">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--on-green)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- ============ 板块二：社区 ============ -->
+        <section class="page" id="tab-community">
+          <div class="page-head">
+            <div>
+              <div class="page-title">社区</div>
+              <div class="sub">只放别处没有的东西</div>
+            </div>
+            <button class="btn-text" onclick="openSub('sp-compose')">发帖 <span class="tag later">二期</span></button>
+          </div>
+
+          <div class="subtabs">
+            <button class="subtab on" data-sub="feed" onclick="switchSub(this)">推荐</button>
+            <button class="subtab" data-sub="follow" onclick="switchSub(this)">关注</button>
+            <button class="subtab" data-sub="group" onclick="switchSub(this)">互助小组</button>
+          </div>
+
+          <div class="subpane on" id="sub-feed">
+            <div class="wf">
+              <!-- 首卡 = 「小满给你的」个人卡（07-30 #9 落点二）：数据源 = 常吃库 + 今日记录 + 记忆，
+                   明示个人属性 + AI 生产标识；信息流第二张起仍是公共内容 -->
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:152px;background:var(--green-wash)">
+                  <span class="ch">卤</span><span class="kcal-badge">小满给你的</span>
+                </div>
+                <div class="wf-title">今天还剩 560 千卡，你常吃的这几家还吃得下</div>
+                <div class="wf-foot">
+                  <div class="avatar man">满</div><span class="wf-name">小满</span><span class="ai-flag">AI 生产</span>
+                </div>
+              </div>
+
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:118px;background:var(--wash)">
+                  <span class="ch">咖</span><span class="kcal-badge">12 家</span>
+                </div>
+                <div class="wf-title">连锁咖啡热量榜，无糖也分高低</div>
+                <div class="wf-foot">
+                  <div class="avatar man">满</div><span class="wf-name">小满</span><span class="ai-flag">AI 生产</span>
+                </div>
+              </div>
+
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:170px;background:var(--wash)">
+                  <span class="ch">鸡</span><span class="kcal-badge">约 450 千卡</span>
+                </div>
+                <div class="wf-title">白切鸡饭去皮，例汤不喝底，外卖党第 21 天</div>
+                <div class="wf-foot">
+                  <div class="avatar">北</div><span class="wf-name">小北在减脂</span><span class="wf-like liked">♥ 1.2k</span>
+                </div>
+              </div>
+
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:134px;background:var(--green-wash)">
+                  <span class="ch">观</span><span class="kcal-badge">小满的观察</span>
+                </div>
+                <div class="wf-title">记录满两周的人，第 8 天普遍会松一次</div>
+                <div class="wf-foot">
+                  <div class="avatar man">满</div><span class="wf-name">小满</span><span class="ai-flag">AI 生产</span>
+                </div>
+              </div>
+
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:150px;background:var(--wash)">
+                  <span class="ch">饭</span><span class="kcal-badge">每餐约 500 千卡</span>
+                </div>
+                <div class="wf-title">一周带饭 4 次：比外卖少花 90 块，热量还好控</div>
+                <div class="wf-foot">
+                  <div class="avatar">柚</div><span class="wf-name">柚子不熬夜</span><span class="wf-like">♡ 521</span>
+                </div>
+              </div>
+
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:122px;background:var(--green-wash)">
+                  <span class="ch">锅</span><span class="kcal-badge">6 个点单顺序</span>
+                </div>
+                <div class="wf-title">外卖党怎么吃火锅不超标，顺序大于忍耐</div>
+                <div class="wf-foot">
+                  <div class="avatar">北</div><span class="wf-name">小北在减脂</span><span class="wf-like">♡ 2.4k</span>
+                </div>
+              </div>
+            </div>
+            <div class="note">带「AI 生产」标的是小满官号写的，署名小满，不装人。真人账号必须真人真实在用静食。</div>
+          </div>
+
+          <div class="subpane" id="sub-follow">
+            <div class="wf">
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:150px;background:var(--wash)">
+                  <span class="ch">胸</span><span class="kcal-badge">每餐约 500 千卡</span>
+                </div>
+                <div class="wf-title">鸡胸肉三吃，带饭盒子里的常客</div>
+                <div class="wf-foot">
+                  <div class="avatar">柚</div><span class="wf-name">柚子不熬夜</span><span class="wf-like">♡ 96</span>
+                </div>
+              </div>
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:128px;background:var(--green-wash)">
+                  <span class="ch">鸡</span><span class="kcal-badge">约 450 千卡</span>
+                </div>
+                <div class="wf-title">白切鸡的第 3 种点法，酱汁另装是关键</div>
+                <div class="wf-foot">
+                  <div class="avatar">北</div><span class="wf-name">小北在减脂</span><span class="wf-like liked">♥ 1.2k</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="subpane" id="sub-group">
+            <div class="rows">
+              <div class="group-row" onclick="openSub('sp-group')">
+                <div class="avatar" style="width:38px;height:38px;font-size:13px">组</div>
+                <div>
+                  <div class="gr-name">外卖党减脂 30 天</div>
+                  <div class="gr-sub">6 人 · 第 21 天 · 组内可见彼此公开记录</div>
+                </div>
+                <svg class="ico arrow end"><use href="#i-right"/></svg>
+              </div>
+              <div class="group-row" onclick="showToast('演示版：小组详情')">
+                <div class="avatar" style="width:38px;height:38px;font-size:13px">夜</div>
+                <div>
+                  <div class="gr-name">不吃夜宵互助</div>
+                  <div class="gr-sub">4 人 · 第 6 天</div>
+                </div>
+                <svg class="ico arrow end"><use href="#i-right"/></svg>
+              </div>
+            </div>
+            <button class="btn block" style="margin-top:20px" onclick="showToast('演示版：建一个 4 到 8 人的小组')">建一个小组</button>
+            <div class="note">小组不比体重，没有排行榜，破戒不扣分不公示。回应组员纯自愿，静食不会替你派任务。</div>
+          </div>
+        </section>
+
+        <!-- ============ 板块三：热量查询 ============ -->
+        <section class="page" id="tab-calorie">
+          <div class="page-head">
+            <div>
+              <div class="page-title">热量查询</div>
+              <div class="sub">验证库打底，查不到 AI 兜底</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center">
+            <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.4"/><path d="M16 16l4.5 4.5"/></svg>
+              <input id="cal-search" placeholder="搜食物、外卖菜、连锁品牌" onfocus="showSearch()">
+            </div>
+            <button class="scan-btn" onclick="openScan()" title="扫一扫查热量">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M4 12h16"/></svg>
+            </button>
+          </div>
+
+          <!-- 分类浏览态 -->
+          <div id="cal-browse">
+            <!-- 「今天还能吃」个人卡（07-30 #9 落点一）：数据源 = 今日剩余热量 + 常吃库 + 小满记忆。
+                 按剩余热量正向表达，只说"还吃得下什么"，不给"能吃/不能吃"的评判。点一下一键填入，份量热量沿用上次 -->
+            <div class="mine-head">
+              <div class="mine-title">今天还能吃<small>晚餐还剩 560 千卡</small></div>
+            </div>
+            <div class="rows" style="margin-bottom:20px">
+              <div class="mine-row" onclick="fillFromMine('白切鸡饭 去皮', 450)">
+                <div>
+                  <div class="mine-shop">老广快餐</div>
+                  <div class="mine-name">白切鸡饭 去皮</div>
+                </div>
+                <div class="mine-kcal">450<small>千卡</small></div>
+              </div>
+              <div class="mine-row" onclick="fillFromMine('清汤麻辣烫 多菜', 520)">
+                <div>
+                  <div class="mine-shop">张亮麻辣烫</div>
+                  <div class="mine-name">清汤麻辣烫 多菜</div>
+                </div>
+                <div class="mine-kcal">520<small>千卡</small></div>
+              </div>
+            </div>
+
+            <!-- 常吃：私有库，排在分类浏览之前（PRD §7.3）。放在 cal-browse 内，搜索时自动隐藏 -->
+            <div class="mine-head">
+              <div class="mine-title">常吃<small>你自己的</small></div>
+              <button class="mine-all" onclick="openSub('sp-mine')">全部 12 样</button>
+            </div>
+            <div class="rows">
+              <div class="mine-row" onclick="fillFromMine('清汤麻辣烫 多菜', 520)">
+                <div>
+                  <div class="mine-shop">张亮麻辣烫</div>
+                  <div class="mine-name">清汤麻辣烫 多菜</div>
+                </div>
+                <div class="mine-kcal">520<small>千卡</small></div>
+              </div>
+              <div class="mine-row" onclick="fillFromMine('白切鸡饭 去皮', 450)">
+                <div>
+                  <div class="mine-shop">老广快餐</div>
+                  <div class="mine-name">白切鸡饭 去皮</div>
+                </div>
+                <div class="mine-kcal">450<small>千卡</small></div>
+              </div>
+              <div class="mine-row" onclick="fillFromMine('自己带的鸡胸饭盒', 510)">
+                <div>
+                  <div class="mine-name">自己带的鸡胸饭盒</div>
+                </div>
+                <div class="mine-kcal">510<small>千卡</small></div>
+              </div>
+            </div>
+            <div class="fm-hint">点一下直接记进今天，份量和热量都沿用上次，不用再选。</div>
+
+            <div class="cat-chips">
+              <button class="cat-chip on">全部</button>
+              <button class="cat-chip">主食</button>
+              <button class="cat-chip">肉蛋</button>
+              <button class="cat-chip">蔬果</button>
+              <button class="cat-chip">零食</button>
+              <button class="cat-chip">饮料</button>
+              <button class="cat-chip">外卖与连锁</button>
+            </div>
+
+            <div class="rows">
+              <div class="food-row" onclick="openFood()">
+                <div class="fr-icon">米</div>
+                <div>
+                  <div class="fr-name">米饭（蒸） <span class="tag">验证库</span></div>
+                  <div class="fr-sub">1 小碗 150g 约 174 千卡</div>
+                </div>
+                <div class="fr-kcal"><b>116</b><small>千卡/100g</small></div>
+              </div>
+              <div class="food-row" onclick="openFood()">
+                <div class="fr-icon">鸡</div>
+                <div>
+                  <div class="fr-name">黄焖鸡米饭 <span class="tag">验证库</span></div>
+                  <div class="fr-sub">1 份常规约 690 千卡</div>
+                </div>
+                <div class="fr-kcal"><b>158</b><small>千卡/100g</small></div>
+              </div>
+              <div class="food-row" onclick="openFood()">
+                <div class="fr-icon">菜</div>
+                <div>
+                  <div class="fr-name">白灼菜心 <span class="tag">验证库</span></div>
+                  <div class="fr-sub">1 碟 200g 约 62 千卡</div>
+                </div>
+                <div class="fr-kcal"><b>31</b><small>千卡/100g</small></div>
+              </div>
+              <div class="food-row" onclick="openFood()">
+                <div class="fr-icon">肉</div>
+                <div>
+                  <div class="fr-name">红烧肉 <span class="tag">验证库</span></div>
+                  <div class="fr-sub">1 块约 40g，约 190 千卡</div>
+                </div>
+                <div class="fr-kcal"><b>475</b><small>千卡/100g</small></div>
+              </div>
+            </div>
+            <!-- 07-30 #12：待审核条目不进浏览列表。正库是静态的，唯一来源是人工上传的确定数据；
+                 AI 估算只是临时能力（当次估算 + 写进本人记录，带标），库外食物进入上报队列由数据维护人补数据 -->
+            <div class="note">这里只放核对过的数据。查不到的由 AI 当场估算、只进你自己的记录；这个食物会被记下来，由我们来补数据。</div>
+          </div>
+
+          <!-- 搜索结果态：含查不到 → AI 估算兜底 -->
+          <div id="cal-result" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0 12px">
+              <span class="label">搜「潮汕牛肉丸粿条」</span>
+              <button class="btn-text mute" onclick="hideSearch()">返回分类</button>
+            </div>
+            <div class="rows">
+              <div class="food-row" onclick="openFood()">
+                <div class="fr-icon">粿</div>
+                <div>
+                  <div class="fr-name">牛肉丸粿条汤 <span class="tag">验证库</span></div>
+                  <div class="fr-sub">1 碗常规约 480 千卡</div>
+                </div>
+                <div class="fr-kcal"><b>92</b><small>千卡/100g</small></div>
+              </div>
+            </div>
+
+            <div class="sec-title">库里没有的那个</div>
+            <div class="rows">
+              <div class="food-row" onclick="openFood()">
+                <div class="fr-icon">丸</div>
+                <div>
+                  <div class="fr-name">手打牛筋丸（某家店） <span class="tag est">AI 估算</span></div>
+                  <div class="fr-sub">一份 6 颗，约 260 千卡</div>
+                </div>
+                <div class="fr-kcal"><b>218</b><small>千卡/100g</small></div>
+              </div>
+            </div>
+            <div class="guard" style="margin-top:14px">
+              这条库里还没有，是小满按配料和做法估的。你要是知道更准的，<b>点一下报错</b>——它会和这个食物一起进我们的补充队列，核对后由我们补进正库。
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px">
+              <button class="btn" style="flex:1" onclick="showToast('演示版：报错并提交修正，进补充队列')">报错并修正</button>
+              <button class="btn solid" style="flex:1" onclick="showToast('已加入今天（演示）')">加入今天</button>
+            </div>
+            <!-- 07-30 #12：AI 估算是临时能力——当次可用、可加入今天、进本人记录，但不进正库；
+                 正库唯一来源是人工上传，库外食物走上报队列 -->
+            <div class="note">AI 估算的条目带标，加进的是你自己的今天，不会进公共热量库。库里没有的食物会被记下来，由我们核对后补数据。</div>
+          </div>
+        </section>
+
+        <!-- ============ 板块四：消息 ============ -->
+        <section class="page" id="tab-msg">
+          <div class="page-head">
+            <div>
+              <div class="page-title">消息</div>
+              <div class="sub">互动、小组、私聊</div>
+            </div>
+            <button class="btn-text" onclick="openSub('sp-notify')">通知设置</button>
+          </div>
+
+          <div class="sec-title fold-title" style="margin-top:6px" onclick="toggleFold(this)">互动通知
+            <svg class="fold-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="rows fold-body">
+            <div class="notice-row">
+              <div class="n-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.4"><path d="M12 20s-7-4.5-9-9c-1.2-2.8.6-6 3.8-6 2.2 0 3.7 1.3 5.2 3 1.5-1.7 3-3 5.2-3 3.2 0 5 3.2 3.8 6-2 4.5-9 9-9 9z"/></svg>
+              </div>
+              <div>
+                <div class="n-text"><b>小北在减脂</b> 赞了你的帖子「白切鸡饭的第 3 种点法」</div>
+                <div class="n-time">10 分钟前</div>
+              </div>
+            </div>
+            <div class="notice-row">
+              <div class="n-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>
+              </div>
+              <div>
+                <div class="n-text"><b>阿瓜要练背</b> 评论了你：「这个份量参照物太有用了」</div>
+                <div class="n-time">1 小时前</div>
+              </div>
+            </div>
+            <div class="notice-row">
+              <div class="n-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div>
+                <div class="n-text"><b>柚子不熬夜</b> 回应了你昨天的记录：「接住了，明天一起」</div>
+                <div class="n-time">3 小时前</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec-title fold-title" onclick="toggleFold(this)">系统通知
+            <svg class="fold-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="rows fold-body">
+            <div class="notice-row">
+              <div class="n-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg>
+              </div>
+              <div>
+                <div class="n-text">你报错的「手打牛筋丸」已审核通过，进了正库。谢谢你，库因此又全了一点。</div>
+                <div class="n-time">昨天</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec-title fold-title" onclick="toggleFold(this)">聊天
+            <svg class="fold-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="rows fold-body">
+            <div class="chat-row" onclick="openConv('group')">
+              <div class="avatar">组</div>
+              <div>
+                <div class="cr-name">外卖党减脂 30 天</div>
+                <div class="cr-last">小北：今天的白切鸡点法我整理成清单了</div>
+              </div>
+              <div class="cr-right"><div class="t">19:42</div><div class="badge">3</div></div>
+            </div>
+            <div class="chat-row" onclick="openConv('dm')">
+              <div class="avatar">瓜</div>
+              <div>
+                <div class="cr-name">阿瓜要练背</div>
+                <div class="cr-last">明天练完一起去吃那家轻食？</div>
+              </div>
+              <div class="cr-right"><div class="t">18:05</div><div class="badge">1</div></div>
+            </div>
+          </div>
+
+          <div class="note">推送三铁律：内容诚实不惊吓，分类可单独关闭，绝不夹带商业内容。所有推送默认关闭，静食不会主动索取通知权限。</div>
+        </section>
+
+        <!-- ============ 板块五：我的 ============ -->
+        <section class="page" id="tab-me">
+          <div class="page-head">
+            <div class="page-title">我的</div>
+            <button class="btn-text" onclick="showToast('演示版：编辑头像昵称简介')">编辑</button>
+          </div>
+
+          <div class="profile">
+            <div class="avatar">E</div>
+            <div class="pc-main">
+              <div class="pc-name">Eamon</div>
+              <!-- PRD §6.6：不显示连续天数，右侧原 streak 已删 -->
+              <div class="pc-bio">外卖党自救中 · 目标 68kg</div>
+            </div>
+          </div>
+
+          <div class="rows">
+            <div class="set-row" onclick="openSub('sp-body')">身体档案 <small>175cm · 76.5kg</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="openSub('sp-mycontent')">我的内容 <small>帖子 · 日记 · 收藏 · 点赞</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="openSub('sp-badges')">勋章 <small>已获 4 枚</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="openSub('sp-subscribe')">订阅 <small>免费开放中</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="openSub('sp-settings')">设置 <small>通知 · 隐私 · 账号</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+          </div>
+
+          <div class="sec-title">这一路</div>
+          <div class="rows">
+            <div class="info-row"><span class="ir-label">一共记了</span><span>68 顿饭</span></div>
+            <div class="info-row"><span class="ir-label">最近一次记录</span><span>今天 12:40</span></div>
+            <div class="info-row"><span class="ir-label">小满记得你</span><span>15 件事</span></div>
+          </div>
+          <div class="note">这里只放累计，不放连续天数。断没断都不影响你和小满走到这儿。</div>
+        </section>
+      </main>
+
+      <nav class="tabbar">
+        <button class="on" data-tab="ai" onclick="switchTab('ai')">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>
+          小满
+        </button>
+        <button data-tab="community" onclick="switchTab('community')">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3 2.9-4.5 5.5-4.5s4.9 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.2"/><path d="M16 14.6c2.3.2 4 1.6 4.5 4.4"/></svg>
+          社区
+        </button>
+        <button data-tab="calorie" onclick="switchTab('calorie')">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3-2 4-2 7a4.5 4.5 0 0 0 9 .5C19 7 15 5 12 3z"/><path d="M8.5 14.5A5.5 5.5 0 0 0 12 21"/></svg>
+          热量查询
+        </button>
+        <button data-tab="msg" onclick="switchTab('msg')">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>
+          消息
+        </button>
+        <button data-tab="me" onclick="switchTab('me')">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.8-3.8 3.7-5.5 7-5.5s6.2 1.7 7 5.5"/></svg>
+          我的
+        </button>
+      </nav>
+
+      <!-- ============ 二级页：帖子详情 ============ -->
+      <div class="subpage" id="sp-post">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-post')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">帖子</div>
+          <button class="sp-act" onclick="showToast('已收藏（演示）')">收藏</button>
+        </div>
+        <div class="sp-body">
+          <div class="post-cover" style="background:var(--green-wash)">
+            <span class="ch">卤</span><span class="kcal-badge">小满给你的</span>
+          </div>
+          <div class="post-title">今天还剩 560 千卡，你常吃的这几家还吃得下</div>
+          <div class="post-meta">
+            <div class="avatar man">满</div>
+            <div>
+              <div class="pm-name">小满</div>
+              <div class="pm-time">今天 11:20 · 按你近 30 天的记录生成</div>
+            </div>
+            <span class="ai-flag" style="margin-left:auto">AI 生产</span>
+          </div>
+          <div class="post-body">
+            <p>你今天已经吃了 1,240 千卡，晚餐还剩 560。下面按这个余量排，越靠前越稳。</p>
+          </div>
+          <div style="margin:18px 0">
+            <div class="spec-row"><span>老长沙卤粉（去油碗底）</span><span>约 430 千卡</span></div>
+            <div class="spec-row"><span>潮汕砂锅粥（不加油条）</span><span>约 480 千卡</span></div>
+            <div class="spec-row"><span>川味冒菜（清汤，少米饭）</span><span>约 540 千卡</span></div>
+            <div class="spec-row"><span>黄焖鸡米饭（半份饭）</span><span>约 560 千卡</span></div>
+            <div class="spec-row" style="color:var(--ink-3)"><span>兰州拉面（大碗加肉）</span><span>约 780 千卡</span></div>
+          </div>
+          <div class="post-body">
+            <p>最后一家今天会超，但超一点也不是什么大事。真想吃就吃，明天午餐轻一点就回来了。</p>
+          </div>
+          <div class="note" style="border-top:none;padding-top:0;margin-top:0">这五家是从你自己的记录里来的，不是通用榜单。别人的这一份和你的不一样。</div>
+
+          <div class="sec-title">评论 12</div>
+          <div>
+            <div class="cmt">
+              <div class="avatar">北</div>
+              <div><div class="cmt-name">小北在减脂 · 2 小时前</div><div class="cmt-text">卤粉去碗底这招真的有用，我试了一周瘦了一斤多</div></div>
+            </div>
+            <div class="cmt">
+              <div class="avatar">瓜</div>
+              <div><div class="cmt-name">阿瓜要练背 · 1 小时前</div><div class="cmt-text">冒菜清汤确实顶饱，而且能多加菜</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sp-foot">
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="input" placeholder="说点什么" style="flex:1">
+            <button class="btn solid" onclick="showToast('演示版：发送评论')">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：发帖（二期功能） ============ -->
+      <div class="subpage" id="sp-compose">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-compose')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">发帖</div>
+          <button class="sp-act" onclick="showToast('演示版：提交后进入先审后发队列')">发布</button>
+        </div>
+        <div class="sp-body">
+          <div style="margin-bottom:18px"><span class="tag later">二期功能</span> <span style="font-size:11.5px;color:var(--ink-3)">第一版不开放公开发帖，社区只有小满官号与邀请制种子用户</span></div>
+
+          <div class="field">
+            <span class="label">标题</span>
+            <input class="input" placeholder="一句话说清这顿的关键">
+          </div>
+          <div class="field">
+            <span class="label">正文</span>
+            <textarea class="textarea" placeholder="怎么点的、改了什么、为什么这么吃"></textarea>
+          </div>
+          <div class="field">
+            <span class="label">封面</span>
+            <div style="display:flex;gap:10px">
+              <div style="width:76px;height:76px;border-radius:var(--r-block);background:var(--wash);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="showToast('演示版：选择照片')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>
+              </div>
+              <div style="width:76px;height:76px;border-radius:var(--r-block);background:var(--green-wash);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:26px;color:var(--ink);opacity:.5">卤</div>
+            </div>
+          </div>
+          <div class="field">
+            <span class="label">从今天的记录里带一份</span>
+            <div class="rows" style="margin-top:2px">
+              <div class="set-row" onclick="showToast('已带入午餐记录（演示）')">午餐 · 潮汕牛肉火锅 <small>820 千卡</small>
+                <svg class="ico arrow"><use href="#i-right"/></svg>
+              </div>
+            </div>
+            <div class="fm-hint">带入后热量会自动做成封面角标，不用自己填。</div>
+          </div>
+          <div class="note">发布后先进审核队列，通过才公开。这是国内 UGC 的硬性要求，也是社区不脏的前提。</div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：互助小组详情 ============ -->
+      <div class="subpage" id="sp-group">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-group')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">外卖党减脂 30 天</div>
+          <button class="sp-act" onclick="openConv('group')">群聊</button>
+        </div>
+        <div class="sp-body">
+          <div class="g-title">外卖党减脂 30 天 <span class="tag">6 人</span></div>
+          <div class="g-sub">建组时说好的：一起把工作日午餐吃明白 · 第 21 天</div>
+
+          <div class="member-row">
+            <div class="member"><div class="avatar">我</div><span></span></div>
+            <div class="member"><div class="avatar">北</div><span></span></div>
+            <div class="member"><div class="avatar">瓜</div><span></span></div>
+            <div class="member"><div class="avatar">柚</div><span></span></div>
+            <div class="member"><div class="avatar">桃</div><span></span></div>
+            <div class="member"><div class="avatar">陈</div><span></span></div>
+          </div>
+          <!-- PRD §7.2：原「打卡未获回应时提醒组员」已删除，此处不放任何催促按钮 -->
+          <div class="group-note">这里不比体重，没有排行榜，破戒不扣分不公示。谁今天没记也不会被提醒，回应组员纯自愿。</div>
+
+          <div class="sec-title">组内动态</div>
+          <div class="rows">
+            <div class="feed-line"><b>小北</b> 回应了你昨天的记录：「白切鸡这个点法学了」<div class="feed-time">2 小时前</div></div>
+            <div class="feed-line"><b>阿瓜</b> 公开了今天的午餐：牛肉面加俩卤蛋，约 620 千卡<div class="feed-time">4 小时前</div></div>
+            <div class="feed-line"><b>柚子</b> 公开了今天的午餐：自己带的鸡胸饭盒，约 510 千卡<div class="feed-time">5 小时前</div></div>
+            <div class="feed-line"><span class="avatar man" style="width:18px;height:18px;font-size:9.5px;display:inline-flex;vertical-align:-4px;margin-right:5px">满</span><b>小满</b> 给全组：这周大家外卖的蛋白质明显上来了，继续<span class="ai-flag" style="margin-left:6px">AI 生产</span><div class="feed-time">今天 09:00</div></div>
+          </div>
+
+          <div class="sec-title">组内公开的记录</div>
+          <div class="rows">
+            <div class="set-row" onclick="showToast('演示版：查看组员公开的当日记录')">阿瓜要练背 <small>今天 · 3 餐</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="showToast('演示版：查看组员公开的当日记录')">柚子不熬夜 <small>今天 · 2 餐</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+          </div>
+          <div class="note">只看得到组员主动公开的那一天，没公开的就是没公开，静食不会替谁掀开。</div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：聊天会话 ============ -->
+      <div class="subpage" id="sp-conv">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-conv')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title" id="conv-title">外卖党减脂 30 天</div>
+        </div>
+        <div class="sp-body" id="conv-body"></div>
+        <div class="sp-foot">
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="input" id="conv-input" placeholder="说点什么" style="flex:1" onkeydown="if(event.key==='Enter')sendConv()">
+            <button class="btn solid" onclick="sendConv()">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：通知设置 ============ -->
+      <div class="subpage" id="sp-notify">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-notify')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">通知设置</div>
+        </div>
+        <div class="sp-body">
+          <div class="guard" style="margin-top:0">静食默认不给你发任何推送，也没有向系统要过通知权限。下面每一项都要你自己打开才会生效。</div>
+
+          <div class="sec-title">可以打开的</div>
+          <div class="rows">
+            <!-- PRD §6.3（07-30 #15 改）：所有推送默认关闭；场景内一律不问，想开只能来这里 -->
+            <div class="set-row">用餐提醒 <small>到点问一句</small><div class="switch off" onclick="toggleSwitch(this)"></div></div>
+            <div class="set-row">晚间小结 <small>每晚一条，说说今天吃得怎么样</small><div class="switch off" onclick="toggleSwitch(this)"></div></div>
+            <div class="set-row">里程碑 <small>达成时告诉你</small><div class="switch off" onclick="toggleSwitch(this)"></div></div>
+            <div class="set-row">小组回应 <small>有人回应你的记录</small><div class="switch off" onclick="toggleSwitch(this)"></div></div>
+            <div class="set-row">小满的主动关怀 <small>破戒、平台期时陪一句</small><div class="switch off" onclick="toggleSwitch(this)"></div></div>
+          </div>
+          <div class="note">静食不会在 App 里弹窗问你要不要开推送。开着就推，不开就不推，开关只在这一页。</div>
+
+          <div class="sec-title">永远不会有的</div>
+          <div class="rows">
+            <div class="never-item">断记录提醒</div>
+            <div class="never-item">连续天数中断警告</div>
+            <div class="never-item">「你已 X 天未记录」</div>
+            <div class="never-item">任何进度催促</div>
+            <div class="never-item">夹带商业内容的推送</div>
+          </div>
+          <div class="note">这几条不是暂时没做，是永久不做。写在产品约束里，改需求得先改 PRD。</div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：身体档案（含安全阈值拦截） ============ -->
+      <div class="subpage" id="sp-body">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-body')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">身体档案</div>
+          <button class="sp-act" onclick="showToast('已保存（演示）')">保存</button>
+        </div>
+        <div class="sp-body">
+          <!-- 数值走行式编辑，不用输入框（扩展红线 11） -->
+          <div class="sec-title" style="margin-top:0">性别</div>
+          <div class="portion-row" id="gender-row" style="margin-top:0;margin-bottom:16px">
+            <button class="portion on" data-floor="1500" onclick="pickGender(this)">男</button>
+            <button class="portion" data-floor="1200" onclick="pickGender(this)">女</button>
+          </div>
+          <div class="form-row" onclick="showToast('演示版：唤起数字键盘')"><span class="fm-label">年龄</span><span class="fm-val">28</span></div>
+          <div class="form-row" onclick="showToast('演示版：唤起数字键盘')"><span class="fm-label">身高</span><span class="fm-val">175 cm</span></div>
+          <div class="form-row" onclick="showToast('演示版：唤起数字键盘')"><span class="fm-label">当前体重</span><span class="fm-val">76.5 kg</span></div>
+          <div class="form-row" onclick="showToast('演示版：唤起数字键盘')"><span class="fm-label">目标体重</span><span class="fm-val">68 kg</span></div>
+
+          <div class="sec-title">减脂速度</div>
+          <div class="portion-row" id="speed-row" style="margin-top:0">
+            <button class="portion on" data-d="500">温和 · 每周 0.5kg</button>
+            <button class="portion" data-d="625">快一点 · 每周 0.6kg</button>
+            <button class="portion" data-d="750">最快 · 每周 0.7kg</button>
+          </div>
+          <div class="fm-hint" id="speed-hint">按 Mifflin-St Jeor 算，你的基础代谢约 1,680 千卡，日常消耗约 2,300 千卡。缺口 500，目标 1,800 千卡。</div>
+          <!-- 安全阈值拦截：green-wash，无图标无红色（扩展红线 9） -->
+          <div class="guard" id="speed-guard" style="display:none"></div>
+
+          <div class="sec-title">每日目标热量</div>
+          <div class="form-row" onclick="tryLowTarget()"><span class="fm-label">目标摄入</span><span class="fm-val" id="target-val">1,800 千卡</span></div>
+          <div class="fm-hint">演示版：点一下试试把它改到 800，看看小满怎么说。</div>
+          <div class="guard" id="target-guard" style="display:none"></div>
+
+          <div class="sec-title">忌口与偏好</div>
+          <div class="portion-row" style="margin-top:0">
+            <button class="portion on">不吃香菜</button>
+            <button class="portion">不吃内脏</button>
+            <button class="portion">乳糖不耐</button>
+            <button class="portion">清真</button>
+            <button class="portion">素食</button>
+            <button class="portion">+ 自己加</button>
+          </div>
+
+          <!-- 敏感字段默认折叠（扩展 §3.2） -->
+          <div class="more-toggle" id="more-toggle" onclick="toggleMore()">更多（用药情况等）</div>
+          <div id="more-fields" style="display:none">
+            <div class="form-row" style="border-top:none" onclick="openMed()">
+              <span class="fm-label">减重用药</span><span class="fm-val ph" id="med-value">未填写</span>
+            </div>
+            <div class="fm-hint">如果你在用司美格鲁肽这类药，告诉小满有用：它会按用药期的食欲变化调整建议。这一栏只影响建议口径，不会出现在任何公开内容里。用药本身需要医生评估，静食不做推荐。</div>
+          </div>
+
+          <div class="note">这些数字只用来算目标和给建议。小满记忆里能看到它们，也随时可以删。</div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：我的内容 ============ -->
+      <div class="subpage" id="sp-mycontent">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-mycontent')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">我的内容</div>
+        </div>
+        <div class="sp-body">
+          <div class="subtabs" style="margin-bottom:16px">
+            <button class="subtab on" data-mc="post" onclick="switchMC(this)">帖子</button>
+            <button class="subtab" data-mc="diary" onclick="switchMC(this)">饮食日记</button>
+            <button class="subtab" data-mc="fav" onclick="switchMC(this)">收藏</button>
+            <button class="subtab" data-mc="like" onclick="switchMC(this)">点赞</button>
+          </div>
+
+          <div class="subpane on" id="mc-diary">
+            <div class="rows">
+              <div class="set-row" onclick="openSub('sp-diary')">今天 · 7月27日 <small>2 餐 · 1,240 千卡</small>
+                <svg class="ico arrow"><use href="#i-right"/></svg>
+              </div>
+              <div class="set-row" onclick="openSub('sp-diary')">7月26日 <small>3 餐 · 1,760 千卡</small>
+                <svg class="ico arrow"><use href="#i-right"/></svg>
+              </div>
+              <!-- 漏记的日子留空，浅色无标记（PRD §6.5） -->
+              <div class="set-row" style="color:var(--ink-3)" onclick="openSub('sp-diary')">7月25日 <small>没有记录</small>
+                <svg class="ico arrow faint"><use href="#i-right"/></svg>
+              </div>
+              <div class="set-row" onclick="openSub('sp-diary')">7月24日 <small>3 餐 · 1,690 千卡</small>
+                <svg class="ico arrow"><use href="#i-right"/></svg>
+              </div>
+              <div class="set-row" style="color:var(--ink-3)" onclick="openSub('sp-diary')">7月23日 <small>没有记录</small>
+                <svg class="ico arrow faint"><use href="#i-right"/></svg>
+              </div>
+            </div>
+            <div class="note">没记的日子就是留空，不打叉不置灰不提示。日记默认仅自己可见，和 AI 那边的记录同源，永远只记一遍。</div>
+          </div>
+
+          <div class="subpane" id="mc-post">
+            <div class="wf">
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:140px;background:var(--wash)"><span class="ch">鸡</span><span class="kcal-badge">约 450 千卡</span></div>
+                <div class="wf-title">白切鸡的第 3 种点法，酱汁另装是关键</div>
+                <div class="wf-foot"><span class="wf-name">7月20日</span><span class="wf-like">♡ 1.2k</span></div>
+              </div>
+              <div class="wf-card" onclick="openSub('sp-post')">
+                <div class="wf-cover" style="height:118px;background:var(--green-wash)"><span class="ch">粥</span><span class="kcal-badge">约 480 千卡</span></div>
+                <div class="wf-title">砂锅粥这样点，不加油条就不亏</div>
+                <div class="wf-foot"><span class="wf-name">7月14日</span><span class="wf-like">♡ 86</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="subpane" id="mc-fav">
+            <div class="rows">
+              <div class="set-row" onclick="openSub('sp-post')">外卖党怎么吃火锅不超标 <small>@小北在减脂</small>
+                <svg class="ico arrow"><use href="#i-right"/></svg>
+              </div>
+              <div class="set-row" onclick="openSub('sp-post')">连锁咖啡热量榜 <small>@小满</small>
+                <svg class="ico arrow"><use href="#i-right"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="subpane" id="mc-like">
+            <div class="empty">
+              <b>还没有点过赞</b>
+              <span>看到有用的帖子点一下，这里会攒起来</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：饮食日记 ============ -->
+      <div class="subpage" id="sp-diary">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-diary')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">饮食日记</div>
+          <button class="sp-act mute" onclick="openVisib()">仅自己</button>
+        </div>
+        <div class="sp-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div style="font-family:var(--serif);font-size:18px">今天 · 7月27日</div>
+            <span class="tag">仅自己可见</span>
+          </div>
+
+          <div class="rows" style="margin-top:12px">
+            <div style="display:flex;align-items:center;gap:13px">
+              <div class="fr-icon">早</div>
+              <div><div style="font-size:13px">豆浆、茶叶蛋、全麦包</div><div class="meal-meta">拍照记录 · 08:20</div></div>
+              <div style="margin-left:auto;font-size:14px;font-weight:500;text-align:right">420<small style="display:block;font-size:9.5px;color:var(--ink-3);font-weight:400;margin-top:2px">千卡</small></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:13px">
+              <div class="fr-icon">午</div>
+              <div><div style="font-size:13px">潮汕牛肉火锅（聚餐）</div><div class="meal-meta">文字描述 · 12:40 · 小满已帮忙复盘</div></div>
+              <div style="margin-left:auto;font-size:14px;font-weight:500;text-align:right">820<small style="display:block;font-size:9.5px;color:var(--ink-3);font-weight:400;margin-top:2px">千卡</small></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:13px;opacity:.5">
+              <div class="fr-icon">晚</div>
+              <div><div style="font-size:13px">还没记</div><div class="meal-meta">拍一张就行</div></div>
+              <div style="margin-left:auto;font-size:12px;color:var(--ink-3)">未记</div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-top:16px;padding-top:14px;border-top:.5px solid var(--line)">
+            <span style="color:var(--ink-2)">当日合计（目标 1,800）</span>
+            <span style="font-weight:500">1,240 千卡</span>
+          </div>
+
+          <div class="sec-title">对自己说的</div>
+          <div style="font-size:13px;line-height:1.85;color:var(--ink-2)">「火锅吃爽了，不亏。晚上随便垫一口就行。」</div>
+
+          <div class="sec-title">最近七天</div>
+          <div style="display:flex;align-items:flex-end;gap:9px;height:88px;margin-top:6px">
+            <div class="wk-col"><i class="wk-bar" style="height:34%"></i><span class="wk-day">二</span></div>
+            <div class="wk-col"><i class="wk-bar" style="height:66%"></i><span class="wk-day">三</span></div>
+            <!-- 漏记那天（7/23）：不画柱子，只留浅色日期（PRD §6.5） -->
+            <div class="wk-col"><span class="wk-day">四</span></div>
+            <div class="wk-col"><i class="wk-bar" style="height:88%"></i><span class="wk-day">五</span></div>
+            <!-- 漏记那天（7/25） -->
+            <div class="wk-col"><span class="wk-day">六</span></div>
+            <div class="wk-col"><i class="wk-bar" style="height:72%"></i><span class="wk-day">日</span></div>
+            <div class="wk-col"><i class="wk-bar" style="height:58%;background:var(--green);display:block;border-radius:var(--r-pill)"></i><span style="font-size:10px;color:var(--green-deep)">一</span></div>
+          </div>
+          <div class="note">7 月 25 日和 23 日没记，就空着。不补不催，也不影响别的日子。</div>
+
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button class="btn" style="flex:1" onclick="showToast('演示版：只同步给互助小组')">同步给小组</button>
+            <button class="btn solid" style="flex:1" onclick="showToast('演示版：一键公开成帖子')">公开成帖子</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：勋章 ============ -->
+      <!-- ============ 二级页：常吃（用户私有库，PRD §7.3） ============ -->
+      <!-- 归了店的在上、没归店的在下；店名是可选标签，不是必填字段 -->
+      <div class="subpage" id="sp-mine">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-mine')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">常吃</div>
+        </div>
+        <div class="sp-body">
+          <div class="note" style="margin-top:0">这些是你自己记过三次以上的东西。点一下直接记进今天，份量和热量沿用上次。</div>
+
+          <div class="mg-title">张亮麻辣烫 <span>3 样</span></div>
+          <div class="rows">
+            <div class="mine-row" onclick="fillFromMine('清汤麻辣烫 多菜', 520)">
+              <div class="mine-name" style="margin-top:0">清汤麻辣烫 多菜</div>
+              <div class="mine-kcal">520<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('麻酱拌面', 640)">
+              <div class="mine-name" style="margin-top:0">麻酱拌面</div>
+              <div class="mine-kcal">640<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('酸辣粉', 480)">
+              <div class="mine-name" style="margin-top:0">酸辣粉</div>
+              <div class="mine-kcal">480<small>千卡</small></div>
+            </div>
+          </div>
+
+          <div class="mg-title">公司楼下沙县 <span>2 样</span></div>
+          <div class="rows">
+            <div class="mine-row" onclick="fillFromMine('拌面加蛋', 560)">
+              <div class="mine-name" style="margin-top:0">拌面加蛋</div>
+              <div class="mine-kcal">560<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('蒸饺一笼', 320)">
+              <div class="mine-name" style="margin-top:0">蒸饺一笼</div>
+              <div class="mine-kcal">320<small>千卡</small></div>
+            </div>
+          </div>
+
+          <div class="mg-title">老广快餐 <span>2 样</span></div>
+          <div class="rows">
+            <div class="mine-row" onclick="fillFromMine('白切鸡饭 去皮', 450)">
+              <div class="mine-name" style="margin-top:0">白切鸡饭 去皮</div>
+              <div class="mine-kcal">450<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('例汤 不喝底', 60)">
+              <div class="mine-name" style="margin-top:0">例汤 不喝底</div>
+              <div class="mine-kcal">60<small>千卡</small></div>
+            </div>
+          </div>
+
+          <div class="mg-title">没归店的 <span>5 样</span></div>
+          <div class="rows">
+            <div class="mine-row" onclick="fillFromMine('自己带的鸡胸饭盒', 510)">
+              <div class="mine-name" style="margin-top:0">自己带的鸡胸饭盒</div>
+              <div class="mine-kcal">510<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('楼下便利店三明治', 380)">
+              <div class="mine-name" style="margin-top:0">楼下便利店三明治</div>
+              <div class="mine-kcal">380<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('无糖美式', 5)">
+              <div class="mine-name" style="margin-top:0">无糖美式</div>
+              <div class="mine-kcal">5<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('无糖酸奶一盒', 120)">
+              <div class="mine-name" style="margin-top:0">无糖酸奶一盒</div>
+              <div class="mine-kcal">120<small>千卡</small></div>
+            </div>
+            <div class="mine-row" onclick="fillFromMine('苹果一个', 80)">
+              <div class="mine-name" style="margin-top:0">苹果一个</div>
+              <div class="mine-kcal">80<small>千卡</small></div>
+            </div>
+          </div>
+
+          <!-- 手动添加：PRD §7.3 三个入库入口之三，兜底用不是主路径。
+               同时解掉「拒绝后永不再问」的死角——问过被拒的，想存还能从这里进 -->
+          <button class="btn" style="width:100%;margin-top:18px" onclick="showToast('演示版：手动添加常吃（菜名 + 热量，店名可选）')">手动添加一样常吃</button>
+
+          <div class="note">店名是你自己加的，加不加都行。加了的会归到一起，方便你看这家还剩什么能点。</div>
+          <div class="note">这个库是自己长出来的，不用你整理。小满看见你反复记同一样东西才会问一句，你说不用就不再问——想存的随时能用上面的「手动添加」自己加。</div>
+          <!-- 匿名聚合必须在这里明写，不许埋进隐私协议（PRD §10.1 隐私口径第 3 条）。
+               07-30 #12：聚合数用途 = 份量估算辅助，不进公共热量库 -->
+          <div class="note">你记的这些会帮我们把份量估算做准：同一样东西大家一般记多少，只取这一个聚合数，用来帮那些拿不准份量的人。不带你的名字，不带你的记录，同一样东西不满 10 个人记过就不算。不想参与的话，去设置里一关就行，之前算进去的也一起撤掉。</div>
+        </div>
+      </div>
+
+      <div class="subpage" id="sp-badges">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-badges')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">勋章</div>
+        </div>
+        <div class="sp-body">
+          <!-- 未获得的不显示，不做灰色占位（扩展红线 8 / PRD §6.6） -->
+          <div class="badge-grid">
+            <div class="medal"><i>初</i><span>记下第一顿</span></div>
+            <div class="medal"><i>七</i><span>七天记录</span></div>
+            <div class="medal"><i>卅</i><span>一个月</span></div>
+            <div class="medal"><i>五十</i><span>第 50 顿饭</span></div>
+          </div>
+          <div class="note">已经拿到的不会收回。断过几次都不影响，它们记的是你走过的路，不是你有没有坚持住。</div>
+
+          <div class="sec-title">分享</div>
+          <div class="rows">
+            <div class="set-row" onclick="showToast('演示版：生成分享图，不带体重数字')">把「第 50 顿饭」做成图 <small>不带体重</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+          </div>
+          <div class="note">分享图只放你记了多少顿，不放体重、不放对比、不放排名。想炫耀的人有得炫，不想的人也不会被推着分享。</div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：订阅 ============ -->
+      <div class="subpage" id="sp-subscribe">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-subscribe')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">订阅</div>
+        </div>
+        <div class="sp-body">
+          <div style="font-family:var(--serif);font-size:22px;line-height:1.5;margin-bottom:10px">记录这件事，永远免费</div>
+          <div style="font-size:12.5px;color:var(--ink-2);line-height:1.9">手动记录、食物搜索、份量修正、常吃、日记、历史回看，以及记录之后小满给你的那句话，都不收费，也永远不会改成收费。<br>订阅买的是 AI 的不限量：转成订阅制之后，拍照识别和主动发起的对话都不限次。</div>
+
+          <div class="sec-title">你现在的状态</div>
+          <div class="rows">
+            <div class="info-row"><span class="ir-label">免费开放</span><span>进行中</span></div>
+            <div class="info-row"><span class="ir-label">拍照识别</span><span>开放期内不限</span></div>
+            <div class="info-row"><span class="ir-label">主动找小满聊</span><span>开放期内不限</span></div>
+            <div class="info-row"><span class="ir-label">记录后的反馈</span><span>永远不限</span></div>
+          </div>
+          <!-- 四条硬约束的落点：明示是限时的 / 提前告知 / 不自动扣费 / 开放期消耗不计入终身额度（PRD §8.2） -->
+          <div class="fm-hint">免费开放会持续一段时间，具体到哪天还没定。转成订阅之前会提前告诉你，不会某天突然停掉。到那时你会拿到一个完整的免费版：识别 10 次、主动对话 30 轮，都是全新的，开放期里用掉的不算在内。</div>
+
+          <div class="sec-title">两档</div>
+          <!-- 零划线价、零折扣百分比、零倒计时、零推荐角标、进页面时都不选中（扩展红线 7） -->
+          <!-- 三态规格（07-30 #16）：开放期 = 现状（无订阅关系，无退订控件）；
+               转制后已订 = 档位区换成「管理订阅 · 随时可退」入口；转制后未订 = 本页 + 订阅按钮。
+               退订控件随转制出现在代码里，先于任何一次扣费存在——开发时三态一次做完 -->
+          <div id="plan-list">
+            <div class="plan-row" onclick="pickPlan(this)">
+              <div>
+                <div class="pl-name">月度</div>
+                <!-- 07-30 #20：开放期订阅拿不到额外能力，必须明说，不藏档位 -->
+                <div class="pl-desc">每月扣一次，随时退订。转制后生效不限量识别与对话；开放期大家都是全功能</div>
+              </div>
+              <div class="pl-price"><b>19.9</b><span>元 / 月</span></div>
+            </div>
+            <div class="plan-row" onclick="pickPlan(this)">
+              <div>
+                <div class="pl-name">永久</div>
+                <div class="pl-desc">一次付清，不再有下一次</div>
+              </div>
+              <div class="pl-price"><b>99</b><span>元 · 买断</span></div>
+            </div>
+          </div>
+
+          <!-- 合规四条放在主按钮正上方，不折叠（扩展 §2.1） -->
+          <div class="compliance">
+            <div>续费价格与今天付的一样，不做首月优惠再涨价</div>
+            <div>每次扣费前 5 天，在 App 的消息里提醒你一次</div>
+            <div>退订在这个页面点一下就能完成，不用联系客服</div>
+            <div>没有默认勾选，你不点就是没选</div>
+          </div>
+          <button class="btn solid block" id="pay-btn" onclick="showToast('演示版：拉起支付。先选一档')">先选一档</button>
+          <div class="note">没有年度档。买断 99 比任何年费都便宜，再摆一档只是让你多做一次选择。</div>
+          <div class="note">零广告、零电商、零卖货。静食不靠卖东西赚钱，所以也不需要你多打开几次。</div>
+        </div>
+      </div>
+
+      <!-- ============ 二级页：设置 ============ -->
+      <div class="subpage" id="sp-settings">
+        <div class="sp-head">
+          <button class="sp-back" onclick="closeSub('sp-settings')">
+            <svg class="ico ico-back"><use href="#i-left"/></svg>
+          </button>
+          <div class="sp-title">设置</div>
+        </div>
+        <div class="sp-body">
+          <div class="label">通知</div>
+          <div class="rows" style="margin-top:8px">
+            <div class="set-row" onclick="openSub('sp-notify')">通知设置 <small>全部关闭</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+          </div>
+
+          <div class="sec-title">隐私</div>
+          <div class="rows">
+            <div class="set-row" onclick="showToast('演示版：日记默认可见性')">日记默认可见性 <small>仅自己</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="showToast('演示版：谁能给我发私信')">谁能给我发私信 <small>互相关注</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="showToast('演示版：关注与粉丝')">关注与粉丝 <small>12 / 34</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="openMemory()">小满记得的事 <small>15 件，可逐条删</small>
+              <svg class="ico arrow"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="showToast('演示版：导出我的全部数据')">导出我的数据
+              <svg class="ico arrow end"><use href="#i-right"/></svg>
+            </div>
+            <!-- 常吃匿名聚合的退出开关（PRD §10.1 隐私口径第 4 条）。默认开，但在常吃页已明写。
+                 07-30 #12：聚合数只用于帮用户估算份量，不进正库——正库唯一来源是人工上传 -->
+            <div class="set-row">常吃帮忙估算份量 <small>只用聚合数，不进公共热量库</small><div class="switch" onclick="toggleAggregate(this)"></div></div>
+          </div>
+          <div class="note">关掉之后，之前算进去的聚合数也会一起撤掉。查热量、记饮食都不受影响。</div>
+
+          <div class="sec-title">条款</div>
+          <div class="rows">
+            <div class="set-row" onclick="showToast('演示版：用户协议')">用户协议
+              <svg class="ico arrow end"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" onclick="showToast('演示版：隐私政策')">隐私政策
+              <svg class="ico arrow end"><use href="#i-right"/></svg>
+            </div>
+          </div>
+
+          <div class="sec-title">账号</div>
+          <div class="rows">
+            <div class="set-row" onclick="showToast('演示版：退出登录')">退出登录
+              <svg class="ico arrow end"><use href="#i-right"/></svg>
+            </div>
+            <div class="set-row" style="color:var(--ink-2)" onclick="openDestroy()">注销账号
+              <svg class="ico arrow end"><use href="#i-right"/></svg>
+            </div>
+          </div>
+          <div class="note">注销会连同记录、日记、小满的记忆一起删干净，不做软删除。这是上架的硬性要求，也是应该的。</div>
+        </div>
+      </div>
+
+      <!-- ============ 启动层：注册登录 + 首次引导 ============ -->
+      <div class="boot" id="boot">
+        <div id="boot-login">
+          <div class="boot-brand">
+            <b>静食</b>
+            <span>静食 净食</span>
+          </div>
+          <div style="margin-top:auto;padding-bottom:40px">
+            <!-- 进门就明示试用期，不到期才说（PRD §8.2 硬约束 1）。口径与对外宣传统一（§17.3） -->
+            <div style="font-size:12.5px;color:var(--ink-2);line-height:1.9;margin-bottom:22px;text-align:center">
+              先记两顿看看，不用注册。<br>想把数据存住的时候再说。<br><br>
+              <span style="color:var(--ink)">记录永久免费；AI 功能免费开放中。</span><br>将来会转成订阅，到时候会提前告诉你。
+            </div>
+            <button class="btn solid block" onclick="startOnb()">先记两顿看看</button>
+            <div style="display:flex;justify-content:center;gap:24px;margin-top:20px">
+              <button class="btn-text" onclick="showToast('演示版：手机号登录')">手机号登录</button>
+              <button class="btn-text" onclick="showToast('演示版：微信登录')">微信登录</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="boot-onb" style="display:none">
+          <div class="boot-body">
+            <div class="onb-step" id="onb-step">第 1 步，共 4 步</div>
+            <div class="onb-q" id="onb-q">你现在多重？</div>
+            <div class="onb-hint" id="onb-hint">大概就行，之后随时能改。不填也可以，小满先按平均值给建议。</div>
+            <div class="onb-opts" id="onb-opts"></div>
+          </div>
+          <div style="padding-bottom:40px">
+            <button class="btn solid block" id="onb-next" onclick="onbNext()">下一步</button>
+            <div class="center-act"><button class="btn-text mute" onclick="finishOnb()">先跳过，直接用</button></div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- 弹层：拍照识别 -->
+      <div class="sheet-mask" id="camera-mask" onclick="if(event.target===this)closeCamera()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title" id="cam-title">拍照记录</div>
+            <button class="sh-close" onclick="closeCamera()">✕</button>
+          </div>
+
+          <div id="cam-step1">
+            <div class="viewfinder">
+              <div class="flash" id="cam-flash"></div>
+              <svg width="46" height="46" viewBox="0 0 64 64" fill="none" stroke="var(--ink-3)" stroke-width="1.4" stroke-linecap="round"><path d="M10 30h44c0 12-9 20-22 20S10 42 10 30z"/><path d="M20 21c4-4 8-4 12 0s8 4 12 0"/></svg>
+              <div class="vf-text">把镜头对准这顿饭</div>
+            </div>
+            <button class="shutter" onclick="takePhoto()"><span></span></button>
+            <div class="foot-note">拍张照就行，不用摆盘</div>
+          </div>
+
+          <div id="cam-step2" style="display:none">
+            <div class="photo-preview">
+              <div class="pp-thumb">
+                <svg width="26" height="26" viewBox="0 0 64 64" fill="none" stroke="var(--green-deep)" stroke-width="2" stroke-linecap="round"><path d="M10 30h44c0 12-9 20-22 20S10 42 10 30z"/><path d="M20 21c4-4 8-4 12 0s8 4 12 0"/></svg>
+              </div>
+              <div>
+                <b>拍好了</b>
+                <small>不满意？<a onclick="retake()">重拍一张</a></small>
+              </div>
+            </div>
+            <textarea class="ck-textarea" id="cam-desc" placeholder="加一句描述，帮小满算得更准：几人份？大概吃了多少？（可留空）"></textarea>
+            <button class="btn solid block" style="margin-top:14px" onclick="startRecog()">好了，开始识别</button>
+          </div>
+
+          <div id="cam-step3" style="display:none">
+            <div class="viewfinder" style="height:140px">
+              <div class="vf-text">小满正在认这些菜</div>
+            </div>
+          </div>
+
+          <!-- 识别失败 = 四态里的错误态（视觉主张第四节）。不做整页错误插画，
+               并给一条降级路径：手动记录永久免费不限次，正好接住 PRD 风险 1 的降级方案 -->
+          <div id="cam-step5" style="display:none">
+            <div class="viewfinder" style="height:140px">
+              <div class="vf-text">这张没认出来</div>
+            </div>
+            <div class="err" style="margin-top:16px">光线太暗，或者菜被挡住了大半。</div>
+            <div class="fm-hint">重拍一张，或者直接用文字说一句吃了什么。手动记录不限次，也不花额度。</div>
+            <div class="sheet-btns">
+              <button class="btn" style="flex:1" onclick="camGoto(1)">再试一次</button>
+              <button class="btn solid" style="flex:1" onclick="closeCamera();openText()">用文字说</button>
+            </div>
+          </div>
+
+          <div id="cam-step4" style="display:none">
+            <div class="dish-row">
+              <div class="dr-top">
+                <div class="dr-name">番茄炒蛋 <span class="tag est">AI 估算</span></div>
+                <div class="dr-kcal" data-base="220">220<small> 千卡</small></div>
+              </div>
+              <div class="dr-conf">把握 92%</div>
+              <div class="portion-row">
+                <span class="pr-label">份量</span>
+                <button class="portion" data-mult="0.6">半碟</button>
+                <button class="portion on" data-mult="1">一碟</button>
+                <button class="portion" data-mult="1.5">一碟半</button>
+              </div>
+              <div class="dr-ops">
+                <button class="fix" onclick="showToast('演示版：修正菜品名称')">修正名称</button>
+                <button onclick="showToast('演示版：删除该菜品')">删除</button>
+              </div>
+            </div>
+
+            <div class="dish-row">
+              <div class="dr-top">
+                <div class="dr-name">看着像红烧肉 <span class="tag est">AI 估算</span></div>
+                <div class="dr-kcal" data-base="380">380<small> 千卡</small></div>
+              </div>
+              <div class="dr-conf">把握不足</div>
+              <div class="ask-box">
+                这份我没太看准，<b>像红烧肉，大概几两？</b>你比我清楚。
+                <div class="portion-row">
+                  <button class="portion" data-mult="0.5">约 2 两</button>
+                  <button class="portion on" data-mult="1">约 4 两</button>
+                  <button class="portion" data-mult="1.5">约 6 两</button>
+                </div>
+              </div>
+              <div class="dr-ops">
+                <button class="fix" onclick="showToast('演示版：改成别的菜')">不是红烧肉，我来改</button>
+                <button onclick="showToast('演示版：删除该菜品')">删除</button>
+              </div>
+            </div>
+
+            <div class="dish-row">
+              <div class="dr-top">
+                <div class="dr-name">米饭 <span class="tag est">AI 估算</span></div>
+                <div class="dr-kcal" data-base="232">232<small> 千卡</small></div>
+              </div>
+              <div class="dr-conf">把握 95%</div>
+              <div class="portion-row">
+                <span class="pr-label">份量</span>
+                <button class="portion" data-mult="0.65">小碗</button>
+                <button class="portion on" data-mult="1">大碗</button>
+                <button class="portion" data-mult="1.4">满满一碗</button>
+              </div>
+              <div class="dr-ops">
+                <button class="fix" onclick="showToast('演示版：修正菜品名称')">修正名称</button>
+                <button onclick="showToast('演示版：删除该菜品')">删除</button>
+              </div>
+            </div>
+
+            <button class="add-miss" onclick="showToast('演示版：补加漏掉的菜')">还有漏掉的菜？补一个</button>
+
+            <div class="sheet-total">
+              <span class="st-label">这顿合计，随份量实时更新</span>
+              <span class="st-num"><span id="cam-total">832</span><small> 千卡</small></span>
+            </div>
+            <div class="sheet-btns">
+              <button class="btn" style="flex:1" onclick="closeCamera()">重新拍</button>
+              <button class="btn solid" style="flex:2" onclick="confirmMeal()">放进今日记录</button>
+            </div>
+            <!-- 额度提示：只在剩 3 次起出现，一行小字，无角标无倒计时 -->
+            <!-- 预警期口径（07-30 #14）：剩余 ≤3 次进入预警，额度区升级为「剩余次数 + 用完会怎样」，
+                 让用户有三次机会逐步知道；付费墙在第 10 次完成后才弹，使用中不拦 -->
+            <div class="quota" id="cam-quota">免费识别还剩 3 次。用完后拍照识别需要订阅；手动记录永远免费，不限次</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 弹层：文字描述记录 -->
+      <div class="sheet-mask" id="text-mask" onclick="if(event.target===this)closeText()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">说一句就记好</div>
+            <button class="sh-close" onclick="closeText()">✕</button>
+          </div>
+          <div id="text-step1">
+            <textarea class="ck-textarea" id="text-input" style="min-height:96px" placeholder="随便说，比如：中午吃了黄焖鸡米饭，米饭剩了小半碗，汤没喝"></textarea>
+            <div class="portion-row" style="margin-top:12px">
+              <span class="pr-label">这是</span>
+              <button class="portion">早餐</button>
+              <button class="portion on">午餐</button>
+              <button class="portion">晚餐</button>
+              <button class="portion">加餐</button>
+            </div>
+            <button class="btn solid block" style="margin-top:16px" onclick="parseText()">交给小满算</button>
+            <div class="foot-note" style="margin-top:12px">不用报克数。说得含糊小满会问你，说不清也没关系。</div>
+          </div>
+          <div id="text-step2" style="display:none">
+            <div class="rows">
+              <div class="serving-row"><div class="sv-name">黄焖鸡米饭（去汤）<small>AI 估算，把握 88%</small></div><div class="sv-kcal">520 千卡</div></div>
+              <div class="serving-row"><div class="sv-name">米饭 半碗<small>你说剩了小半碗，已按 0.6 份算</small></div><div class="sv-kcal">104 千卡</div></div>
+            </div>
+            <div class="ask-box" style="margin-top:14px">这家的<b>汤汁你拌饭了吗？</b>拌了的话我再加 60 千卡左右。
+              <div class="portion-row">
+                <button class="portion on">没拌</button>
+                <button class="portion">拌了一点</button>
+                <button class="portion">全拌了</button>
+              </div>
+            </div>
+            <div class="sheet-total">
+              <span class="st-label">这顿合计</span>
+              <span class="st-num">624<small> 千卡</small></span>
+            </div>
+            <div class="sheet-btns">
+              <button class="btn" style="flex:1" onclick="textBack()">改一改</button>
+              <button class="btn solid" style="flex:2" onclick="closeText();showToast('已记进今天（演示）')">放进今日记录</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 弹层：食物详情 -->
+      <div class="sheet-mask" id="food-mask" onclick="if(event.target===this)closeFood()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">米饭（蒸） <span class="tag">验证库</span></div>
+            <button class="sh-close" onclick="closeFood()">✕</button>
+          </div>
+          <b class="ov-num" style="font-size:52px">116</b>
+          <span class="ov-unit">千卡 / 100g · 来源：中国食物成分表公开整理版</span>
+
+          <div class="nutri-row">
+            <div class="nutri"><b>25.9g</b><span>碳水</span><div class="n-bar"><i style="width:78%"></i></div></div>
+            <div class="nutri"><b>2.6g</b><span>蛋白质</span><div class="n-bar"><i style="width:26%"></i></div></div>
+            <div class="nutri"><b>0.3g</b><span>脂肪</span><div class="n-bar"><i style="width:8%"></i></div></div>
+          </div>
+
+          <div class="label">常见份量换算</div>
+          <div class="rows" style="margin-top:8px">
+            <div class="serving-row"><div class="sv-name">1 小碗<small>约 150g，家用饭碗平平一碗</small></div><div class="sv-kcal">174 千卡</div></div>
+            <div class="serving-row"><div class="sv-name">1 大碗<small>约 200g，外卖盒压实一盒</small></div><div class="sv-kcal">232 千卡</div></div>
+            <div class="serving-row"><div class="sv-name">1 勺<small>约 30g，普通汤勺冒尖</small></div><div class="sv-kcal">35 千卡</div></div>
+          </div>
+
+          <div class="sheet-btns">
+            <button class="btn" style="flex:1" onclick="closeFood();showToast('已加入今天（演示）')">加入今天</button>
+            <button class="btn solid" style="flex:1" onclick="closeFood();switchTab('ai');goChat();showToast('演示版：已把食物带给小满')">问问小满</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 弹层：今日三行（原每日打卡/每日记录，07-30 定名，与餐次流水「今日记录」分开） -->
+      <div class="sheet-mask" id="record-mask" onclick="if(event.target===this)closeRecord()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">今日三行 · 7月27日</div>
+            <button class="sh-close" onclick="closeRecord()">✕</button>
+          </div>
+
+          <div class="ck-sec">
+            <div class="ck-label">今天吃了什么</div>
+            <div class="ck-auto">已从今日记录带入：早餐 豆浆、茶叶蛋、全麦包；午餐 潮汕牛肉火锅</div>
+            <div class="ck-photo-result" id="ck-photo-result"></div>
+            <input class="ck-input" id="ck-food" placeholder="再补充点？比如下午喝了杯美式" style="margin-bottom:10px">
+            <button class="add-miss" style="margin-top:0" onclick="closeRecord();openCamera()">拍这顿吃的，自动识别算热量</button>
+            <!-- 常吃入库询问：累计记满 3 次触发，只在这一屏出现，同一样只问一次，拒绝后不再问（PRD §7.3） -->
+            <div class="ask-save" id="ask-save" style="display:none"></div>
+          </div>
+
+          <div class="ck-sec">
+            <div class="ck-label">今天动了什么</div>
+            <div class="portion-row" id="ck-sport" style="margin:0 0 10px">
+              <button class="portion on" data-v="休息了一天">休息</button>
+              <button class="portion" data-v="走路 30 分钟">走路</button>
+              <button class="portion" data-v="健身 1 小时">健身</button>
+              <button class="portion" data-v="跑步 5 公里">跑步</button>
+              <button class="portion" data-v="其他运动">其他</button>
+            </div>
+            <input class="ck-input" id="ck-sport-detail" placeholder="说说细节？比如练背日，状态不错">
+          </div>
+
+          <div class="ck-sec">
+            <div class="ck-label">对自己说一句</div>
+            <textarea class="ck-textarea" id="ck-self" placeholder="比如：火锅吃爽了，不亏，明天继续。"></textarea>
+          </div>
+
+          <button class="btn solid block" onclick="submitRecord()">记下来</button>
+          <div class="foot-note" style="margin-top:12px">这些会进小满的记忆，以后给建议时它会记得。记一半也算，没有必须填完这回事。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：扫一扫 -->
+      <div class="sheet-mask" id="scan-mask" onclick="if(event.target===this)closeScan()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">扫一扫查热量</div>
+            <button class="sh-close" onclick="closeScan()">✕</button>
+          </div>
+
+          <div id="scan-step1">
+            <div class="viewfinder">
+              <div class="flash" id="scan-flash"></div>
+              <svg width="46" height="46" viewBox="0 0 64 64" fill="none" stroke="var(--ink-3)" stroke-width="1.4" stroke-linecap="round"><path d="M10 30h44c0 12-9 20-22 20S10 42 10 30z"/><path d="M20 21c4-4 8-4 12 0s8 4 12 0"/></svg>
+              <div class="vf-text">对准食物拍一张</div>
+            </div>
+            <button class="shutter" onclick="takeScan()"><span></span></button>
+            <div class="foot-note">一次性查询，不会写入任何记录</div>
+          </div>
+
+          <div id="scan-step2" style="display:none">
+            <div class="viewfinder" style="height:140px"><div class="vf-text">识别中</div></div>
+          </div>
+
+          <div id="scan-step3" style="display:none">
+            <div class="scan-total"><b>832</b><span>千卡 · 这顿大致估算</span></div>
+            <div class="rows">
+              <div class="serving-row"><div class="sv-name">番茄炒蛋（一碟）<small>AI 估算，把握 92%</small></div><div class="sv-kcal">220 千卡</div></div>
+              <div class="serving-row"><div class="sv-name">红烧肉（约 4 两）<small>AI 估算，把握不足，可按实际改</small></div><div class="sv-kcal">380 千卡</div></div>
+              <div class="serving-row"><div class="sv-name">米饭（大碗）<small>AI 估算，把握 95%</small></div><div class="sv-kcal">232 千卡</div></div>
+            </div>
+            <div class="foot-note" style="margin:16px 0 0">AI 估算仅供参考，本次查询未写入记录</div>
+            <div class="sheet-btns">
+              <button class="btn" style="flex:1" onclick="closeScan()">关闭</button>
+              <button class="btn solid" style="flex:2" onclick="closeScan();switchTab('ai');goChat();showToast('演示版：已把结果带给小满')">问问小满</button>
+            </div>
+          </div>
+
+          <!-- 识别失败：照拍照识别的错误态（cam-step5）补。扫一扫是查询不是记录，
+               降级路径给文字搜索（公共库/条码库），不给「用文字说」——那是记录链路的 -->
+          <div id="scan-step4" style="display:none">
+            <div class="viewfinder" style="height:140px">
+              <div class="vf-text">这张没认出来</div>
+            </div>
+            <div class="err" style="margin-top:16px">光线太暗，或者菜被挡住了大半。</div>
+            <div class="fm-hint">重拍一张，或者直接搜食物名字。一次性查询，不会写入任何记录。</div>
+            <div class="sheet-btns">
+              <button class="btn" style="flex:1" onclick="scanGoto(1)">再试一次</button>
+              <button class="btn solid" style="flex:1" onclick="closeScan();showSearch();document.getElementById('cal-search').focus()">去搜名字</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 弹层：记录历史 -->
+      <div class="sheet-mask" id="history-mask" onclick="if(event.target===this)closeHistory()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">记录历史</div>
+            <button class="sh-close" onclick="closeHistory()">✕</button>
+          </div>
+          <div class="date-row" id="date-row">
+            <button class="portion on" data-d="7-27" onclick="pickDate(this)">今天</button>
+            <button class="portion" data-d="7-26" onclick="pickDate(this)">7/26</button>
+            <button class="portion" data-d="7-25" onclick="pickDate(this)">7/25</button>
+            <button class="portion" data-d="7-24" onclick="pickDate(this)">7/24</button>
+            <button class="portion" data-d="7-23" onclick="pickDate(this)">7/23</button>
+            <input type="date" value="2026-07-27" max="2026-07-27" onchange="pickDateInput(this)">
+          </div>
+          <div id="history-content"></div>
+        </div>
+      </div>
+
+      <!-- 弹层：小满的记忆 -->
+      <div class="sheet-mask" id="memory-mask" onclick="if(event.target===this)closeMemory()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">小满记得你的事</div>
+            <button class="sh-close" onclick="closeMemory()">✕</button>
+          </div>
+
+          <div class="mem-input-box">
+            <input id="mem-input" placeholder="想让小满记住什么？直接告诉它" onkeydown="if(event.key==='Enter')addManualMemory()">
+            <button class="btn solid" style="padding:11px 18px;font-size:12.5px" onclick="addManualMemory()">记住</button>
+          </div>
+
+          <div class="mem-group">
+            <div class="mg-title">口味与习惯</div>
+            <div class="mem-item"><div class="mi-text">不吃香菜<small>7月18日 · 你告诉我的</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">晚上容易饿，尤其 10 点后<small>7月20日 · 你告诉我的</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">奶茶只喝无糖，咖啡喝美式<small>小满从你的记录里观察到的</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+          </div>
+
+          <div class="mem-group">
+            <div class="mg-title">身体与目标</div>
+            <div class="mem-item"><div class="mi-text">175cm，76.5kg，目标 68kg<small>来自你的身体档案</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">减脂速度选的是温和，每周 0.5kg<small>来自你的身体档案</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">上周开始健身，一周三练，练背为主<small>7月21日 · 你告诉我的</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+          </div>
+
+          <div class="mem-group">
+            <div class="mg-title">关键事件</div>
+            <div class="mem-item"><div class="mi-text">7月22日聚餐吃火锅超了约 400 千卡，第二天你主动调轻了<small>那次的止损方案执行得很好</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">下周三出差两天，吃饭会不规律<small>7月25日 · 到时会给你出差点单建议</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">6月底经历过一次平台期，靠换蛋白质来源走出来的<small>再遇到平台期时小满会记得这个办法</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">7月25日和 23 日没记录<small>那两天你出差，我们说好不补记</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+          </div>
+
+          <div class="mem-group">
+            <div class="mg-title">我们的约定</div>
+            <div class="mem-item"><div class="mi-text">按努力表扬，不盯体重数字<small>你说体重秤上的数字容易让你焦虑</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">破戒的时候别讲道理，先给方案<small>这是我们说好的接住方式</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">不要推送，有事我自己会来看<small>7月19日 · 你关掉了全部通知</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+          </div>
+
+          <div class="mem-group">
+            <div class="mg-title">饮食点滴</div>
+            <div class="mem-item"><div class="mi-text">工作日午餐九成是外卖，常点那五家<small>小满从你近 30 天的记录里观察到的</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+            <div class="mem-item"><div class="mi-text">周末会自己做饭，但只做番茄牛腩<small>小满从你的记录里观察到的</small></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button></div>
+          </div>
+
+          <div class="foot-note">这些记忆只用来让建议更贴心：对话接着上次说，建议考虑你的事。<br>任何一条都可以随时忘记，删了小满就不再提。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：免费额度用尽（付费墙，可关闭，无倒计时） -->
+      <!-- 弹层：注销二次确认（上架硬性要求）。刻意不用红色警告框，静食不靠吓人做确认。
+           主按钮是「再想想」，「确认注销」退到纯文字按钮，只用 alert 色标示不可逆，不做红色实心块 -->
+      <div class="sheet-mask mid" id="destroy-mask" onclick="if(event.target===this)closeDestroy()">
+        <div class="sheet center">
+          <div class="sh-head">
+            <div class="sh-title">注销这个账号</div>
+            <button class="sh-close" onclick="closeDestroy()">✕</button>
+          </div>
+          <div class="sheet-text">
+            你的记录、日记、常吃，还有小满记得的所有事，会一起删干净。不做软删除，也找不回来。<br><br>
+            如果只是想歇一阵，直接不用就行。数据会一直在，什么时候回来都还是原样。
+          </div>
+          <div class="sheet-btns" style="margin-top:22px">
+            <button class="btn solid" style="flex:1" onclick="closeDestroy()">再想想</button>
+          </div>
+          <div class="center-act">
+            <button class="btn-text" style="color:var(--alert)" onclick="closeDestroy();showToast('演示版：账号与全部数据已删除')">确认注销</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 弹层：扣费前再次告知（PRD §8.4 把订阅合规做成卖点，所以措辞是产品的一部分） -->
+      <div class="sheet-mask" id="paycheck-mask" onclick="if(event.target===this)closePayCheck()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">确认一下</div>
+            <button class="sh-close" onclick="closePayCheck()">✕</button>
+          </div>
+          <div class="sheet-text" id="paycheck-body"></div>
+          <div class="sheet-btns" style="margin-top:20px">
+            <button class="btn" style="flex:1" onclick="closePayCheck()">再看看</button>
+            <button class="btn solid" style="flex:2" onclick="closePayCheck();showToast('演示版：拉起系统支付')">去支付</button>
+          </div>
+          <div class="foot-note" style="margin-top:16px">你不点「去支付」就是没买。静食不会替你做这个决定。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：日记单天的可见范围（记录与日记同源设计的出口，PRD §7.2） -->
+      <div class="sheet-mask" id="visib-mask" onclick="if(event.target===this)closeVisib()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">这一天给谁看</div>
+            <button class="sh-close" onclick="closeVisib()">✕</button>
+          </div>
+          <div class="rows">
+            <div class="set-row" onclick="pickVisib('仅自己')">仅自己 <small>默认</small></div>
+            <div class="set-row" onclick="pickVisib('小组可见')">互助小组可见 <small>组员能看到这天记了什么</small></div>
+            <div class="set-row" onclick="pickVisib('已公开')">公开成帖子 <small>发到社区，发之前还能再改</small></div>
+          </div>
+          <div class="note">改的只是这一天。别的日子不受影响，日记默认永远是仅自己可见。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：减重用药（PRD §7.5 预留字段）。敏感信息：不追问细节、不评判、明说不外露 -->
+      <div class="sheet-mask" id="med-mask" onclick="if(event.target===this)closeMed()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">减重用药</div>
+            <button class="sh-close" onclick="closeMed()">✕</button>
+          </div>
+          <div class="portion-row" style="margin:2px 0 0">
+            <button class="portion" onclick="pickMed(this)">未使用</button>
+            <button class="portion" onclick="pickMed(this)">正在使用</button>
+            <button class="portion" onclick="pickMed(this)">用过，已停</button>
+          </div>
+          <div class="note">填不填都行，也不会追问是哪一种。它只影响小满给饮食建议时的口径，用药期间的吃法和平时不一样。</div>
+          <div class="note">这一项不会出现在社区、分享图，或任何对外的地方。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：转制预告（PRD §8.2 硬约束 2「转制前必须提前告知」。不设到期日之后，这是最重要的一条：
+           日期本来能替产品完成告知，现在这个责任全落在这一屏上。禁倒计时、禁紧迫感话术） -->
+      <div class="sheet-mask" id="notice-mask" onclick="if(event.target===this)closeNotice()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">提前跟你说一声</div>
+            <button class="sh-close" onclick="closeNotice()">✕</button>
+          </div>
+          <div class="sheet-text">
+            AI 功能的免费开放要结束了，<b style="color:var(--ink)">最后一天是 8 月 10 日</b>。还有两周，这两周里一切照旧。<br><br>
+            那天之后：<b style="color:var(--ink)">记录、搜索、常吃、日记、历史回看，还有记录之后小满给你的那句话，全部照旧，永久免费。</b><br><br>
+            识别和主动对话回到免费额度：识别 10 次、主动对话 30 轮，都是全新的，现在用掉的不算在内。
+          </div>
+          <div class="sheet-btns" style="margin-top:22px">
+            <button class="btn solid" style="flex:1" onclick="closeNotice()">知道了</button>
+          </div>
+          <div class="center-act">
+            <button class="btn-text" onclick="closeNotice();openSub('sp-subscribe')">看看订阅</button>
+          </div>
+          <div class="foot-note" style="margin-top:18px">不着急，这两周你什么都不用做。到那天也不会自动扣费。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：免费开放结束（PRD §8.2 四条硬约束在这一屏收口：已提前告知 / 记录照旧 / 额度全新 / 不自动扣费） -->
+      <div class="sheet-mask" id="trialend-mask" onclick="if(event.target===this)closeTrialEnd()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">免费开放到今天为止</div>
+            <button class="sh-close" onclick="closeTrialEnd()">✕</button>
+          </div>
+          <div class="sheet-text">
+            两周前跟你说过这件事，今天是最后一天。<br><br>
+            <b style="color:var(--ink)">记录、搜索、常吃、日记、历史回看，还有记录之后小满给你的那句话，全部照旧，永久免费。</b><br><br>
+            识别和主动对话回到免费额度：<b style="color:var(--ink)">识别 10 次、主动对话 30 轮，都是全新的</b>，免费开放期里用掉的不算在内。<br><br>
+            没有自动扣费。你不点就是没选。
+          </div>
+          <div class="sheet-btns" style="margin-top:22px">
+            <button class="btn solid" style="flex:1" onclick="closeTrialEnd()">知道了</button>
+          </div>
+          <div class="center-act">
+            <button class="btn-text" onclick="closeTrialEnd();openSub('sp-subscribe')">看看订阅</button>
+          </div>
+          <div class="foot-note" style="margin-top:18px">这段时间你记了 68 顿。这些数据一直是你的，不会因为没订阅就锁起来。</div>
+        </div>
+      </div>
+
+      <div class="sheet-mask" id="paywall-mask" onclick="if(event.target===this)closePaywall()">
+        <div class="sheet">
+          <div class="sh-head">
+            <div class="sh-title">10 次免费识别用完了</div>
+            <button class="sh-close" onclick="closePaywall()">✕</button>
+          </div>
+          <div class="sheet-text">
+            拍照识别的 10 次免费额度用完了。这个额度不刷新，也不会变成每月给几次那种。<br><br>
+            <b style="color:var(--ink)">手动记录、食物搜索、份量修正、常吃、日记、历史回看，还有记录之后小满给你的那句话，全部照旧，永久免费。</b><br><br>
+            往后拍了照片可以先自己写一句，小满照样帮你算。
+          </div>
+          <div class="sheet-btns" style="margin-top:22px">
+            <button class="btn solid" style="flex:1" onclick="closePaywall()">知道了</button>
+          </div>
+          <div class="center-act">
+            <button class="btn-text" onclick="closePaywall();openSub('sp-subscribe')">看看订阅</button>
+          </div>
+          <div class="foot-note" style="margin-top:18px">没有限时，没有折扣倒计时。什么时候想订都是一个价。</div>
+        </div>
+      </div>
+
+      <!-- 弹层：里程碑庆祝（只庆祝，不预告） -->
+      <div class="sheet-mask mid" id="celebrate-mask" onclick="if(event.target===this)closeCelebrate()">
+        <div class="sheet center">
+          <div class="celebrate">
+            <div class="medal-big">五十</div>
+            <h4>你已经记了第 50 顿饭</h4>
+            <p>从 6 月 19 日那顿豆浆算起。<br>中间断过几次，不影响这个数。</p>
+          </div>
+          <button class="btn solid block" style="margin-top:24px" onclick="closeCelebrate()">收下</button>
+          <div style="text-align:center;margin-top:14px">
+            <button class="btn-text mute" onclick="closeCelebrate();showToast('演示版：生成分享图，不带体重')">做成图</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ========== 基础：标签切换 / 二级页 / 弹层 ========== */
+  function switchTab(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.id==='tab-'+name));
+    document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('on', b.dataset.tab===name));
+  }
+  function openSub(id){ document.getElementById(id).classList.add('show'); }
+  function closeSub(id){ document.getElementById(id).classList.remove('show'); }
+  function closeAllLayers(){
+    document.querySelectorAll('.subpage').forEach(s=>s.classList.remove('show'));
+    document.querySelectorAll('.sheet-mask').forEach(s=>s.classList.remove('show'));
+    document.getElementById('drawer-mask').classList.remove('show');
+    document.getElementById('boot').classList.remove('show');
+  }
+  let toastTimer;
+  function showToast(text){
+    const t = document.getElementById('toast');
+    t.textContent = text; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove('show'), 1900);
+  }
+  function toggleSwitch(el){ el.classList.toggle('off'); }
+  /* 分区标题点一下收起／展开紧跟其后的列表 */
+  function toggleFold(el){
+    const body = el.nextElementSibling;
+    if(!body || !body.classList.contains('fold-body')) return;
+    const closed = el.classList.toggle('closed');
+    body.classList.toggle('closed', closed);
+  }
+
+  /* ========== 左栏索引路由 ========== */
+  const routes = {
+    boot(){ document.getElementById('boot-login').style.display='flex'; document.getElementById('boot-onb').style.display='none'; document.getElementById('boot').classList.add('show'); },
+    onb(){ startOnb(); document.getElementById('boot').classList.add('show'); },
+
+    home(){ switchTab('ai'); goDash(); },
+    cards(){ switchTab('ai'); goDash(); setTimeout(()=>{ const p=document.getElementById('dash-pager'); p.scrollTo({top:186, behavior:'smooth'}); },180); },
+    chat(){ switchTab('ai'); loadSessionById(2); },
+    drawer(){ switchTab('ai'); openDrawer(); },
+    camera(){ switchTab('ai'); openCamera(); },
+    camerafail(){ switchTab('ai'); openCamera(); setTimeout(()=>camGoto(5), 150); },
+    text(){ switchTab('ai'); openText(); },
+    record(){ switchTab('ai'); openRecord(); },
+    asksave(){ switchTab('ai'); openRecord(); setTimeout(askSaveDemo, 200); },
+    history(){ switchTab('ai'); openHistory(); },
+    memory(){ switchTab('ai'); openMemory(); },
+    relapse(){ switchTab('ai'); loadSessionById(5); },
+    safety(){ switchTab('ai'); loadSessionById(6); },
+    safety3(){ switchTab('ai'); loadSessionById(7); },
+    paywall(){ switchTab('ai'); openPaywall(); },
+
+    feed(){ switchTab('community'); pickSub('feed'); },
+    follow(){ switchTab('community'); pickSub('follow'); },
+    groups(){ switchTab('community'); pickSub('group'); },
+    groupdetail(){ switchTab('community'); pickSub('group'); openSub('sp-group'); },
+    post(){ switchTab('community'); openSub('sp-post'); },
+    compose(){ switchTab('community'); openSub('sp-compose'); },
+
+    calorie(){ switchTab('calorie'); hideSearch(); },
+    search(){ switchTab('calorie'); showSearch(); },
+    mine(){ switchTab('calorie'); hideSearch(); openSub('sp-mine'); },
+    food(){ switchTab('calorie'); openFood(); },
+    scan(){ switchTab('calorie'); openScan(); },
+    scanf(){ switchTab('calorie'); openScan(); setTimeout(()=>scanGoto(4), 150); },
+
+    msg(){ switchTab('msg'); },
+    conv(){ switchTab('msg'); openConv('group'); },
+    notify(){ switchTab('msg'); openSub('sp-notify'); },
+
+    me(){ switchTab('me'); },
+    body(){ switchTab('me'); openSub('sp-body'); },
+    guard(){ switchTab('me'); openSub('sp-body'); setTimeout(()=>{ pickSpeed(document.querySelectorAll('#speed-row .portion')[2]); tryLowTarget(); },200); },
+    mycontent(){ switchTab('me'); openSub('sp-mycontent'); },
+    diary(){ switchTab('me'); openSub('sp-mycontent'); openSub('sp-diary'); },
+    badges(){ switchTab('me'); openSub('sp-badges'); },
+    celebrate(){ switchTab('me'); openCelebrate(); },
+    notice(){ switchTab('me'); openNotice(); },
+    trialend(){ switchTab('me'); openTrialEnd(); },
+    subscribe(){ switchTab('me'); openSub('sp-subscribe'); },
+    settings(){ switchTab('me'); openSub('sp-settings'); }
+  };
+  function go(key, el){
+    closeAllLayers();
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+    const hit = el || (window.event && window.event.target && window.event.target.closest('.nav-item'));
+    if(hit) hit.classList.add('on');
+    const fn = routes[key];
+    if(fn) fn(); else showToast('该页尚未接入');
+  }
+
+  /* ========== 小满：对话 ========== */
+  /* 两屏切换：概况屏＝外层 scrollTop 0，小满屏＝外层滚满一屏 */
+  function paneH(){ const s=document.getElementById('ai-scroll'); return s ? s.clientHeight : 0; }
+  function goChat(){ const s=document.getElementById('ai-scroll'); if(s) s.scrollTo({top:paneH(), behavior:'smooth'}); }
+  function goDash(){ const s=document.getElementById('ai-scroll'); if(s) s.scrollTo({top:0, behavior:'smooth'}); }
+  /* 聊天滚到底只动小满这一屏自己的滚动条，不再牵动概况屏 */
+  function scrollChatBottom(){ const c=document.getElementById('ai-chat'); if(c) c.scrollTop = c.scrollHeight; }
+  /* 回到今日：不常驻。只有「已经在对话屏」且「对话已经拉到顶、快碰到概览分界线」时才出现（Eamon 07-28） */
+  function syncDashFab(){
+    const s = document.getElementById('ai-scroll');
+    const c = document.getElementById('ai-chat');
+    if(!s || !c) return;
+    const onChat = s.scrollTop > paneH()/2;
+    const atChatTop = c.scrollTop <= 24;
+    document.getElementById('dash-fab').classList.toggle('show', onChat && atChatTop);
+    document.getElementById('tab-ai').classList.toggle('chat-on', onChat);
+  }
+  document.getElementById('ai-scroll').addEventListener('scroll', syncDashFab);
+  document.getElementById('ai-chat').addEventListener('scroll', syncDashFab);
+  function sendPrompt(text){ document.getElementById('chat-input').value = text; sendMsg(); }
+
+  const demoReplies = [
+    '记下来了。这顿的蛋白质不错，明天午餐可以再加点绿叶菜，我帮你盯着。',
+    '收到。按你今天记的这两顿看，晚餐还有余量，不用刻意饿着。',
+    '嗯，我记进今天了。比起单次吃多少，你这周的连续性其实更好。'
+  ];
+  let replyIdx = 0;
+  function sendMsg(){
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    /* 在概况屏输入也算唤起小满：整屏滑到小满这一屏 */
+    document.getElementById('tab-ai').classList.add('has-conv');
+    goChat();
+    const chat = document.getElementById('chat');
+    const disclaimer = chat.querySelector('.disclaimer');
+    const um = document.createElement('div');
+    um.className = 'msg user';
+    um.innerHTML = '<div class="bubble"></div>';
+    um.querySelector('.bubble').textContent = text;
+    chat.insertBefore(um, disclaimer);
+    const s0 = sessions.find(x=>x.id===activeSid);
+    if(s0 && s0.title==='新对话'){ s0.title = text.slice(0,8) + (text.length>8?'…':''); }
+    saveSession(); scrollChatBottom();
+    setTimeout(()=>{
+      const bm = document.createElement('div');
+      bm.className = 'msg';
+      bm.innerHTML = '<div class="m-avatar">满</div><div class="bubble"></div>';
+      bm.querySelector('.bubble').textContent = demoReplies[replyIdx++ % demoReplies.length];
+      chat.insertBefore(bm, disclaimer);
+      saveSession(); scrollChatBottom();
+    }, 800);
+  }
+
+  /* ========== 小满：多会话 ========== */
+  let sessions = [], activeSid = 0, sidSeq = 0;
+  const DISC = '<div class="disclaimer">热量为 AI 估算，仅供参考。健康建议不构成医疗意见</div>';
+  function seed(userText, manText){
+    return '<div class="msg user"><div class="bubble">' + userText + '</div></div>' +
+           '<div class="msg"><div class="m-avatar">满</div><div class="bubble">' + manText + '</div></div>' + DISC;
+  }
+  function initSessions(){
+    /* 破戒时刻：四段合并进同一气泡，顺序固定为 不指责 → 止损 → 宽解 → 推帖（PRD §6.4） */
+    const relapseHtml =
+      '<div class="msg user"><div class="bubble">昨晚跟同事撸串喝酒，吃到十二点，今天称重涨了一斤半，感觉全完了</div></div>' +
+      '<div class="msg"><div class="m-avatar">满</div><div class="bubble">昨晚那顿我看到了，估了一下大概超了 900 千卡。' +
+      '<div class="plan"><div>今天早餐照常吃，别跳过。饿过头晚上更容易崩</div><div>午晚餐各减一小碗米饭的量，大约就回来了</div><div>今天多喝水。烧烤钠高，那一斤半里大半是水分，两三天自己就退了</div></div>' +
+      '一顿烧烤毁不掉这一周。你从 6 月记到现在，中间断过两次，每次都自己接上了，这次也一样。' +
+      '<div class="reco-post" onclick="openSub(\'sp-post\')"><div class="rp-tag">社区里有人写过</div><div class="rp-title">夜宵局怎么点，我总结了 6 个顺序</div><div class="rp-meta">@小北在减脂 · 2.4k 赞</div></div></div></div>' + DISC;
+
+    /* 极端饮食：二级（< 800 千卡）三段合并进同一气泡；形态与普通消息一致，不用 alert 色 */
+    const safetyHtml =
+      '<div class="msg user"><div class="bubble">我想一天只吃 600 大卡，两周瘦 10 斤，能不能给我排个食谱</div></div>' +
+      '<div class="msg"><div class="m-avatar">满</div><div class="bubble">你是想快点看到变化，这个我懂，谁都不想拖。' +
+      '<div class="plan"><div>但一天 600 千卡这条路，多数人走不到两周。身体会先把基础代谢降下来，你会更容易累、更容易饿，然后某一天突然吃回去，比之前还多</div><div>两周瘦 10 斤，掉的大部分是水和肌肉，脂肪没走多少。等你恢复吃饭，水回来了，秤上的数字也回来了</div></div>' +
+      '要是你想这两周就有明显变化，有个能马上做的：把每天的米饭减一半，其余照吃，别的都不动。这一下就是三四百千卡的缺口，你也不会饿。两周之后我们再看要不要调。' +
+      '</div></div>' +
+      '<div class="msg user"><div class="bubble">那我催吐行不行，就偶尔几次</div></div>' +
+      '<div class="msg"><div class="m-avatar">满</div><div class="bubble">能说出这句话，说明你已经被这件事逼得挺紧了。' +
+      '<div class="plan"><div>这个忙我帮不了，也不会给你任何相关的方法</div><div>这不是我判断你有问题，是这条路我确实接不住</div><div>如果你想找人聊聊：北京心理危机研究与干预中心 <a onclick="showToast(\'演示版：拨打 010-82951332\')">010-82951332</a>，24 小时；或者到当地医院的临床心理科挂个号</div></div>' +
+      '记录这边我照旧给你留着。你什么时候回来，我都在。' +
+      '</div></div>' + DISC;
+
+    /* 极端饮食三级（PRD §9.2）：正常回答 + 适用条件说明，不主动推荐，用药需医生评估。
+       形态与普通对话完全一致（三级本就不是拦截），多段仍合并进同一气泡（扩展红线 12） */
+    const safety3Html =
+      '<div class="msg user"><div class="bubble">我看好多人做 16:8 轻断食，我要不要也试试</div></div>' +
+      '<div class="msg"><div class="m-avatar">满</div><div class="bubble">可以试，它不危险，只是有适合和不适合的人。' +
+      '<div class="plan"><div>它管用的原理很朴素：把吃饭时间压进 8 小时，多数人自然就少吃了一点。不是断食本身有什么魔力</div><div>适合三餐时间本来就乱、早餐经常不吃的人，等于把已经在发生的事变规律了</div><div>不适合的情况：有胃病、正在吃需要配餐的药、有过暴食史。空腹拉长会让下一顿更容易失控</div></div>' +
+      '你午晚餐时间本来就晚，8 小时窗口对你不算难。真要试就从中午 12 点到晚上 8 点开始，别一上来压到 6 小时。<br><br>我不会主动劝你做这个。少吃三百千卡这件事，哪种方式达成都行，选你能坚持的那种。' +
+      '</div></div>' +
+      '<div class="msg user"><div class="bubble">那生酮呢，我看有人一个月瘦了十几斤</div></div>' +
+      '<div class="msg"><div class="m-avatar">满</div><div class="bubble">生酮掉秤快是真的，但前两周掉的大部分是水，糖原耗掉的时候会带走水分。' +
+      '<div class="plan"><div>它确实有人能长期做下来，也确实有临床用途，不是什么歪门邪道</div><div>难点不在原理在执行：外食几乎没得选，一次聚餐就出酮了</div><div>你是外卖党，这条路对你的摩擦力比对别人更大</div></div>' +
+      '不是不能做，是我不会主动推荐。你要试我就按生酮的口径帮你算，不劝也不拦。' +
+      '</div></div>' +
+      '<div class="msg user"><div class="bubble">那司美格鲁肽这类药呢，我朋友在打</div></div>' +
+      '<div class="msg"><div class="m-avatar">满</div><div class="bubble">这个我只能给你说清楚它是什么，不能替你决定用不用。' +
+      '<div class="plan"><div>它确实有效，是通过抑制食欲起作用的，不是燃脂</div><div>它是处方药，有适应症门槛，也有停药后反弹的问题</div><div>能不能用、要不要用，得内分泌科医生评估过才行。我这里给不了任何用药建议</div></div>' +
+      '如果你已经在用，可以去身体档案里标一下。用药期间的饮食策略和平时不一样，我给建议时会把它算进去。' +
+      '</div></div>' + DISC;
+
+    sessions = [
+      {id:++sidSeq, title:'新对话', time:'刚刚', html:DISC, preview:'还没有消息，说一句就开始'},
+      {id:++sidSeq, title:'今晚吃什么', time:'19:20', preview:'一顿火锅不会毁掉这一周…',
+       html:'<div class="msg"><div class="m-avatar">满</div><div class="bubble">上次你说晚上容易饿，这周我把晚餐的蛋白质建议调高了一点，这几天感觉好点了吗？</div></div>' +
+            '<div class="msg user"><div class="bubble">好多了！不过中午聚餐吃了火锅，感觉今天有点超…</div></div>' +
+            '<div class="msg"><div class="m-avatar">满</div><div class="bubble">大约超了 400 千卡，不算多。你今天记了两顿，晚餐还剩 560，随便垫一口就行。' +
+            '<div class="plan"><div>晚上想吃就吃点蛋白质，别只吃水果</div><div>明天午餐照常，不用刻意补</div></div></div></div>' + DISC},
+      {id:++sidSeq, title:'外卖点单求助', time:'昨天', preview:'麻辣烫清汤加多菜更顶饱…',
+       html:seed('明天加班只能点外卖，轻食沙拉和麻辣烫选哪个？','你明天大概几点吃？如果下午容易饿，麻辣烫清汤加多菜少丸子比沙拉更顶饱。拿不准就拍给我，我帮你算完再点。')},
+      {id:++sidSeq, title:'本周饮食复盘', time:'周一', preview:'这周记了 5 天，很好…',
+       html:seed('帮我复盘一下这周','这周记了 5 天。两个观察：聚餐第二天你主动调轻了，节奏很好；蛋白质整体偏少，下周我每餐给你提一句。7 月 25 日和 23 日没记也没关系，按记的这几天看，方向是对的。')},
+      {id:++sidSeq, title:'昨晚破戒了', time:'今天 08:10', preview:'一顿烧烤毁不掉这一周…', html:relapseHtml},
+      {id:++sidSeq, title:'能不能快点瘦', time:'7月24日', preview:'这条路多数人走不到两周…', html:safetyHtml},
+      {id:++sidSeq, title:'轻断食和减肥药', time:'7月22日', preview:'选你能坚持的那种…', html:safety3Html}
+    ];
+    activeSid = sessions[0].id;
+    renderDrawer();
+  }
+  function saveSession(){
+    const s = sessions.find(x=>x.id===activeSid);
+    if(!s) return;
+    s.html = document.getElementById('chat').innerHTML;
+    const bubbles = document.querySelectorAll('#chat .bubble');
+    if(bubbles.length) s.preview = bubbles[bubbles.length-1].textContent.slice(0,16) + '…';
+    renderDrawer();
+  }
+  function loadSession(){
+    const s = sessions.find(x=>x.id===activeSid);
+    if(!s) return;
+    document.getElementById('chat').innerHTML = s.html;
+    document.getElementById('tb-title').textContent = s.title;
+    document.getElementById('tab-ai').classList.toggle('has-conv', s.html.indexOf('class="msg') !== -1);
+    renderDrawer();
+  }
+  function loadSessionById(id){
+    saveSession(); activeSid = id; loadSession();
+    goChat();
+    setTimeout(scrollChatBottom, 60);
+  }
+  function switchSession(id){
+    if(id===activeSid){ closeDrawer(); goChat(); return; }
+    saveSession(); activeSid = id; loadSession(); scrollChatBottom(); goChat(); closeDrawer();
+  }
+  function newSession(){
+    saveSession();
+    const id = ++sidSeq;
+    sessions.unshift({id:id, title:'新对话', time:'刚刚', preview:'新话题，新开始…',
+      html:'<div class="msg"><div class="m-avatar">满</div><div class="bubble">新话题，新开始。这个窗口里我们只聊这件事：吃什么、做计划，或者倒倒苦水都行。</div></div>' + DISC});
+    /* 首页点加号＝唤起小满：开新对话并整屏滑到小满这一屏 */
+    activeSid = id; loadSession(); scrollChatBottom(); goChat(); closeDrawer();
+    showToast('已开新对话，独立上下文');
+  }
+  function delSession(id, ev){
+    ev.stopPropagation();
+    if(sessions.length<=1){ showToast('至少保留一个对话'); return; }
+    sessions = sessions.filter(x=>x.id!==id);
+    if(activeSid===id){ activeSid = sessions[0].id; loadSession(); scrollChatBottom(); }
+    else renderDrawer();
+  }
+  function renderDrawer(){
+    const list = document.getElementById('dw-list');
+    if(!list) return;
+    list.innerHTML = '';
+    sessions.forEach(s=>{
+      const item = document.createElement('div');
+      item.className = 'dw-item' + (s.id===activeSid?' on':'');
+      item.onclick = ()=>switchSession(s.id);
+      item.innerHTML = '<div class="di-title"></div><div class="di-preview"></div><div class="di-time">' + s.time + '</div><button class="di-del">删除</button>';
+      item.querySelector('.di-title').textContent = s.title;
+      item.querySelector('.di-preview').textContent = s.preview || '';
+      item.querySelector('.di-del').onclick = (ev)=>delSession(s.id, ev);
+      list.appendChild(item);
+    });
+  }
+  function openDrawer(){ renderDrawer(); document.getElementById('drawer-mask').classList.add('show'); }
+  function closeDrawer(){ document.getElementById('drawer-mask').classList.remove('show'); }
+
+  /* ========== 首页卡片区纵向切换 ========== */
+  const dashPager = document.getElementById('dash-pager');
+  let suppressPagerClick = false;
+  dashPager.addEventListener('scroll', function(){
+    const pane = this.querySelector('.dash-pane');
+    if(!pane) return;
+    const h = pane.offsetHeight + 10;
+    const idx = Math.min(2, Math.round(this.scrollTop / h));
+    document.querySelectorAll('#pager-dots i').forEach((d,i)=>d.classList.toggle('on', i===idx));
+  });
+  let pDrag = null;
+  dashPager.addEventListener('pointerdown', function(e){ pDrag = {y:e.clientY, t:this.scrollTop, moved:false}; this.style.scrollSnapType='none'; });
+  dashPager.addEventListener('pointermove', function(e){
+    if(!pDrag) return;
+    const dy = e.clientY - pDrag.y;
+    if(Math.abs(dy) > 6) pDrag.moved = true;
+    this.scrollTop = pDrag.t - dy;
+  });
+  window.addEventListener('pointerup', function(){
+    if(!pDrag) return;
+    dashPager.style.scrollSnapType = '';
+    if(pDrag.moved) suppressPagerClick = true;
+    pDrag = null;
+  });
+  dashPager.addEventListener('click', function(e){
+    if(suppressPagerClick){ e.preventDefault(); e.stopPropagation(); suppressPagerClick = false; }
+  }, true);
+
+  /* ========== 拍照识别 ========== */
+  let recogUsed = 0;  /* 免费开放期不限量，额度提示不该出现（PRD §8.2）。
+                        额度用尽那一屏是转制后状态，走左侧索引单独看 */
+  function openCamera(){ document.getElementById('camera-mask').classList.add('show'); camGoto(1); }
+  function closeCamera(){ document.getElementById('camera-mask').classList.remove('show'); }
+  function camGoto(step){ [1,2,3,4,5].forEach(i=>{ document.getElementById('cam-step'+i).style.display = (i===step)?'block':'none'; }); }
+  function takePhoto(){
+    const f = document.getElementById('cam-flash');
+    f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+    setTimeout(()=>camGoto(2), 320);
+  }
+  function retake(){ document.getElementById('cam-desc').value=''; camGoto(1); }
+  function startRecog(){
+    camGoto(3);
+    setTimeout(()=>{
+      camGoto(4); updateCamTotal();
+      const left = 10 - recogUsed;
+      const q = document.getElementById('cam-quota');
+      /* 只在剩 3 次起提示，平时不显示（用户 07-28 拍板） */
+      if(left <= 3 && left > 0){ q.style.display='block'; q.textContent = '免费识别还剩 ' + left + ' 次，手动记录不限次'; }
+      else { q.style.display='none'; }
+    }, 1200);
+  }
+  document.querySelectorAll('#cam-step4 .portion-row').forEach(row=>{
+    row.addEventListener('click', e=>{
+      const btn = e.target.closest('.portion');
+      if(!btn) return;
+      row.querySelectorAll('.portion').forEach(p=>p.classList.remove('on'));
+      btn.classList.add('on');
+      const dish = btn.closest('.dish-row');
+      if(dish){
+        const kcalEl = dish.querySelector('.dr-kcal');
+        const base = parseFloat(kcalEl.dataset.base);
+        kcalEl.innerHTML = Math.round(base * parseFloat(btn.dataset.mult)) + '<small> 千卡</small>';
+      }
+      updateCamTotal();
+    });
+  });
+  function updateCamTotal(){
+    let sum = 0;
+    document.querySelectorAll('#cam-step4 .dr-kcal').forEach(el=>{ sum += parseInt(el.textContent) || 0; });
+    document.getElementById('cam-total').textContent = sum.toLocaleString();
+  }
+  function confirmMeal(){
+    const desc = document.getElementById('cam-desc').value.trim();
+    const total = document.getElementById('cam-total').textContent;
+    let chipsHtml = '';
+    document.querySelectorAll('#cam-step4 .dish-row').forEach(row=>{
+      const name = row.querySelector('.dr-name').childNodes[0].textContent.trim();
+      const kcal = row.querySelector('.dr-kcal').textContent.trim();
+      chipsHtml += '<span class="ck-photo-chip">' + name + ' · ' + kcal + '</span>';
+    });
+    recogUsed++;
+    closeCamera();
+    document.getElementById('ck-photo-result').innerHTML =
+      '<div class="ck-photo-head">拍照识别，这顿约 ' + total + ' 千卡（AI 估算）</div>' + chipsHtml;
+    if(desc) document.getElementById('ck-food').value = desc;
+    if(recogUsed >= 10){ openPaywall(); return; }
+    openRecord();
+    showToast('已放进今日记录');
+  }
+
+  /* ========== 文字描述记录 ========== */
+  function openText(){
+    document.getElementById('text-mask').classList.add('show');
+    document.getElementById('text-step1').style.display='block';
+    document.getElementById('text-step2').style.display='none';
+  }
+  function closeText(){ document.getElementById('text-mask').classList.remove('show'); }
+  function parseText(){
+    const v = document.getElementById('text-input').value.trim();
+    if(!v){ showToast('先说一句吃了什么'); return; }
+    document.getElementById('text-step1').style.display='none';
+    document.getElementById('text-step2').style.display='block';
+  }
+  function textBack(){
+    document.getElementById('text-step1').style.display='block';
+    document.getElementById('text-step2').style.display='none';
+  }
+  document.querySelectorAll('#text-mask .portion-row').forEach(row=>{
+    row.addEventListener('click', e=>{
+      const btn = e.target.closest('.portion'); if(!btn) return;
+      row.querySelectorAll('.portion').forEach(p=>p.classList.remove('on'));
+      btn.classList.add('on');
+    });
+  });
+
+  /* ========== 今日三行 ========== */
+  let recordedToday = null;
+  function openRecord(){ document.getElementById('record-mask').classList.add('show'); }
+  function closeRecord(){ document.getElementById('record-mask').classList.remove('show'); }
+  document.getElementById('ck-sport').addEventListener('click', function(e){
+    const btn = e.target.closest('.portion'); if(!btn) return;
+    this.querySelectorAll('.portion').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+  });
+  function submitRecord(){
+    const food = document.getElementById('ck-food').value.trim();
+    const sport = document.querySelector('#ck-sport .portion.on').dataset.v;
+    const sportDetail = document.getElementById('ck-sport-detail').value.trim();
+    const self = document.getElementById('ck-self').value.trim();
+    closeRecord();
+    const hasPhoto = document.getElementById('ck-photo-result').innerHTML.trim() !== '';
+    recordedToday = {
+      food:'早餐 豆浆、茶叶蛋、全麦包；午餐 潮汕牛肉火锅' + (hasPhoto ? '；晚餐 拍照识别' : '') + (food ? '；' + food : ''),
+      sport: sport + (sportDetail ? '（' + sportDetail + '）' : ''),
+      self: self || '（这天没写）'
+    };
+    document.getElementById('cc-tag').textContent = '已写';
+    document.getElementById('cc-tag').classList.add('ai');
+    document.getElementById('cc-desc').textContent = self ? '「' + self + '」' : '今天记下了。';
+    document.getElementById('cc-btn').style.display = 'none';
+    addMemoryItem('饮食点滴', '今日运动：' + sport + (sportDetail ? '（' + sportDetail + '）' : ''), '7月27日的记录 · 来自记录');
+    if(self) addMemoryItem('饮食点滴', '你对自己说：「' + self + '」', '7月27日的记录 · 来自记录');
+    if(document.getElementById('tab-ai').classList.contains('has-conv')){
+      const chat = document.getElementById('chat');
+      const disclaimer = chat.querySelector('.disclaimer');
+      const bm = document.createElement('div');
+      bm.className = 'msg';
+      bm.innerHTML = '<div class="m-avatar">满</div><div class="bubble"></div>';
+      bm.querySelector('.bubble').textContent = '记下了。' + (self ? '「' + self + '」这句我替你存着，撑不住的时候拿出来看。' : '今天记了三餐，挺好。');
+      chat.insertBefore(bm, disclaimer);
+      saveSession();
+    }
+    showToast('记下了，已存进小满的记忆');
+    /* 07-30 #15：场景内一律不问推送（§6.3 改）。要不要晚间小结只看通知设置的开关，这里不再弹 */
+  }
+
+  /* ========== 记录历史（含漏记留空） ========== */
+  const historyData = {
+    '7-26': {food:'板烧鸡腿堡套餐去酱，加玉米杯', sport:'走路 30 分钟', self:'没喝可乐，给自己加分'},
+    '7-24': {food:'家里做的番茄牛腩，半碗米饭', sport:'健身 1 小时，练背', self:'练完是真的爽，明天继续'}
+  };
+  let histKey = '7-27';
+  function openHistory(){ renderHistory(histKey); document.getElementById('history-mask').classList.add('show'); }
+  function closeHistory(){ document.getElementById('history-mask').classList.remove('show'); }
+  function pickDate(btn){
+    document.querySelectorAll('#date-row .portion').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on'); histKey = btn.dataset.d; renderHistory(histKey);
+  }
+  function pickDateInput(input){
+    const parts = input.value.split('-');
+    histKey = parseInt(parts[1]) + '-' + parseInt(parts[2]);
+    document.querySelectorAll('#date-row .portion').forEach(p=>p.classList.toggle('on', p.dataset.d===histKey));
+    renderHistory(histKey);
+  }
+  function escText(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function renderHistory(key){
+    const box = document.getElementById('history-content');
+    const d = (key === '7-27') ? recordedToday : (historyData[key] || null);
+    if(!d){
+      /* 漏记的日子留空，不惩罚（PRD §6.5） */
+      box.innerHTML = '<div class="empty"><b>这天没有记录</b><span>空着就空着，不影响别的日子</span></div>';
+      return;
+    }
+    box.innerHTML = '<div class="rows">' +
+      '<div class="hist-row"><b>吃了什么</b>' + escText(d.food) + '</div>' +
+      '<div class="hist-row"><b>动了什么</b>' + escText(d.sport) + '</div>' +
+      '<div class="hist-row"><b>对自己说的</b>' + (d.self==='（这天没写）' ? '<span style="color:var(--ink-3)">这天没写</span>' : '「'+escText(d.self)+'」') + '</div></div>';
+  }
+
+  /* ========== 小满的记忆 ========== */
+  function openMemory(){ document.getElementById('memory-mask').classList.add('show'); }
+  function closeMemory(){ document.getElementById('memory-mask').classList.remove('show'); }
+  function forgetMem(btn){
+    const item = btn.closest('.mem-item');
+    const group = item.closest('.mem-group');
+    item.remove();
+    if(group && !group.querySelector('.mem-item')) group.remove();
+    document.getElementById('mem-count').textContent = document.querySelectorAll('#memory-mask .mem-item').length;
+    showToast('已忘记，小满以后不会再提');
+  }
+  function addMemoryItem(groupName, text, source){
+    const sheet = document.getElementById('memory-mask').querySelector('.sheet');
+    let group = null;
+    sheet.querySelectorAll('.mem-group').forEach(g=>{ if(g.querySelector('.mg-title').textContent === groupName) group = g; });
+    if(!group){
+      group = document.createElement('div');
+      group.className = 'mem-group';
+      group.innerHTML = '<div class="mg-title">' + groupName + '</div>';
+      sheet.insertBefore(group, sheet.querySelector('.foot-note'));
+    }
+    const item = document.createElement('div');
+    item.className = 'mem-item';
+    item.innerHTML = '<div class="mi-text"></div><button class="mi-forget" onclick="forgetMem(this)">忘记</button>';
+    item.querySelector('.mi-text').textContent = text;
+    const small = document.createElement('small');
+    small.textContent = source;
+    item.querySelector('.mi-text').appendChild(small);
+    group.insertBefore(item, group.children[1] || null);
+    document.getElementById('mem-count').textContent = document.querySelectorAll('#memory-mask .mem-item').length;
+  }
+  function addManualMemory(){
+    const input = document.getElementById('mem-input');
+    const text = input.value.trim();
+    if(!text){ showToast('先写点想让小满记住的'); return; }
+    input.value = '';
+    addMemoryItem('口味与习惯', text, '刚刚 · 你告诉我的（手动添加）');
+    showToast('已记住，以后建议会带上这条');
+  }
+
+  /* ========== 常吃（PRD §7.3） ========== */
+  /* 阈值写死在代码里，不经过模型（PRD §20 第 4 条） */
+  const MINE_ASK_THRESHOLD = 3;   // 同一菜品累计出现几次时问一句
+  const MINE_ASK_MAX_PER_TIME = 1; // 一次最多问几样
+  let mineAsked = false;           // 同一样只问一次，拒绝后不再问
+
+  function fillFromMine(name, kcal){
+    closeSub('sp-mine');
+    showToast('已记进今天：' + name + ' 约 ' + kcal + ' 千卡');
+  }
+
+  function askSave(){
+    const el = document.getElementById('ask-save');
+    if(mineAsked){ el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    el.innerHTML =
+      '这已经是第 3 次记<b>清汤麻辣烫 多菜</b>了。要存进常吃吗？下次一句话就能记。' +
+      '<div class="ask-save-btns">' +
+        '<button class="btn" onclick="declineSave()">不用</button>' +
+        '<button class="btn solid" onclick="acceptSave()">存起来</button>' +
+      '</div>';
+  }
+  function declineSave(){
+    mineAsked = true;
+    document.getElementById('ask-save').style.display = 'none';
+    showToast('好，这样就不再问了');
+  }
+  /* 问店名放在这一刻：用户正想着这道菜，是唯一愿意花三秒打个店名的时机 */
+  function acceptSave(){
+    document.getElementById('ask-save').innerHTML =
+      '存好了。是常去的那家吗？给它起个名，以后同一家的都归到一起。' +
+      '<input class="shop-input" id="shop-name" placeholder="店名，比如 张亮麻辣烫">' +
+      '<div class="shop-tips">' +
+        '<button class="portion" onclick="pickShop(this)">张亮麻辣烫</button>' +
+        '<button class="portion" onclick="pickShop(this)">公司楼下沙县</button>' +
+        '<button class="portion" onclick="pickShop(this)">老广快餐</button>' +
+      '</div>' +
+      '<div class="ask-save-btns">' +
+        '<button class="btn" onclick="skipShop()">跳过</button>' +
+        '<button class="btn solid" onclick="saveShop()">就叫这个</button>' +
+      '</div>';
+  }
+  /* 已有店名做成可点的提示，防止「张亮」和「张亮麻辣烫」变成两家 */
+  function pickShop(el){ document.getElementById('shop-name').value = el.textContent.trim(); }
+  function skipShop(){ finishSave('已存进常吃，没归店'); }
+  function saveShop(){
+    const v = (document.getElementById('shop-name').value || '').trim();
+    finishSave(v ? ('已存进常吃 · ' + v) : '已存进常吃，没归店');
+  }
+  function finishSave(msg){
+    mineAsked = true;
+    document.getElementById('ask-save').style.display = 'none';
+    showToast(msg);
+  }
+  function askSaveDemo(){ mineAsked = false; askSave(); }
+
+  /* 匿名聚合的退出开关（PRD §10.1）。关掉要连历史贡献一起撤，这句必须说出来 */
+  function toggleAggregate(el){
+    el.classList.toggle('off');
+    const on = !el.classList.contains('off');
+    showToast(on ? '已开启，只会用到「大家一般记多少」这个数' : '已关掉，之前算进去的也撤掉了');
+  }
+
+  /* ========== 扫一扫 ========== */
+  function scanGoto(n){
+    [1,2,3,4].forEach(i=>{ document.getElementById('scan-step'+i).style.display = (i===n)?'block':'none'; });
+  }
+  function openScan(){
+    document.getElementById('scan-mask').classList.add('show');
+    scanGoto(1);
+  }
+  function closeScan(){ document.getElementById('scan-mask').classList.remove('show'); }
+  function takeScan(){
+    const f = document.getElementById('scan-flash');
+    f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+    setTimeout(()=>{
+      scanGoto(2);
+      setTimeout(()=>{ scanGoto(3); }, 1100);
+    }, 320);
+  }
+
+  /* ========== 食物详情 / 付费墙 / 庆祝 ========== */
+  function openFood(){ document.getElementById('food-mask').classList.add('show'); }
+  function closeFood(){ document.getElementById('food-mask').classList.remove('show'); }
+  function openPaywall(){ document.getElementById('paywall-mask').classList.add('show'); }
+  /* 转制预告与免费开放结束：都可关闭、不拦路、不自动扣费（PRD §8.2） */
+  function openNotice(){ document.getElementById('notice-mask').classList.add('show'); }
+  function closeNotice(){ document.getElementById('notice-mask').classList.remove('show'); }
+  function openTrialEnd(){ document.getElementById('trialend-mask').classList.add('show'); }
+  function closeTrialEnd(){ document.getElementById('trialend-mask').classList.remove('show'); }
+  function closePaywall(){ document.getElementById('paywall-mask').classList.remove('show'); }
+  function openCelebrate(){ document.getElementById('celebrate-mask').classList.add('show'); }
+  function closeCelebrate(){ document.getElementById('celebrate-mask').classList.remove('show'); }
+
+  /* ========== 社区 ========== */
+  function switchSub(btn){ pickSub(btn.dataset.sub); }
+  function pickSub(key){
+    document.querySelectorAll('#tab-community .subtab').forEach(b=>b.classList.toggle('on', b.dataset.sub===key));
+    document.querySelectorAll('#tab-community .subpane').forEach(p=>p.classList.toggle('on', p.id==='sub-'+key));
+  }
+  function switchMC(btn){
+    document.querySelectorAll('#sp-mycontent .subtab').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('#sp-mycontent .subpane').forEach(p=>p.classList.toggle('on', p.id==='mc-'+btn.dataset.mc));
+  }
+
+  /* ========== 热量查询 ========== */
+  document.querySelectorAll('.cat-chip').forEach(c=>{
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.cat-chip').forEach(x=>x.classList.remove('on'));
+      this.classList.add('on');
+    });
+  });
+  function showSearch(){
+    document.getElementById('cal-browse').style.display='none';
+    document.getElementById('cal-result').style.display='block';
+    document.getElementById('cal-search').value='潮汕牛肉丸粿条';
+  }
+  function hideSearch(){
+    document.getElementById('cal-browse').style.display='block';
+    document.getElementById('cal-result').style.display='none';
+    document.getElementById('cal-search').value='';
+    document.getElementById('cal-search').blur();
+  }
+
+  /* ========== 聊天会话 ========== */
+  const convData = {
+    group:{ title:'外卖党减脂 30 天', msgs:[
+      {who:'小北', me:false, text:'今天的白切鸡点法我整理成清单了，去皮 + 酱汁另装，一份大概 450'},
+      {who:'阿瓜', me:false, text:'收藏了。我今天练完腿吃的牛肉面，加了俩卤蛋'},
+      {who:'我', me:true, text:'这个我也常点，面汤别喝就还好'},
+      {who:'柚子', me:false, text:'我带的饭，鸡胸 + 糙米 + 西兰花，吃了三周没腻真的假的'}
+    ]},
+    dm:{ title:'阿瓜要练背', msgs:[
+      {who:'阿瓜', me:false, text:'明天练完一起去吃那家轻食？'},
+      {who:'我', me:true, text:'行啊，几点'},
+      {who:'阿瓜', me:false, text:'七点半吧，我先去练完'}
+    ]}
+  };
+  function openConv(kind){
+    const d = convData[kind];
+    document.getElementById('conv-title').textContent = d.title;
+    const box = document.getElementById('conv-body');
+    box.innerHTML = '';
+    d.msgs.forEach(m=>{
+      const wrap = document.createElement('div');
+      wrap.className = 'conv';
+      if(m.me){
+        wrap.innerHTML = '<div class="msg user"><div class="bubble"></div></div>';
+      }else{
+        wrap.innerHTML = (kind==='group' ? '<div class="who">'+m.who+'</div>' : '') +
+                         '<div class="msg"><div class="m-avatar" style="background:var(--wash);color:var(--ink-2);font-family:var(--sans);font-size:11px">'+m.who.slice(0,1)+'</div><div class="bubble"></div></div>';
+      }
+      wrap.querySelector('.bubble').textContent = m.text;
+      box.appendChild(wrap);
+    });
+    openSub('sp-conv');
+    setTimeout(()=>{ box.scrollTop = box.scrollHeight; }, 60);
+  }
+  function sendConv(){
+    const inp = document.getElementById('conv-input');
+    const v = inp.value.trim(); if(!v) return;
+    inp.value='';
+    const box = document.getElementById('conv-body');
+    const wrap = document.createElement('div');
+    wrap.className='conv';
+    wrap.innerHTML = '<div class="msg user"><div class="bubble"></div></div>';
+    wrap.querySelector('.bubble').textContent = v;
+    box.appendChild(wrap);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  /* ========== 身体档案：安全阈值（写死在代码，不经过模型） ========== */
+  const TDEE = 2300, BMR = 1680, FLOOR_MALE = 1500, FLOOR_FEMALE = 1200;
+  let genderFloor = FLOOR_MALE;   /* 性别下限，随性别单选切换 */
+  const DEFICIT_MAX_DAILY = 750;   /* PRD §9.1 缺口上限，写死不走模型 */
+  /* 先把缺口截到上限，再取三重保护的最大值。少了 min 这一层，
+     高 TDEE 用户会拿到超过 750 的真实缺口，而且不报错 */
+  function safeTarget(deficit){
+    return Math.max(TDEE - Math.min(deficit, DEFICIT_MAX_DAILY), BMR, genderFloor);
+  }
+  function pickGender(btn){
+    document.querySelectorAll('#gender-row .portion').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    genderFloor = parseInt(btn.dataset.floor);
+    const cur = document.querySelector('#speed-row .portion.on');
+    if(cur) pickSpeed(cur);
+  }
+  function pickSpeed(btn){
+    document.querySelectorAll('#speed-row .portion').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    const deficit = parseInt(btn.dataset.d);
+    const raw = TDEE - deficit;
+    const target = safeTarget(deficit);
+    document.getElementById('target-val').textContent = target.toLocaleString() + ' 千卡';
+    document.getElementById('speed-hint').textContent =
+      '按 Mifflin-St Jeor 算，你的基础代谢约 ' + BMR.toLocaleString() + ' 千卡，日常消耗约 ' + TDEE.toLocaleString() +
+      ' 千卡。缺口 ' + deficit + '，目标 ' + target.toLocaleString() + ' 千卡。';
+    const guard = document.getElementById('speed-guard');
+    if(target > raw){
+      /* 三重保护取最大值，永远向多吃兜底。语气解释而非训诫，不用 alert 色 */
+      guard.style.display='block';
+      guard.innerHTML = '按这个速度算下来是 ' + raw.toLocaleString() + ' 千卡，比你身体每天的基础消耗还低。长期这样，减脂反而会先停下来。我把它托到了 <b>' + target.toLocaleString() + ' 千卡</b>，这是你身体的底。<br><br>想快一点的话，从多走两步开始比少吃管用。';
+    }else{
+      guard.style.display='none';
+    }
+    document.getElementById('target-guard').style.display='none';
+  }
+  document.getElementById('speed-row').addEventListener('click', e=>{
+    const btn = e.target.closest('.portion'); if(btn) pickSpeed(btn);
+  });
+  function tryLowTarget(){
+    const t = safeTarget(9999);
+    document.getElementById('target-val').textContent = t.toLocaleString() + ' 千卡';
+    const g = document.getElementById('target-guard');
+    g.style.display='block';
+    g.innerHTML = '你填的是 800。这个数字比你躺着不动一天消耗的还少一半，身体会先把代谢降下来护着自己，然后你会更容易饿、更容易崩。<br><br>我把它改成了 <b>' + t.toLocaleString() + ' 千卡</b>。这不是我不让你减快，是低于这条线，减脂本身就会变慢。';
+  }
+  function toggleMore(){
+    const box = document.getElementById('more-fields');
+    const on = box.style.display === 'none';
+    box.style.display = on ? 'block' : 'none';
+    document.getElementById('more-toggle').textContent = on ? '收起' : '更多（用药情况等）';
+  }
+
+  /* ========== 订阅：无默认勾选 ========== */
+  function pickPlan(row){
+    document.querySelectorAll('#plan-list .plan-row').forEach(r=>r.classList.remove('on'));
+    row.classList.add('on');
+    const name = row.querySelector('.pl-name').textContent;
+    const price = row.querySelector('.pl-price b').textContent;
+    const btn = document.getElementById('pay-btn');
+    btn.textContent = (name==='永久' ? '一次付清 ' : '订阅 ') + price + ' 元';
+    btn.onclick = ()=>openPayCheck(name, price);
+  }
+
+  /* 扣费前再次告知：合规四条在这里兑现成具体数字（PRD §8.4） */
+  function openPayCheck(name, price){
+    const body = document.getElementById('paycheck-body');
+    body.innerHTML = name === '永久'
+      ? '<b style="color:var(--ink)">永久买断 · ' + price + ' 元</b>' +
+        '<div class="plan"><div>一次付清，没有下一次，之后不会再扣任何费用</div>' +
+        '<div>以后涨价也不影响你</div>' +
+        '<div>买断不可退，所以这一步之后就不再问你了</div></div>'
+      : '<b style="color:var(--ink)">月度订阅 · ' + price + ' 元 / 月</b>' +
+        '<div class="plan"><div>下次扣费 8 月 27 日，之后每月同一天</div>' +
+        '<div>价格不变，不做首月优惠再涨价</div>' +
+        '<div>每次扣费前 5 天，会在 App 的消息里提醒你一次</div>' +
+        '<div>随时在订阅页点一下就能退订，不用联系客服</div></div>';
+    document.getElementById('paycheck-mask').classList.add('show');
+  }
+  function closePayCheck(){ document.getElementById('paycheck-mask').classList.remove('show'); }
+
+  /* 注销：破坏性操作，主按钮给「再想想」 */
+  function openDestroy(){ document.getElementById('destroy-mask').classList.add('show'); }
+  function closeDestroy(){ document.getElementById('destroy-mask').classList.remove('show'); }
+
+  /* 日记单天可见范围 */
+  function openVisib(){ document.getElementById('visib-mask').classList.add('show'); }
+  function closeVisib(){ document.getElementById('visib-mask').classList.remove('show'); }
+  function pickVisib(label){
+    document.querySelector('#sp-diary .sp-act').textContent = label;
+    document.querySelector('#sp-diary .tag').textContent = (label === '仅自己') ? '仅自己可见' : label;
+    closeVisib();
+    showToast(label === '仅自己' ? '这一天只有你看得到' : '已改成：' + label);
+  }
+
+  /* 减重用药：敏感字段，选完不追问 */
+  function openMed(){ document.getElementById('med-mask').classList.add('show'); }
+  function closeMed(){ document.getElementById('med-mask').classList.remove('show'); }
+  function pickMed(btn){
+    btn.parentNode.querySelectorAll('.portion').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('med-value').textContent = btn.textContent;
+    closeMed();
+  }
+
+  /* ========== 首次引导：一屏一问 ========== */
+  const onbSteps = [
+    {q:'你现在大概多重？', h:'不用精确，之后随时能改。不想说也行，小满先按平均值给建议。', opts:['60kg 以下','60 到 70','70 到 80','80 以上','先不说']},
+    {q:'想减到什么程度？', h:'定个大方向就好。太狠的目标，小满会拉你一下，陪你换个能走下去的定法——这是写死在代码里的。', opts:['瘦 5 斤左右','瘦 10 到 20 斤','瘦 20 斤以上','只想别再胖']},
+    {q:'平时饭主要怎么解决？', h:'这个最影响小满给你的建议，值得填。', opts:['工作日基本靠外卖','自己做为主','公司食堂','不太一定']},
+    {q:'有什么不吃的吗？', h:'忌口、过敏、宗教饮食都算。以后想起来再加也行。', opts:['不吃香菜','不吃内脏','乳糖不耐','清真','素食','都能吃']}
+  ];
+  let onbIdx = 0;
+  function startOnb(){
+    onbIdx = 0;
+    document.getElementById('boot-login').style.display='none';
+    document.getElementById('boot-onb').style.display='flex';
+    document.getElementById('boot').classList.add('show');
+    renderOnb();
+  }
+  function renderOnb(){
+    const s = onbSteps[onbIdx];
+    document.getElementById('onb-step').textContent = '第 ' + (onbIdx+1) + ' 步，共 ' + onbSteps.length + ' 步';
+    document.getElementById('onb-q').textContent = s.q;
+    document.getElementById('onb-hint').textContent = s.h;
+    const box = document.getElementById('onb-opts');
+    box.innerHTML = '';
+    s.opts.forEach(o=>{
+      const b = document.createElement('button');
+      b.className = 'portion';
+      b.textContent = o;
+      b.onclick = function(){
+        box.querySelectorAll('.portion').forEach(x=>x.classList.remove('on'));
+        this.classList.add('on');
+      };
+      box.appendChild(b);
+    });
+    document.getElementById('onb-next').textContent = (onbIdx === onbSteps.length-1) ? '好了，开始用' : '下一步';
+  }
+  function onbNext(){
+    if(onbIdx < onbSteps.length-1){ onbIdx++; renderOnb(); }
+    else finishOnb();
+  }
+  function finishOnb(){
+    document.getElementById('boot').classList.remove('show');
+    switchTab('ai'); goDash();
+    showToast('好了，先记一顿试试');
+  }
+
+  /* ========== 初始化 ========== */
+  initSessions();
+</script>
+</body>
+</html>

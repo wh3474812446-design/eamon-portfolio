@@ -563,6 +563,12 @@ body.intro-done .back-to-ticket { display: inline-flex; }
    lets .bg-feature keep its flex height; object-fit: contain then letterboxes any
    aspect ratio. Scoped to .xj-gallery so the landscape badge gallery is untouched. */
 .xj-gallery .bg-img { position: absolute; inset: 0; }
+/* Shot galleries carry 3 stitched trios, not the badge gallery's 5 singles, so the
+   thumbnail strip drops to 3 columns instead of leaving two empty cells. Same
+   out-of-flow treatment as .xj-gallery: the trios are wide, and letting them size
+   themselves would push the strip out of the card. */
+.sg-gallery .bg-img { position: absolute; inset: 0; }
+.sg-gallery .bg-thumbs { grid-template-columns: repeat(3, 1fr); }
 @keyframes bgFade { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: none; } }
 .bg-cap {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none;
@@ -2643,7 +2649,7 @@ function RepoModal({
     onClick: onClose
   }, "\xD7"), React.createElement("div", {
     className: "repo-modal-kicker"
-  }, "GitHub Project \xB7 ", repo.repo, " \xB7 ", repo.source), React.createElement("h3", {
+  }, [repo.kicker || 'GitHub Project', repo.repo, repo.source].filter(Boolean).join(' \xB7 ')), React.createElement("h3", {
     className: "repo-modal-title"
   }, repo.name), React.createElement("p", {
     className: "repo-modal-desc"
@@ -2654,12 +2660,12 @@ function RepoModal({
     href: repo.url,
     target: "_blank",
     rel: "noreferrer"
-  }, "\u6253\u5F00 GitHub \u9879\u76EE"), repo.downloadUrl && React.createElement("a", {
+  }, repo.ctaLabel || "\u6253\u5F00 GitHub \u9879\u76EE"), repo.downloadUrl && React.createElement("a", {
     className: "repo-download-cta",
     href: repo.downloadUrl,
     target: "_blank",
     rel: "noreferrer"
-  }, "\u4E0B\u8F7D Windows \u7248")), React.createElement("div", {
+  }, repo.downloadLabel || "\u4E0B\u8F7D Windows \u7248")), React.createElement("div", {
     className: "repo-modal-grid"
   }, React.createElement("section", {
     className: "repo-modal-section"
@@ -2692,12 +2698,12 @@ function RepoModal({
     href: repo.url,
     target: "_blank",
     rel: "noreferrer"
-  }, "\u6253\u5F00 GitHub \u9879\u76EE"), repo.downloadUrl && React.createElement("a", {
+  }, repo.ctaLabel || "\u6253\u5F00 GitHub \u9879\u76EE"), repo.downloadUrl && React.createElement("a", {
     className: "repo-download-cta",
     href: repo.downloadUrl,
     target: "_blank",
     rel: "noreferrer"
-  }, "\u4E0B\u8F7D Windows \u7248"), React.createElement("button", {
+  }, repo.downloadLabel || "\u4E0B\u8F7D Windows \u7248"), React.createElement("button", {
     type: "button",
     className: "repo-back",
     onClick: onClose
@@ -2739,7 +2745,7 @@ function BadgeModule() {
     className: "card-led"
   }), React.createElement("span", {
     className: "card-num"
-  }, "M.05"), React.createElement("span", {
+  }, "M.07"), React.createElement("span", {
     className: "card-name"
   }, "AIGC \u5FBD\u7AE0\u56FE\u50CF")), React.createElement("div", {
     className: "card-head-right"
@@ -2813,7 +2819,7 @@ function XiaojianModule() {
     className: "card-led"
   }), React.createElement("span", {
     className: "card-num"
-  }, "M.04"), React.createElement("span", {
+  }, "M.06"), React.createElement("span", {
     className: "card-name"
   }, "\u5C0F\u526A \u00B7 \u4EA7\u54C1\u754C\u9762")), React.createElement("div", {
     className: "card-head-right"
@@ -2855,10 +2861,107 @@ function XiaojianModule() {
     className: "card-foot"
   }, React.createElement("span", null, "\u672C\u5730\u526A\u8D34\u677F \u00B7 Tauri 2"), React.createElement("span", null, "\u70B9\u56FE \u770B\u5927\u56FE")));
 }
+// Screen-shot galleries (Jingshi / xiaoCee). Same layout as the badge gallery, but
+// config-driven: both product modules render through one component instead of a
+// fourth hand-copied clone. Each shot is a landscape trio stitched from real screens.
+const SHOT_GALLERIES = {
+  jingshi: {
+    num: 'M.02', name: '静食 \xB7 高保真原型', tag: 'PRODUCT \xB7 PROTOTYPE',
+    caption: '静食',
+    foot: ['43 屏 + 4 弹层 \xB7 已过 12 条红线', '点图 看大图'],
+    shots: [
+      { src: 'assets/jingshi-core.jpg', cn: '核心链路', en: 'HOME / CHAT / CAMERA' },
+      { src: 'assets/jingshi-feedback.jpg', cn: '反馈与安全拦截', en: 'RECORD / RELAPSE / GUARD' },
+      { src: 'assets/jingshi-library.jpg', cn: '热量库与记忆', en: 'CALORIE / FOOD / MEMORY' },
+    ],
+  },
+  xiaocee: {
+    num: 'M.03', name: '小Cee \xB7 原型与线上 demo', tag: 'AGENT \xB7 LIVE',
+    caption: '小Cee',
+    foot: ['七屏原型 + 已部署 demo', '点图 看大图'],
+    shots: [
+      { src: 'assets/xiaocee-entry.jpg', cn: '入口与对话', en: 'ENTRY / EMPTY / ANSWER' },
+      { src: 'assets/xiaocee-agent.jpg', cn: 'Agent 自主编排', en: 'ROOMMATE / MIX / GUARD / EN' },
+      { src: 'assets/xiaocee-demo.jpg', cn: '线上 demo 实跑', en: 'LIVE DEPLOYMENT' },
+    ],
+  },
+};
+function ShotGalleryCard({ id }) {
+  const cfg = SHOT_GALLERIES[id];
+  const [active, setActive] = React.useState(0);
+  React.useEffect(() => {
+    if (!cfg) return;
+    cfg.shots.forEach(s => {
+      const im = new Image();
+      im.src = s.src;
+      if (im.decode) im.decode().catch(() => {});
+    });
+  }, [cfg]);
+  if (!cfg) return null;
+  const cur = cfg.shots[active];
+  const openImg = () => {
+    if (window.openMediaLightbox) window.openMediaLightbox({
+      type: 'image', src: cur.src,
+      caption: `${cfg.caption} \xB7 ${cur.cn}`,
+      sub: `${String(active + 1).padStart(2, '0')} / ${cur.en}`
+    });
+  };
+  return React.createElement("div", {
+    className: "card"
+  }, React.createElement("div", {
+    className: "card-head"
+  }, React.createElement("div", {
+    className: "card-head-left"
+  }, React.createElement("span", {
+    className: "card-led"
+  }), React.createElement("span", {
+    className: "card-num"
+  }, cfg.num), React.createElement("span", {
+    className: "card-name"
+  }, cfg.name)), React.createElement("div", {
+    className: "card-head-right"
+  }, React.createElement("span", null, cfg.tag))), React.createElement("div", {
+    className: "card-body"
+  }, React.createElement("div", {
+    className: "badge-gallery sg-gallery"
+  }, React.createElement("div", {
+    className: "bg-feature", onClick: openImg, role: "button", "aria-label": "放大查看界面大图"
+  }, React.createElement("img", {
+    className: "bg-img",
+    src: cur.src,
+    alt: `${cfg.caption} \xB7 ${cur.cn}`,
+    loading: "eager",
+    decoding: "sync"
+  }), React.createElement("button", {
+    className: "bg-zoom", type: "button", "aria-label": "放大查看",
+    onClick: (e) => { e.stopPropagation(); openImg(); }
+  }, expandIcon(), React.createElement("span", null, "放大")), React.createElement("div", {
+    className: "bg-cap"
+  }, React.createElement("span", {
+    className: "bg-cap-cn"
+  }, cur.cn), React.createElement("span", {
+    className: "bg-cap-en"
+  }, `${String(active + 1).padStart(2, '0')} / ${cur.en}`))), React.createElement("div", {
+    className: "bg-thumbs"
+  }, cfg.shots.map((s, i) => React.createElement("button", {
+    className: `bg-thumb ${i === active ? 'active' : ''}`,
+    key: i,
+    type: "button",
+    onClick: () => setActive(i),
+    "aria-label": s.cn
+  }, React.createElement("img", {
+    src: s.src,
+    alt: s.cn,
+    loading: "eager",
+    draggable: false
+  })))))), React.createElement("div", {
+    className: "card-foot"
+  }, React.createElement("span", null, cfg.foot[0]), React.createElement("span", null, cfg.foot[1])));
+}
 // Real video demo cards (Tide / RAG)
 const VIDEO_SOURCES = {
-  'video-tide': { src: 'assets/mod-tide.mp4', num: 'M.02', name: 'Tide \xB7 终端演示', tag: 'AGENT \xB7 DEMO', foot: ['LOCAL AGENT \xB7 MP4', 'PLAY TO PREVIEW'] },
-  'video-rag':  { src: 'assets/mod-rag.mp4',  num: 'M.03', name: 'RAG \xB7 问答演示', tag: 'RAG \xB7 DEMO',  foot: ['KNOWLEDGE BASE \xB7 MP4', 'PLAY TO PREVIEW'] },
+  'video-tide': { src: 'assets/mod-tide.mp4', num: 'M.04', name: 'Tide \xB7 终端演示', tag: 'AGENT \xB7 DEMO', foot: ['LOCAL AGENT \xB7 MP4', 'PLAY TO PREVIEW'] },
+  'video-rag':  { src: 'assets/mod-rag.mp4',  num: 'M.05', name: 'RAG \xB7 问答演示', tag: 'RAG \xB7 DEMO',  foot: ['KNOWLEDGE BASE \xB7 MP4', 'PLAY TO PREVIEW'] },
 };
 const VIDEO_RATE = 1.5;
 // Four-corner "expand" glyph, reused by the video card + badge feature.
@@ -3212,6 +3315,8 @@ function statValue(stat) {
 function moduleVisual(id) {
   const components = {
     github: GitHubModule,
+    jingshi: ShotGalleryCard,
+    xiaocee: ShotGalleryCard,
     'video-tide': RealVideoCard,
     'video-rag': RealVideoCard,
     xiaojian: XiaojianModule,
@@ -3524,9 +3629,9 @@ function App() {
     className: "modules-header"
   }, React.createElement("h2", null, React.createElement("span", {
     className: "num"
-  }, "// 02"), "五个模块，逐一登场"), React.createElement("div", {
+  }, "// 02"), "七个模块，逐一登场"), React.createElement("div", {
     className: "meta"
-  }, "GITHUB \xB7 TIDE \xB7 RAG \xB7 小剪 \xB7 BADGE", React.createElement("br", null), "SCROLL TO REVEAL")), React.createElement("div", {
+  }, "GITHUB \xB7 静食 \xB7 小Cee \xB7 TIDE", React.createElement("br", null), "RAG \xB7 小剪 \xB7 BADGE", React.createElement("br", null), "SCROLL TO REVEAL")), React.createElement("div", {
     className: "module-list"
   }, data.modules.map(module => React.createElement(ModuleSection, {
     key: module.id,
